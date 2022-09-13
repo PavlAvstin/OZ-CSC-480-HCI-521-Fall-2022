@@ -8,75 +8,43 @@ import java.sql.*;
 
 public class DatabaseMessagesHandler {
     public static void deleteMessageByDiscordId(long serverId, long discordMessageId) {
-        try {
-            Connection conn = connect(serverId);
-            PreparedStatement st = conn.prepareStatement("DELETE FROM messages WHERE discord_message_id = ?");
-            st.setLong(1, discordMessageId);
-            st.executeUpdate();
-        } catch(Exception e) {
-            System.out.println(e);
-        }
+
     }
 
     public static void storeMessage(long serverId, long messageId, long authorId, String content) {
+
+    }
+
+    public static void createMessagesTable(long serverId) {
         try {
-            String DB_URL = Dotenv.load().get("MYSQL_URL") + "DISCORD_" + serverId;
-            String USER = Dotenv.load().get("MYSQL_USER");
-            String PASSWORD = Dotenv.load().get("MYSQL_USER_PASSWORD");
-            Connection conn =  DriverManager.getConnection(DB_URL, USER, PASSWORD);
-
-            PreparedStatement statement = conn.prepareStatement("INSERT INTO messages(discord_message_id, author_discord_id, content) VALUES (?, ?, ?)");
-
-            statement.setLong(1, messageId);
-            statement.setLong(2, authorId);
-            statement.setString(3, content);
-
-            statement.executeUpdate();
+            Connection conn = ServerDatabaseHandler.connect(serverId);
+            conn.createStatement().execute("CREATE TABLE IF NOT EXISTS `messages` (\n" +
+                    "    `discord_id` BIGINT  NOT NULL ,\n" +
+                    "    `authors_discord_id` BIGINT  NOT NULL ,\n" +
+                    "    `text_channel_discord_id` BIGINT  NOT NULL ,\n" +
+                    "    `text_channel_nickname` varchar(100)  NOT NULL ,\n" +
+                    "    `content` varchar(4000)  NOT NULL ,\n" +
+                    "    PRIMARY KEY (\n" +
+                    "        `discord_id`\n" +
+                    "    )\n" +
+                    ")");
+            conn.close();
         }
         catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    public static boolean tableExists(Connection conn, String tableName) throws SQLException {
-        boolean tExists = false;
-        try (ResultSet rs = conn.getMetaData().getTables(null, null, tableName, null)) {
-            while (rs.next()) {
-                System.out.println(rs.getMetaData());
-                String tName = rs.getString("TABLE_NAME");
-                if (tName != null && tName.equals(tableName)) {
-                    tExists = true;
-                    break;
-                }
-            }
-        }
-        return tExists;
-    }
-
-    public static void createMessagesTable(Connection conn) {
-        // create messages table
-        Statement statement = null;
+    public static void createForeignKeys(long serverId) {
         try {
-            statement = conn.createStatement();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            Connection conn = ServerDatabaseHandler.connect(serverId);
+            conn.createStatement().execute("ALTER TABLE `messages` ADD CONSTRAINT `fk_messages_authors_discord_id` FOREIGN KEY(`authors_discord_id`)\n" +
+                    "REFERENCES `authors` (`discord_id`)");
+            conn.close();
         }
-        try {
-            statement.execute("CREATE TABLE messages (\n" +
-                    "    id int AUTO_INCREMENT PRIMARY KEY,\n" +
-                    "    discord_message_id BIGINT,\n" +
-                    "    author_discord_id BIGINT,\n" +
-                    "    content varchar(" + HandleMessages.MAX_MESSAGE_LENGTH + ")\n" +
-                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
-    private static Connection connect(long serverId) throws SQLException {
-        String DB_URL = Dotenv.load().get("MYSQL_URL") + "DISCORD_" + serverId;
-        String USER = Dotenv.load().get("MYSQL_USER");
-        String PASSWORD = Dotenv.load().get("MYSQL_USER_PASSWORD");
-        return DriverManager.getConnection(DB_URL, USER, PASSWORD);
-    }
 }

@@ -36,9 +36,9 @@ public class ServerDatabaseHandler {
                 // execute statement
                 stmt.executeUpdate(sql);
                 // write a stupid little message
-                System.out.println("Database" + "DISCORD_" + serverId + "created successfully...");
-                Connection exactDb = DriverManager.getConnection(DB_URL + "DISCORD_" + serverId, USER, PASSWORD);
-                DatabaseMessagesHandler.createMessagesTable(exactDb);
+                System.out.println("Database " + "DISCORD_" + serverId + " created successfully...");
+                createDefaultTables(serverId);
+                System.out.println("Created default tables for " + "DISCORD_" + serverId);
             }
             else {
                 // write another message if exits
@@ -70,8 +70,23 @@ public class ServerDatabaseHandler {
     }
 
     public void createDefaultTables(long serverId) {
-        
+        // create messages table
+        DatabaseMessagesHandler.createMessagesTable(serverId);
+        // create reactions table
+        DatabaseReactionsHandler.createReactionsTable(serverId);
+        // create authors table
+        DatabaseAuthorsHandler.createAuthorsTable(serverId);
+        // create dictionary table
+        DatabaseDictionaryHandler.createDictionaryTable(serverId);
+        // create foreign keys
+        DatabaseMessagesHandler.createForeignKeys(serverId);
+        DatabaseReactionsHandler.createForeignKeys(serverId);
     }
 
-
+    public static Connection connect(long serverId) throws SQLException {
+        String DB_URL = Dotenv.load().get("MYSQL_URL") + "DISCORD_" + serverId;
+        String USER = Dotenv.load().get("MYSQL_USER");
+        String PASSWORD = Dotenv.load().get("MYSQL_USER_PASSWORD");
+        return DriverManager.getConnection(DB_URL, USER, PASSWORD);
+    }
 }
