@@ -39,12 +39,18 @@ public class RunBot {
                 Intent.GUILD_EMOJIS
                 )
                 .login().join();
+        // show who the bot is logged in as
         System.out.println("Logged in as " + discordApi.getYourself().getDiscriminatedName());
+
         // on startup, create a database for each server the bot is in
         ServerDatabaseHandler databaseHandler = new ServerDatabaseHandler();
         for(Server s : discordApi.getServers()) {
             databaseHandler.createDiscordDatabaseIfNotFound(s.getId());
         }
+        // on server join, create a database for that server
+        discordApi.addServerJoinListener(event -> {
+            databaseHandler.createDefaultTables(event.getServer().getId());
+        });
         // print out a new invite link
         System.out.println(discordApi.createBotInvite());
 
