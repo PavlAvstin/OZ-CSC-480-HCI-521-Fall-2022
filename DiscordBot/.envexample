@@ -1,0 +1,5 @@
+DISCORD_BOT_TOKEN=""
+
+MYSQL_URL="jdbc:mysql://localhost:3306/"
+MYSQL_USER=""
+MYSQL_USER_PASSWORD=""

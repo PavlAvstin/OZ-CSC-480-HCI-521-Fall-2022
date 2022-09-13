@@ -1,0 +1,8 @@
+# there shouldn't be a need for an environment file here,
+# however, when compiling from an ide it's needed
+# in production, please put the .env in the DiscordBot module
+DISCORD_BOT_TOKEN=""
+
+MYSQL_URL="jdbc:mysql://localhost:3306/"
+MYSQL_USER=""
+MYSQL_USER_PASSWORD=""
