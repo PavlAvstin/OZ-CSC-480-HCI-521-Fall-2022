@@ -1,9 +1,5 @@
 package DatabaseStuff;
 
-
-import DiscordApiStuff.HandleMessages;
-import io.github.cdimascio.dotenv.Dotenv;
-
 import java.sql.*;
 
 public class DatabaseMessagesHandler {
@@ -24,6 +20,7 @@ public class DatabaseMessagesHandler {
                     "    `text_channel_discord_id` BIGINT  NOT NULL ,\n" +
                     "    `text_channel_nickname` varchar(100)  NOT NULL ,\n" +
                     "    `content` varchar(4000)  NOT NULL ,\n" +
+                    "    `updated_at` datetime  NULL ,\n" +
                     "    PRIMARY KEY (\n" +
                     "        `discord_id`\n" +
                     "    )\n" +
