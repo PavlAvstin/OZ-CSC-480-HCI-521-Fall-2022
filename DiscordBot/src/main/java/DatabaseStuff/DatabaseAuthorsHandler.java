@@ -8,7 +8,6 @@ public class DatabaseAuthorsHandler {
             Connection conn = ServerDatabaseHandler.connect(serverId);
             conn.createStatement().execute("CREATE TABLE IF NOT EXISTS `authors` (\n" +
                     "    `discord_id` BIGINT  NOT NULL ,\n" +
-                    "    `author_discord_id` BIGINT  NOT NULL ,\n" +
                     "    `author_nickname` varchar(32)  NOT NULL ,\n" +
                     "    PRIMARY KEY (\n" +
                     "        `discord_id`\n" +
