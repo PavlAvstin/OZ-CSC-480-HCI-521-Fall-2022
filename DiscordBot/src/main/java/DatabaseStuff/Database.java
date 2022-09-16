@@ -4,22 +4,16 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 import java.sql.*;
 
-public class ServerDatabaseHandler {
+public class Database {
     // store sql creds in root .env file because you're not a psychopath
     private final String DB_URL = Dotenv.load().get("MYSQL_URL");
     private final String USER = Dotenv.load().get("MYSQL_USER");
     private final String PASSWORD = Dotenv.load().get("MYSQL_USER_PASSWORD");
     // global conn variable
     public final Connection conn;
-    public final String[][] defaultTables = {
-            // messages table
-            { "messages", "discord_message_id", "author_discord_id", "content"},
-            // reactions_message_id table
-            { "reactions_message_id", "message_id", "unicode", "count"},
-    };
 
     // connect on initialization
-    public ServerDatabaseHandler() throws SQLException {
+    public Database() throws SQLException {
         this.conn = DriverManager.getConnection(DB_URL, USER, PASSWORD);
     }
 
@@ -70,17 +64,16 @@ public class ServerDatabaseHandler {
     }
 
     public void createDefaultTables(long serverId) {
-        // create messages table
-        DatabaseMessagesHandler.createMessagesTable(serverId);
-        // create reactions table
-        DatabaseReactionsHandler.createReactionsTable(serverId);
-        // create authors table
-        DatabaseAuthorsHandler.createAuthorsTable(serverId);
-        // create dictionary table
-        DatabaseDictionaryHandler.createDictionaryTable(serverId);
+        // create tables
+        Messages.createTable(serverId);
+        Reactions.createTable(serverId);
+        Authors.createTable(serverId);
+        Dictionary.createTable(serverId);
+        Channels.createTable(serverId);
+
         // create foreign keys
-        DatabaseMessagesHandler.createForeignKeys(serverId);
-        DatabaseReactionsHandler.createForeignKeys(serverId);
+        Messages.createForeignKeys(serverId);
+        Reactions.createForeignKeys(serverId);
     }
 
     public static Connection connect(long serverId) throws SQLException {

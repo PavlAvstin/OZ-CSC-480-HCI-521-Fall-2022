@@ -1,7 +1,7 @@
 package DiscordApiStuff;
 
 
-import DatabaseStuff.ServerDatabaseHandler;
+import DatabaseStuff.Database;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
@@ -43,7 +43,7 @@ public class RunBot {
         System.out.println("Logged in as " + discordApi.getYourself().getDiscriminatedName());
 
         // on startup, create a database for each server the bot is in
-        ServerDatabaseHandler databaseHandler = new ServerDatabaseHandler();
+        Database databaseHandler = new Database();
         for(Server s : discordApi.getServers()) {
             databaseHandler.createDiscordDatabaseIfNotFound(s.getId());
         }

@@ -2,10 +2,10 @@ package DatabaseStuff;
 
 import java.sql.Connection;
 
-public class DatabaseAuthorsHandler {
-    public static void createAuthorsTable(long serverId) {
+public class Authors {
+    public static void createTable(long serverId) {
         try {
-            Connection conn = ServerDatabaseHandler.connect(serverId);
+            Connection conn = Database.connect(serverId);
             conn.createStatement().execute("CREATE TABLE IF NOT EXISTS `authors` (\n" +
                     "    `discord_id` BIGINT  NOT NULL ,\n" +
                     "    `author_nickname` varchar(32)  NOT NULL ,\n" +
