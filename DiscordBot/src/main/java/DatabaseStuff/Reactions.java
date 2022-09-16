@@ -1,12 +1,9 @@
 package DatabaseStuff;
 
-import io.github.cdimascio.dotenv.Dotenv;
-
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class DatabaseReactionsHandler {
+public class Reactions {
     public static void deleteReactionByDbMessageId(long serverId, long discordMessageId) {
 
     }
@@ -15,9 +12,9 @@ public class DatabaseReactionsHandler {
 
     }
 
-    public static void createReactionsTable(long serverId) {
+    public static void createTable(long serverId) {
         try {
-            Connection conn = ServerDatabaseHandler.connect(serverId);
+            Connection conn = Database.connect(serverId);
             conn.createStatement().execute("CREATE TABLE IF NOT EXISTS `reactions` (\n" +
                     "    `message_discord_id` BIGINT  NOT NULL ,\n" +
                     "    `authors_discord_id` BIGINT  NOT NULL ,\n" +
@@ -36,9 +33,9 @@ public class DatabaseReactionsHandler {
 
     public static void createForeignKeys(long serverId) {
         try {
-            Connection conn = ServerDatabaseHandler.connect(serverId);
+            Connection conn = Database.connect(serverId);
             conn.createStatement().execute("ALTER TABLE `reactions` ADD CONSTRAINT `fk_reactions_message_discord_id` FOREIGN KEY(`message_discord_id`)\n" +
-                    "REFERENCES `messages` (`discord_id`)");
+                    "REFERENCES `messages` (`discord_id`) ON DELETE CASCADE");
             conn.createStatement().execute("ALTER TABLE `reactions` ADD CONSTRAINT `fk_reactions_authors_discord_id` FOREIGN KEY(`authors_discord_id`)\n" +
                     "REFERENCES `authors` (`discord_id`)");
             conn.createStatement().execute("ALTER TABLE `reactions` ADD CONSTRAINT `fk_reactions_dictionary_emoji` FOREIGN KEY(`dictionary_emoji`)\n" +

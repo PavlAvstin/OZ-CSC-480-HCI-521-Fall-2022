@@ -1,6 +1,6 @@
 package DiscordApiStuff;
 
-import DatabaseStuff.DatabaseMessagesHandler;
+import DatabaseStuff.Messages;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.emoji.Emoji;
 
@@ -35,7 +35,7 @@ public class HandleMessages {
                 serverId.set(presentServer.getId());
             });
             // delete the message in the database by discord id
-            DatabaseMessagesHandler.deleteMessageByDiscordId(serverId.get(), discordMessageId);
+            Messages.deleteMessageByDiscordId(serverId.get(), discordMessageId);
         });
     }
 
@@ -55,7 +55,7 @@ public class HandleMessages {
             System.out.println("Content: " + content);
             System.out.println("Author ID: " + authorId);
             System.out.println("Server ID: " + serverId);
-            DatabaseMessagesHandler.storeMessage(serverId.get(), messageId, authorId, content);
+            Messages.storeMessage(serverId.get(), messageId, authorId, content);
         });
         System.out.println("Bot now listening for new messages...");
     }

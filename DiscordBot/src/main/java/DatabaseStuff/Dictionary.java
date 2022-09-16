@@ -2,10 +2,10 @@ package DatabaseStuff;
 
 import java.sql.Connection;
 
-public class DatabaseDictionaryHandler {
-    public static void createDictionaryTable(long serverId) {
+public class Dictionary {
+    public static void createTable(long serverId) {
         try {
-            Connection conn = ServerDatabaseHandler.connect(serverId);
+            Connection conn = Database.connect(serverId);
             conn.createStatement().execute("CREATE TABLE `dictionary` (\n" +
                     "    `emoji` varchar(32)  NOT NULL ,\n" +
                     "    `meaning` varchar(32)  NOT NULL ,\n" +
