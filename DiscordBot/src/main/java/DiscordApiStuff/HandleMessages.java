@@ -34,8 +34,6 @@ public class HandleMessages {
                 // if the message has an associated server, set the id
                 serverId.set(presentServer.getId());
             });
-            // delete the message in the database by discord id
-            Messages.deleteMessageByDiscordId(serverId.get(), discordMessageId);
         });
     }
 
@@ -55,7 +53,6 @@ public class HandleMessages {
             System.out.println("Content: " + content);
             System.out.println("Author ID: " + authorId);
             System.out.println("Server ID: " + serverId);
-            Messages.storeMessage(serverId.get(), messageId, authorId, content);
         });
         System.out.println("Bot now listening for new messages...");
     }
@@ -71,14 +68,6 @@ public class HandleMessages {
                 // if the message has an associated server, set the id
                 serverId.set(presentServer.getId());
             });
-            // see if the reaction already exists in the database based on the message id
-            // if it does, update the count
-            // if it doesn't, create a new entry
-//            if(DatabaseReactionsHandler.checkIfReactionExists(serverId.get(), messageId, e)) {
-//                DatabaseReactionsHandler.updateReactionCount(serverId.get(), messageId, e, count.get());
-//            } else {
-//                DatabaseReactionsHandler.storeReaction(serverId.get(), messageId, e, count.get());
-//            }
         });
         // on reaction removed...
         this.discordApi.addReactionRemoveListener(reactionRemoveEvent -> {
