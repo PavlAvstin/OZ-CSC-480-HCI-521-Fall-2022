@@ -86,5 +86,11 @@ public class RunBot {
 
         // start listening for messages and reactions
         messages.startHandlingMessagesAndReactions();
+
+        // now start the slash command handling
+        HandleSlashCommands slashCommands = new HandleSlashCommands(discordApi);
+
+        // start listening for slash commands
+        slashCommands.startHandlingSlashCommands();
     }
 }
