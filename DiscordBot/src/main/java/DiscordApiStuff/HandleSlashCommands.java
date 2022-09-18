@@ -2,10 +2,7 @@ package DiscordApiStuff;
 
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.MessageFlag;
-<<<<<<< HEAD
 import org.javacord.api.entity.permission.PermissionType;
-=======
->>>>>>> origin/main
 import org.javacord.api.interaction.*;
 
 import java.util.Arrays;
@@ -33,51 +30,6 @@ public class HandleSlashCommands {
                         ),
                         SlashCommand.with("meaning", "Explains the meaning of the reaction",
                                 List.of(
-<<<<<<< HEAD
-                                    SlashCommandOption.createWithChoices(
-                                        SlashCommandOptionType.STRING,
-                                        "reaction",
-                                        "The reaction to look up",
-                                        true,
-                                        getDictionary()
-                                    ))),
-                        SlashCommand.with("set", "sets the meaning of a reaction",
-                                List.of(
-                                    SlashCommandOption.createWithOptions(
-                                        SlashCommandOptionType.SUB_COMMAND,
-                                        "meaning",
-                                        "sets the meaning of a reaction",
-                                        List.of(
-                                                SlashCommandOption.createWithChoices(
-                                                    SlashCommandOptionType.STRING,
-                                                    "reaction",
-                                                    "The reaction to set",
-                                                    true
-                                                ),
-                                                SlashCommandOption.createWithChoices(
-                                                    SlashCommandOptionType.STRING,
-                                                    "meaning",
-                                                    "The meaning of the reaction",
-                                                    true
-                                                )
-                        )))).setDefaultEnabledForPermissions(PermissionType.ADMINISTRATOR, PermissionType.MANAGE_SERVER),
-                        SlashCommand.with("remove", "removes the meaning of a reaction from the dictionary",
-                                List.of(
-                                    SlashCommandOption.createWithOptions(
-                                        SlashCommandOptionType.SUB_COMMAND,
-                                        "reaction",
-                                        "sets the meaning of a reaction",
-                                        List.of(
-                                            SlashCommandOption.createWithChoices(
-                                                    SlashCommandOptionType.STRING,
-                                                    "reaction",
-                                                    "The reaction to set",
-                                                    true,
-                                                    getDictionary()
-                                            )
-                        )))).setDefaultEnabledForPermissions(PermissionType.ADMINISTRATOR, PermissionType.MANAGE_SERVER)
-        )).join();
-=======
                                         SlashCommandOption.createWithChoices(
                                                 SlashCommandOptionType.STRING,
                                                 "reaction",
@@ -91,7 +43,7 @@ public class HandleSlashCommands {
                                                 SlashCommandOptionType.SUB_COMMAND,
                                                 "meaning",
                                                 "sets the meaning of a reaction",
-                                                Arrays.asList(
+                                                List.of(
                                                         SlashCommandOption.createWithChoices(
                                                                 SlashCommandOptionType.STRING,
                                                                 "reaction",
@@ -103,8 +55,24 @@ public class HandleSlashCommands {
                                                                 "meaning",
                                                                 "The meaning of the reaction",
                                                                 true
-                                                        ))))))).join();
->>>>>>> origin/main
+                                                        )
+                                                )))).setDefaultEnabledForPermissions(PermissionType.ADMINISTRATOR, PermissionType.MANAGE_SERVER),
+                        SlashCommand.with("remove", "removes the meaning of a reaction from the dictionary",
+                                List.of(
+                                        SlashCommandOption.createWithOptions(
+                                                SlashCommandOptionType.SUB_COMMAND,
+                                                "reaction",
+                                                "sets the meaning of a reaction",
+                                                List.of(
+                                                        SlashCommandOption.createWithChoices(
+                                                                SlashCommandOptionType.STRING,
+                                                                "reaction",
+                                                                "The reaction to set",
+                                                                true,
+                                                                getDictionary()
+                                                        )
+                                                )))).setDefaultEnabledForPermissions(PermissionType.ADMINISTRATOR, PermissionType.MANAGE_SERVER)
+                )).join();
 
     }
 
@@ -137,10 +105,6 @@ public class HandleSlashCommands {
                             String reaction = interaction.getArguments().get(0).getStringRepresentationValue().get();
                             String meaning = interaction.getArguments().get(1).getStringRepresentationValue().get();
 
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
                             // here we need a way to add the reaction meaning pair to the db
                             // and update the slash command so that the options include the newly added pair
 
@@ -149,7 +113,6 @@ public class HandleSlashCommands {
                             break;
                         }
                     }
-<<<<<<< HEAD
                     case "remove":
                     {
                         if(interaction.getOptions().get(0).getName().equals("reaction")){
@@ -163,8 +126,6 @@ public class HandleSlashCommands {
                             break;
                         }
                     }
-=======
->>>>>>> origin/main
 
                     default:
                         /* if for some reason a command is sent to
@@ -181,7 +142,6 @@ public class HandleSlashCommands {
     }
 
     private String printDictionary() {
-<<<<<<< HEAD
         StringBuilder dictionary = new StringBuilder("```");
 
         for(SlashCommandOptionChoice scoc : getDictionary()){
@@ -191,17 +151,6 @@ public class HandleSlashCommands {
 
         dictionary.append("```");
         return dictionary.toString();
-=======
-        String dictionary = "```";
-
-        for(SlashCommandOptionChoice scoc : getDictionary()){
-            dictionary += scoc.getName() + " : "+scoc.getValueAsString();
-            dictionary += "\n";
-        }
-
-        dictionary += "```";
-        return dictionary;
->>>>>>> origin/main
     }
 
 
