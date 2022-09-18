@@ -1,10 +1,17 @@
 package Admin;
 
+import Query.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.sql.*;
 
 
 public class Database {
+
+    public static final int NICKNAME_LIMIT = 32;
+    public static final int EMOJI_LIMIT = 32;
+    public static final int MEANING_LIMIT = 32;
+    public static final int MESSAGE_LIMIT = 4000;
+    //TODO add more constants here!
 
     //DB URL stored in .env file like a respectable, non-psychopath
     private final String DB_URL;
@@ -14,6 +21,10 @@ public class Database {
     // global conn variable
     private Connection connection;
     private User MySQLUser = User.INIT;
+    public final Create create;
+    public final Read read;
+    public final Update update;
+    public final Delete delete;
 
     // connect as initialization user on initialization
     public Database(long id) throws SQLException {
@@ -24,6 +35,12 @@ public class Database {
         setMySQLUser(User.INIT);
         createDiscordDatabaseIfNotFound();
         createMySQLUsers();
+
+        this.create = new Create(this);
+        this.read = new Read(this);
+        this.update = new Update(this);
+        this.delete = new Delete(this);
+
     }
 
     public void setMySQLUser(User user) throws SQLException {
@@ -33,6 +50,10 @@ public class Database {
 
     public User getMySQLUser(){
         return MySQLUser;
+    }
+
+    public Connection connection(){
+        return this.connection;
     }
 
     private void createDiscordDatabaseIfNotFound() {
@@ -46,7 +67,7 @@ public class Database {
                 Statement stmt = connection.createStatement();
                 // prefix the given long id with DISCORD_ because its cleaner and also need to start DBs with a letter
                 String sql = "CREATE DATABASE " + serverName + "\n" +
-                        "DEFAULT CHARSET = utf8mb4 DEFAULT COLLATE = utf8mb4_unicode_ci";
+                        "DEFAULT CHARSET = utf8mb4 DEFAULT COLLATE = utf8mb4_unicode_520_ci";
                 // execute statement
                 stmt.executeUpdate(sql);
                 // write a stupid little message
