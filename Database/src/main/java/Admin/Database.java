@@ -1,6 +1,7 @@
 package Admin;
 
 import Query.*;
+
 import io.github.cdimascio.dotenv.Dotenv;
 import java.sql.*;
 
@@ -11,7 +12,6 @@ public class Database {
     public static final int EMOJI_LIMIT = 32;
     public static final int MEANING_LIMIT = 32;
     public static final int MESSAGE_LIMIT = 4000;
-    //TODO add more constants here!
 
     //DB URL stored in .env file like a respectable, non-psychopath
     private final String DB_URL;
@@ -26,12 +26,13 @@ public class Database {
     public final Update update;
     public final Delete delete;
 
-    // connect as initialization user on initialization
-    public Database(long id) throws SQLException {
+    // Provide the discord ID of the guild you are working with, as well as the appropriate user level
+    public Database(long id, User user) throws SQLException {
         DB_URL = Dotenv.load().get("MYSQL_URL");
         serverID = id;
         serverName = "DISCORD_" + serverID;
 
+        //switch to Initialization user while creating the database and other users
         setMySQLUser(User.INIT);
         createDiscordDatabaseIfNotFound();
         createMySQLUsers();
@@ -40,6 +41,7 @@ public class Database {
         this.read = new Read(this);
         this.update = new Update(this);
         this.delete = new Delete(this);
+        setMySQLUser(user);
 
     }
 
@@ -141,6 +143,14 @@ public class Database {
 
     private void createTablesAndFKs() throws SQLException {
         TableCreation.createTablesAndFKs(connection, serverName);
+    }
+
+    public static Timestamp getTimestampFromLong(long snowflake){
+        String date = String.valueOf(new Date((snowflake >> 22) + 1420070400000L));
+        String time = String.valueOf(new Time((snowflake >> 22) + 1420070400000L));
+        System.out.println("Date: " + date);
+        System.out.println("Time: " + time);
+        return Timestamp.valueOf(date + " " + time);
     }
 
 

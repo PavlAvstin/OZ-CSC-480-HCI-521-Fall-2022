@@ -2,7 +2,6 @@ package Query;
 
 import Admin.Database;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -16,10 +15,10 @@ public class Create {
     public void message(long discord_id, long authors_discord_id, long channels_text_channel_discord_id, String content) throws SQLException {
 
         //if the message has not been edited but is being newly added to the database, insert null and call the regular function
-        message(discord_id, authors_discord_id, channels_text_channel_discord_id, content, null);
+        message(discord_id, authors_discord_id, channels_text_channel_discord_id, content, -1L);
     }
 
-    public void message(long discord_id, long authors_discord_id, long channels_text_channel_discord_id, String content, Date updated_at) throws SQLException {
+    public void message(long discord_id, long authors_discord_id, long channels_text_channel_discord_id, String content, long updated_at) throws SQLException {
 
         //trim to size if necessary
         if(content.length() > Database.MESSAGE_LIMIT) content = content.trim().substring(0, Database.MESSAGE_LIMIT);
@@ -31,7 +30,7 @@ public class Create {
         statement.setLong   (2, authors_discord_id);
         statement.setLong   (3, channels_text_channel_discord_id);
         statement.setString (4, content);
-        statement.setDate   (5, updated_at);
+        statement.setTimestamp   (5, Database.getTimestampFromLong(updated_at));
 
         execute(statement);
     }

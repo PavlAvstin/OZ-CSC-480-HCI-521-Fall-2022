@@ -23,6 +23,11 @@
             <version>8.0.30</version>
         </dependency>
         <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20220320</version>
+        </dependency>
+        <dependency>
             <groupId>org.javacord</groupId>
             <artifactId>javacord-api</artifactId>
             <version>3.5.0</version>
