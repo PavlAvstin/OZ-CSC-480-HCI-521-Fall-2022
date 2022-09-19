@@ -1,83 +1,43 @@
 package DiscordApiStuff;
 
-import DatabaseStuff.Messages;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.emoji.Emoji;
+import Admin.Database;
+import Admin.User;
+import Query.Create;
+import Query.Read;
+import org.javacord.api.entity.channel.TextChannel;
+import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.MessageAuthor;
 
-import java.sql.Connection;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
+import java.sql.SQLException;
 
 public class HandleMessages {
-    public static final int MAX_MESSAGE_LENGTH = 4000;
-    public static final int MAX_ID_LENGTH = 100;
-    // rather than initializing the discord api again, rely on the existing object being passed through, then used.
-    private final DiscordApi discordApi;
-    private Connection conn;
+    public static void insertMessage(long serverId, Message message) throws SQLException {
+        // connect to database for this guild
+        Database db = new Database(serverId, User.BOT);
+        Create create = new Create(db);
 
-    public HandleMessages(DiscordApi discordApi) {
-        this.discordApi = discordApi;
+        // first create the channel
+        long channelDatabaseDiscordId = insertChannel(message.getChannel(), create);
+        // then create the author
+        long authorDatabaseDiscordId = insertAuthor(message.getAuthor(), create);
+        long messageId = message.getId();
+        String content = message.getContent();
+
+        // insert the message
+        create.message(messageId, authorDatabaseDiscordId, channelDatabaseDiscordId, content);
+        db.closeConnection();
     }
 
-    public void startHandlingMessagesAndReactions() {
-        startHandlingMessagesCreate();
-        startHandlingReactions();
-        System.out.println("Bot now handling messages and reactions...");
+    private static long insertChannel(TextChannel channel, Create create) throws SQLException {
+        long channelId = channel.getId();
+        String channelName = channel.toString();
+        create.channel(channelId, channelName);
+        return channelId;
     }
 
-    public void startHandlingMessagesRemove() {
-        this.discordApi.addMessageDeleteListener(messageDeleteEvent -> {
-            long discordMessageId = messageDeleteEvent.getMessageId();
-            // variables set in lambdas must be atomic
-            AtomicLong serverId = new AtomicLong();
-            messageDeleteEvent.getServer().ifPresent(presentServer -> {
-                // if the message has an associated server, set the id
-                serverId.set(presentServer.getId());
-            });
-        });
-    }
-
-    public void startHandlingMessagesCreate() {
-        this.discordApi.addMessageCreateListener(messageCreateEvent -> {
-            long messageId = messageCreateEvent.getMessageId();
-            // get the author's ID
-            long authorId = messageCreateEvent.getMessageAuthor().getId();
-            // get the message content
-            String content = messageCreateEvent.getMessageContent();
-
-            // variables set in lambdas must be atomic
-            AtomicLong serverId = new AtomicLong();
-            messageCreateEvent.getServer().ifPresent(presentServer -> {
-                // if the message has an associated server, set the id
-                serverId.set(presentServer.getId());
-            });
-            System.out.println("Content: " + content);
-            System.out.println("Author ID: " + authorId);
-            System.out.println("Server ID: " + serverId);
-        });
-        System.out.println("Bot now listening for new messages...");
-    }
-
-    public void startHandlingReactions() {
-        // on reaction added...
-        this.discordApi.addReactionAddListener(reactionAddEvent -> {
-            Emoji e = reactionAddEvent.getEmoji();
-            Optional<Integer> count = reactionAddEvent.getCount();
-            long messageId = reactionAddEvent.getMessageId();
-            AtomicLong serverId = new AtomicLong();
-            reactionAddEvent.getServer().ifPresent(presentServer -> {
-                // if the message has an associated server, set the id
-                serverId.set(presentServer.getId());
-            });
-        });
-        // on reaction removed...
-        this.discordApi.addReactionRemoveListener(reactionRemoveEvent -> {
-            System.out.println(reactionRemoveEvent.getReaction());
-        });
-        System.out.println("Bot now listening for reactions...");
-    }
-
-    public void setConn(Connection conn) {
-        this.conn = conn;
+    private static long insertAuthor(MessageAuthor author, Create create) throws SQLException {
+        long authorId = author.getId();
+        create.author(authorId, author.getDisplayName());
+        return authorId;
     }
 }

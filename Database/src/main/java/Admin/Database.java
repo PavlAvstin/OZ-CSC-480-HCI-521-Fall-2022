@@ -49,7 +49,6 @@ public class Database {
 
         //MySQL user is set after creating the database, which controls the privileges
         setMySQLUser(user);
-
     }
 
     public void setMySQLUser(User user) throws SQLException {
@@ -64,6 +63,8 @@ public class Database {
     public Connection connection(){
         return this.connection;
     }
+
+    public void closeConnection() throws SQLException { connection.close(); }
 
     private void createDiscordDatabaseIfNotFound() {
         try {
