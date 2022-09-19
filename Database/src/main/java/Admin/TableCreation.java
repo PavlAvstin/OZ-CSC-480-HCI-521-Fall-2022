@@ -29,15 +29,14 @@ public class TableCreation {
     private static void createReactionsTable() {
         try {
 
-            connection.createStatement().execute("""
-                    CREATE TABLE IF NOT EXISTS `reactions` (
-                        `message_discord_id` BIGINT  NOT NULL ,
-                        `authors_discord_id` BIGINT  NOT NULL ,
-                        `dictionary_emoji` varchar(32)  NOT NULL ,
-                        PRIMARY KEY (
-                            `message_discord_id`,`authors_discord_id`,`dictionary_emoji`
-                        )
-                    )""");
+            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS `reactions` (\n" +
+                    "    `message_discord_id` BIGINT  NOT NULL ,\n" +
+                    "    `authors_discord_id` BIGINT  NOT NULL ,\n" +
+                    "    `dictionary_emoji` varchar(32)  NOT NULL ,\n" +
+                    "    PRIMARY KEY (\n" +
+                    "        `message_discord_id`,`authors_discord_id`,`dictionary_emoji`\n" +
+                    "    )\n" +
+                    ")");
 
         } catch (SQLException e) {
             System.out.println("Error while creating reactions table for server " + serverName);
@@ -48,17 +47,16 @@ public class TableCreation {
     private static void createMessagesTable() {
         try {
 
-            connection.createStatement().execute("""
-                    CREATE TABLE IF NOT EXISTS `messages` (
-                        `discord_id` BIGINT  NOT NULL ,
-                        `authors_discord_id` BIGINT  NOT NULL ,
-                        `channels_text_channel_discord_id` BIGINT NOT NULL,
-                        `content` varchar(4000)  NOT NULL ,
-                        `updated_at` datetime  NULL ,
-                        PRIMARY KEY (
-                            `discord_id`
-                        )
-                    )""");
+            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS `messages` (\n" +
+                    "    `discord_id` BIGINT  NOT NULL ,\n" +
+                    "    `authors_discord_id` BIGINT  NOT NULL ,\n" +
+                    "    `channels_text_channel_discord_id` BIGINT NOT NULL,\n" +
+                    "    `content` varchar(4000)  NOT NULL ,\n" +
+                    "    `updated_at` datetime  NULL ,\n" +
+                    "    PRIMARY KEY (\n" +
+                    "        `discord_id`\n" +
+                    "    )\n" +
+                    ")");
 
         } catch (Exception e) {
             System.out.println("Error while creating messages table for server " + serverName);
@@ -69,14 +67,13 @@ public class TableCreation {
     private static void createDictionaryTable() {
         try {
 
-            connection.createStatement().execute("""
-                    CREATE TABLE `dictionary` (
-                        `emoji` varchar(32)  NOT NULL ,
-                        `meaning` varchar(32)  NOT NULL ,
-                        PRIMARY KEY (
-                            `emoji`,`meaning`
-                        )
-                    )""");
+            connection.createStatement().execute("CREATE TABLE `dictionary` (\n" +
+                    "    `emoji` varchar(32)  NOT NULL ,\n" +
+                    "    `meaning` varchar(32)  NOT NULL ,\n" +
+                    "    PRIMARY KEY (\n" +
+                    "        `emoji`,`meaning`\n" +
+                    "    )\n" +
+                    ")");
 
         } catch (Exception e) {
             System.out.println("Error while creating dictionary table for server " + serverName);
@@ -87,14 +84,13 @@ public class TableCreation {
     private static void createChannelsTable() {
         try  {
 
-            connection.createStatement().execute("""
-                    CREATE TABLE IF NOT EXISTS `channels` (
-                        `text_channel_discord_id` BIGINT  NOT NULL ,
-                        `text_channel_nickname` varchar(100)  NOT NULL ,
-                        PRIMARY KEY (
-                            `text_channel_discord_id`
-                        )
-                    )""");
+            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS `channels` (\n" +
+                    "    `text_channel_discord_id` BIGINT  NOT NULL ,\n" +
+                    "    `text_channel_nickname` varchar(100)  NOT NULL ,\n" +
+                    "    PRIMARY KEY (\n" +
+                    "        `text_channel_discord_id`\n" +
+                    "    )\n" +
+                    ")");
 
         } catch (Exception e) {
             System.out.println("Error while creating channels table for server " + serverName);
@@ -105,14 +101,13 @@ public class TableCreation {
     private static void createAuthorsTable()  {
         try {
 
-            connection.createStatement().execute("""
-                    CREATE TABLE IF NOT EXISTS `authors` (
-                        `discord_id` BIGINT  NOT NULL ,
-                        `author_nickname` varchar(32)  NOT NULL ,
-                        PRIMARY KEY (
-                            `discord_id`
-                        )
-                    )""");
+            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS `authors` (\n" +
+                    "    `discord_id` BIGINT  NOT NULL ,\n" +
+                    "    `author_nickname` varchar(32)  NOT NULL ,\n" +
+                    "    PRIMARY KEY (\n" +
+                    "        `discord_id`\n" +
+                    "    )\n" +
+                    ")");
         } catch (Exception e) {
             System.out.println("Error while creating authors table for server " + serverName);
             System.out.println(e.getMessage());
