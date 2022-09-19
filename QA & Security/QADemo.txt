@@ -1,1 +1,1 @@
-ths is demo fur QA
+This is demo for QA.
