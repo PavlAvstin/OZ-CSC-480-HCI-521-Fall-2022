@@ -2,6 +2,7 @@ package DiscordApiStuff;
 
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.MessageFlag;
+import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.interaction.*;
 
 import java.util.Arrays;
@@ -42,7 +43,7 @@ public class HandleSlashCommands {
                                                 SlashCommandOptionType.SUB_COMMAND,
                                                 "meaning",
                                                 "sets the meaning of a reaction",
-                                                Arrays.asList(
+                                                List.of(
                                                         SlashCommandOption.createWithChoices(
                                                                 SlashCommandOptionType.STRING,
                                                                 "reaction",
@@ -54,7 +55,24 @@ public class HandleSlashCommands {
                                                                 "meaning",
                                                                 "The meaning of the reaction",
                                                                 true
-                                                        ))))))).join();
+                                                        )
+                                                )))).setDefaultEnabledForPermissions(PermissionType.ADMINISTRATOR, PermissionType.MANAGE_SERVER),
+                        SlashCommand.with("remove", "removes the meaning of a reaction from the dictionary",
+                                List.of(
+                                        SlashCommandOption.createWithOptions(
+                                                SlashCommandOptionType.SUB_COMMAND,
+                                                "reaction",
+                                                "sets the meaning of a reaction",
+                                                List.of(
+                                                        SlashCommandOption.createWithChoices(
+                                                                SlashCommandOptionType.STRING,
+                                                                "reaction",
+                                                                "The reaction to set",
+                                                                true,
+                                                                getDictionary()
+                                                        )
+                                                )))).setDefaultEnabledForPermissions(PermissionType.ADMINISTRATOR, PermissionType.MANAGE_SERVER)
+                )).join();
 
     }
 
@@ -87,12 +105,24 @@ public class HandleSlashCommands {
                             String reaction = interaction.getArguments().get(0).getStringRepresentationValue().get();
                             String meaning = interaction.getArguments().get(1).getStringRepresentationValue().get();
 
-
                             // here we need a way to add the reaction meaning pair to the db
                             // and update the slash command so that the options include the newly added pair
 
                             interactionOriginalResponseUpdater.setContent("the " + reaction + " reaction now means: " + meaning).setFlags(MessageFlag.EPHEMERAL).update();
                             System.out.println("set meaning call: " + reaction + " means " + meaning);
+                            break;
+                        }
+                    }
+                    case "remove":
+                    {
+                        if(interaction.getOptions().get(0).getName().equals("reaction")){
+                            String reaction = interaction.getArguments().get(0).getStringRepresentationValue().get();
+
+                            // here we need a way to remove the reaction meaning pair from the db
+                            // and update the slash command so that the options don't include that pair
+
+                            interactionOriginalResponseUpdater.setContent("the " + reaction + " was removed from the dictionary").setFlags(MessageFlag.EPHEMERAL).update();
+                            System.out.println("remove reaction call: " + reaction + " was removed");
                             break;
                         }
                     }
@@ -112,15 +142,15 @@ public class HandleSlashCommands {
     }
 
     private String printDictionary() {
-        String dictionary = "```";
+        StringBuilder dictionary = new StringBuilder("```");
 
         for(SlashCommandOptionChoice scoc : getDictionary()){
-            dictionary += scoc.getName() + " : "+scoc.getValueAsString();
-            dictionary += "\n";
+            String reaction = String.format("%s : %s\n", scoc.getName(), scoc.getValueAsString());
+            dictionary.append(reaction);
         }
 
-        dictionary += "```";
-        return dictionary;
+        dictionary.append("```");
+        return dictionary.toString();
     }
 
 
