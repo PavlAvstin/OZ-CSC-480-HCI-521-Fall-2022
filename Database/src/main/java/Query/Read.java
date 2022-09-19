@@ -78,10 +78,11 @@ public class Read {
 
     public JSONArray messagesByReaction(String emoji) throws SQLException {
         PreparedStatement statement = database.connection().prepareStatement(
-                "SELECT messages.discord_id, messages.authors_discord_id, text_channel_discord_id, text_channel_nickname, content, updated_at " +
-                "FROM reactions, messages " +
+                "SELECT messages.discord_id, messages.authors_discord_id, channels.text_channel_nickname, content, updated_at, author_nickname  " +
+                "FROM reactions, messages, authors, channels " +
                 "WHERE message_discord_id = messages.discord_id " +
-                "AND dictionary_emoji = " + emoji
+                "AND messages.authors_discord_id = authors.discord_id " +
+                "AND dictionary_emoji = " + "'" + emoji + "'"
         );
 
         ResultSet resultSet = execute(statement);
@@ -91,11 +92,11 @@ public class Read {
 
     public JSONArray messagesByEmojiMeaning(String meaning) throws SQLException {
         PreparedStatement statement = database.connection().prepareStatement(
-                "SELECT DISTINCT messages.discord_id, messages.authors_discord_id, text_channel_discord_id, content, updated_at " +
+                "SELECT DISTINCT messages.discord_id, messages.authors_discord_id, content, updated_at " +
                         "FROM reactions, dictionary, messages "+
                         "WHERE message_discord_id = messages.discord_id " +
                         "AND dictionary_emoji = dictionary.emoji " +
-                        "AND meaning = " + meaning
+                        "AND meaning = \"" + meaning +"\""
         );
 
         ResultSet resultSet = execute(statement);
@@ -141,6 +142,10 @@ public class Read {
             JSONObject row = new JSONObject();
             for (String columnName : columnNames) {
                 row.put(columnName, resultSet.getObject(columnName));
+
+                //TODO not quite working yet
+                //if there is an updated at column, it must be a message so the creation date needs to be extracted from the snowflake
+                if(columnName.equalsIgnoreCase("updated_at")) row.put("creation_date", Database.getTimestampFromLong(resultSet.getLong("discord_id")).toString());
             }
             resultArray.put(row);
         }

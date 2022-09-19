@@ -90,7 +90,7 @@ public class TableCreation {
             connection.createStatement().execute("""
                     CREATE TABLE IF NOT EXISTS `channels` (
                         `text_channel_discord_id` BIGINT  NOT NULL ,
-                        `text_channel_name` varchar(100)  NOT NULL ,
+                        `text_channel_nickname` varchar(100)  NOT NULL ,
                         PRIMARY KEY (
                             `text_channel_discord_id`
                         )
