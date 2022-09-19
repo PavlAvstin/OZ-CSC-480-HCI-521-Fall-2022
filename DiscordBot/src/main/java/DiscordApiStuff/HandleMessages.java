@@ -44,6 +44,7 @@ public class HandleMessages {
             long authorId = messageCreateEvent.getMessageAuthor().getId();
             // get the message content
             String content = messageCreateEvent.getMessageContent();
+
             // variables set in lambdas must be atomic
             AtomicLong serverId = new AtomicLong();
             messageCreateEvent.getServer().ifPresent(presentServer -> {
