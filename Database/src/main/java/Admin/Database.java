@@ -8,6 +8,7 @@ import java.sql.*;
 
 public class Database {
 
+    //some constants for input validation
     public static final int NICKNAME_LIMIT = 32;
     public static final int EMOJI_LIMIT = 32;
     public static final int MEANING_LIMIT = 32;
@@ -17,10 +18,13 @@ public class Database {
     private final String DB_URL;
     //global serverName and discord id vars
     public final String serverName;
+    //id of the discord guild this database is representing
     public final long serverID;
     // global conn variable
     private Connection connection;
+    //tracks the MySql user that's interacting with the database
     private User MySQLUser = User.INIT;
+    //each database will have an instance of 'CRUD' query handlers
     public final Create create;
     public final Read read;
     public final Update update;
@@ -37,10 +41,13 @@ public class Database {
         createDiscordDatabaseIfNotFound();
         createMySQLUsers();
 
+
         this.create = new Create(this);
         this.read = new Read(this);
         this.update = new Update(this);
         this.delete = new Delete(this);
+
+        //MySQL user is set after creating the database, which controls the privileges
         setMySQLUser(user);
 
     }
@@ -63,7 +70,6 @@ public class Database {
             boolean exists = this.doesDatabaseExist();
             // if it doesn't exist
             if(!exists) {
-                //Full name of the SQL server
 
                 // create raw sql statement
                 Statement stmt = connection.createStatement();
@@ -142,10 +148,12 @@ public class Database {
     }
 
     private void createTablesAndFKs() throws SQLException {
+        //create the database tables and foreign keys
         TableCreation.createTablesAndFKs(connection, serverName);
     }
 
     public static Timestamp getTimestampFromLong(long snowflake){
+        //convert a long (snowflake) into a timestamp
         String date = String.valueOf(new Date((snowflake >> 22) + 1420070400000L));
         String time = String.valueOf(new Time((snowflake >> 22) + 1420070400000L));
         System.out.println("Date: " + date);
@@ -153,7 +161,10 @@ public class Database {
         return Timestamp.valueOf(date + " " + time);
     }
 
-
+    public static long getLongFromTimestamp(Timestamp timestamp){
+        //TODO convert a timestamp into a long (snowflake)
+        return 0L;
+    }
 
 
 
