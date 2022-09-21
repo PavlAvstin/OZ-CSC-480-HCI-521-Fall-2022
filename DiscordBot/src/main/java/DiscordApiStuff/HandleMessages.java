@@ -49,9 +49,6 @@ public class HandleMessages {
                 long serverId = messageEdit.getServer().get().getId();
                 long messageId = messageEdit.getMessageId();
                 long messageTimestamp = messageEdit.getMessage().get().getLastEditTimestamp().get().getEpochSecond();
-                System.out.println("Epoch second: " + messageTimestamp);
-//                1663772508
-                System.out.println(Database.getTimestampFromLong(messageTimestamp));
                 // convert long timestamp to string datetime
                 String content = messageEdit.getNewContent();
                 // connect to database for this guild
