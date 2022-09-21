@@ -2,11 +2,7 @@ package DiscordApiStuff;
 
 import Admin.Database;
 import Admin.User;
-import Query.Create;
-import Query.Delete;
-import Query.Read;
 import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
 import org.json.JSONArray;
 
@@ -36,17 +32,16 @@ public class HandleReactions {
 
                 // connect to database for this guild
                 Database db = new Database(serverId, User.BOT);
-                Delete delete = new Delete(db);
 
                 if(reactionCount == 1) {
                     // if there is only one reaction that means this is the last reaction, so delete the message
-                    delete.message(messageId);
+                    db.delete.message(messageId);
                     db.closeConnection();
                 }
                 else {
                     long authorId = reactionRemoveEvent.getUser().get().getId();
                     // otherwise just remove the reaction from the database
-                    delete.reaction(messageId, authorId, reactionRemoveEvent.getEmoji().asUnicodeEmoji().get());
+                    db.delete.reaction(messageId, authorId, reactionRemoveEvent.getEmoji().asUnicodeEmoji().get());
                 }
             }
             catch (Exception e) {
@@ -73,9 +68,8 @@ public class HandleReactions {
 
     private void insertReaction(long serverId, long userId, Reaction reaction) throws SQLException {
         Database db = new Database(serverId, User.BOT);
-        Create create = new Create(db);
         System.out.println("Inserting reaction: " + reaction.getEmoji().asUnicodeEmoji().get());
-        create.reaction(reaction.getMessage().getId(),
+        db.create.reaction(reaction.getMessage().getId(),
                 userId,
                 reaction.getEmoji().asUnicodeEmoji().get());
         db.closeConnection();
@@ -83,8 +77,7 @@ public class HandleReactions {
 
     private long getReactionCount(long serverId, long messageId) throws SQLException {
         Database db = new Database(serverId, User.BOT);
-        Query.Read read = new Read(db);
-        JSONArray jArray = read.reactionsByMessage(messageId);
+        JSONArray jArray = db.read.reactionsByMessage(messageId);
         db.closeConnection();
         return jArray.length();
     }
