@@ -25,7 +25,10 @@ public class Create {
 
         //prepare the SQL statement
         PreparedStatement statement = database.connection().prepareStatement(
-                "INSERT INTO messages VALUES(?, ?, ?, ?, ?)");
+                "INSERT INTO messages\n" +
+                        "\t\t\tVALUES(?, ?, ?, ?, ?)"
+        );
+
         statement.setLong   (1, discord_id);
         statement.setLong   (2, authors_discord_id);
         statement.setLong   (3, channels_text_channel_discord_id);
@@ -42,7 +45,10 @@ public class Create {
 
         //prepare the SQL statement
         PreparedStatement statement = database.connection().prepareStatement(
-                "INSERT INTO authors VALUES(?, ?)");
+                "INSERT INTO authors\n" +
+                        "\t\t\tVALUES(?, ?)"
+        );
+
         statement.setLong(1, discord_id);
         statement.setString(2, nickname);
 
@@ -57,7 +63,10 @@ public class Create {
 
         //prepare the SQL statement
         PreparedStatement statement = database.connection().prepareStatement(
-                "INSERT INTO dictionary VALUES(?, ?)");
+                "INSERT INTO dictionary\n" +
+                        "\t\t\tVALUES(?, ?)"
+        );
+
         statement.setString(1, emoji);
         statement.setString(2, meaning);
 
@@ -71,7 +80,10 @@ public class Create {
 
         //prepare the SQL statement
         PreparedStatement statement = database.connection().prepareStatement(
-                "INSERT INTO reactions VALUES(?, ?, ?)");
+                "INSERT INTO reactions\n" +
+                        "\t\t\tVALUES(?, ?, ?)"
+        );
+
         statement.setLong(1, message_discord_id);
         statement.setLong(2, authors_discord_id);
         statement.setString(3, emoji);
@@ -86,7 +98,10 @@ public class Create {
 
         //prepare the SQL statement
         PreparedStatement statement = database.connection().prepareStatement(
-                "INSERT INTO channels VALUES(?, ?)");
+                "INSERT INTO channels\n" +
+                        "\t\t\tVALUES(?, ?)"
+        );
+
         statement.setLong(1, text_channel_discord_id);
         statement.setString(2, text_channel_nickname);
 
@@ -95,9 +110,9 @@ public class Create {
 
     private void execute(PreparedStatement statement) throws SQLException {
         database.connection().createStatement().execute("use "+ database.serverName);
+        if(database.isQueryVisible()) System.out.println("\n" + database.getMySQLUser().username + "> " + statement.toString().substring(43));
         try{
             statement.execute();
-            System.out.println(database.getMySQLUser().username + " Executed Create Statement");
         }catch(Exception e){
             System.out.println(e.getMessage());
         }

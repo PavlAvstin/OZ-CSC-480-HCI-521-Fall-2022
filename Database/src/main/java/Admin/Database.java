@@ -13,6 +13,7 @@ public class Database {
     public static final int EMOJI_LIMIT = 32;
     public static final int MEANING_LIMIT = 32;
     public static final int MESSAGE_LIMIT = 4000;
+    public static final long DISCORD_EPOCH = 1420070400000L;
 
     //DB URL stored in .env file like a respectable, non-psychopath
     private final String DB_URL;
@@ -29,6 +30,9 @@ public class Database {
     public final Read read;
     public final Update update;
     public final Delete delete;
+
+    private boolean queryVisible = true;
+    public static final String CREATED_AT_QUERY = "FROM_UNIXTIME(((messages.discord_id >> 22) + 1420070400000)/1000) as created_at";
 
     // Provide the discord ID of the guild you are working with, as well as the appropriate user level
     public Database(long id, User user) throws SQLException {
@@ -155,21 +159,50 @@ public class Database {
 
     public static Timestamp getTimestampFromLong(long snowflake){
         //convert a long (snowflake) into a timestamp
-        String date = String.valueOf(new Date((snowflake >> 22) + 1420070400000L));
-        String time = String.valueOf(new Time((snowflake >> 22) + 1420070400000L));
-        System.out.println("Date: " + date);
-        System.out.println("Time: " + time);
+        String date = String.valueOf(new Date((snowflake >> 22) + DISCORD_EPOCH));
+        String time = String.valueOf(new Time((snowflake >> 22) + DISCORD_EPOCH));
         return Timestamp.valueOf(date + " " + time);
     }
 
-    public static long getLongFromTimestamp(Timestamp timestamp){
-        //TODO convert a timestamp into a long (snowflake)
-        return 0L;
+    public static long getLongFromDate(int yyyy, int MM, int dd, int hh, int mm, int ss){
+       
+        Timestamp stamp = Timestamp.valueOf("" +yyyy + "-" + MM + "-" + dd + " " + hh + ":" + mm + ":" + ss);
+
+        return ((stamp.getTime() - Database.DISCORD_EPOCH) << 22);
     }
 
+    //toggles whether executed queries and results will be shown in the console
+    public void toggleQueryVisible(){
+        queryVisible = !(queryVisible);
+    }
 
+    public boolean isQueryVisible(){
+        return queryVisible;
+    }
 
+    public ResultSet execute(PreparedStatement statement) throws SQLException {
+        connection().createStatement().execute("use "+ serverName);
+        if(queryVisible) System.out.println(getMySQLUser().username + "> " + statement.toString().substring(43));
 
+        ResultSet resultSet = null;
 
+        try{
+
+            if(statement.execute()){
+                //true if the query returns a set of results
+                resultSet = statement.getResultSet();
+                if(queryVisible) System.out.println(resultSet);
+            }else{
+                //false if the query returns an update count or no results
+                if(queryVisible) System.out.println(statement.getUpdateCount() + " rows updated.");
+
+            }
+
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        return resultSet;
+    }
 
 }
