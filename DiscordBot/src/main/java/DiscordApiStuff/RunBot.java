@@ -13,7 +13,7 @@ public class RunBot {
     /**
      * Runs a Discord bot!
      * @param args the command line arguments
-     * @throws Exception
+     * @throws Exception if the bot fails to run
      */
     public static void main(String[] args) throws Exception {
         // use .env file (root directory by default)
@@ -51,6 +51,18 @@ public class RunBot {
 
         // start listening for messages
         messages.startHandlingMessages();
+
+        // now start authors handling
+        HandleAuthors authors = new HandleAuthors(discordApi);
+
+        // start listening for authors
+        authors.startHandlingAuthors();
+
+        // now start the channels handling
+        HandleTextChannels textChannels = new HandleTextChannels(discordApi);
+
+        // start listening for channels
+        textChannels.startHandlingTextChannels();
 
         // now start the slash command handling
         HandleSlashCommands slashCommands = new HandleSlashCommands(discordApi);
@@ -123,7 +135,7 @@ public class RunBot {
      * Connects to the Discord API using the bot token from the .env file. This will make your bot online.
      *  Sets intents to GUILDS, GUILD_MESSAGES, GUILD_MESSAGE_REACTIONS, GUILD_MEMBERS, and GUILD_EMOJIS.
      * @param envFile the .env file with the bot token
-     * @return
+     * @return the DiscordApi object
      * @throws Exception if the bot token is not found in the .env file or the .env file is not found
      */
     public static DiscordApi connectToDiscordApi(Dotenv envFile) throws Exception {
