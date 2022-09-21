@@ -52,7 +52,7 @@ public class TableCreation {
                     "    `authors_discord_id` BIGINT  NOT NULL ,\n" +
                     "    `channels_text_channel_discord_id` BIGINT NOT NULL,\n" +
                     "    `content` varchar(4000)  NOT NULL ,\n" +
-                    "    `updated_at` datetime  NULL ,\n" +
+                    "    `updated_at` timestamp  NULL ,\n" +
                     "    PRIMARY KEY (\n" +
                     "        `discord_id`\n" +
                     "    )\n" +

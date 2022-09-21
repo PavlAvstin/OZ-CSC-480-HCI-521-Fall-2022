@@ -13,61 +13,114 @@ public class Delete {
         this.database = database;
     }
 
-    public void messageById(long discord_id) throws SQLException {
+    public void message(long discord_id) throws SQLException {
         PreparedStatement statement = database.connection().prepareStatement(
-                "DELETE FROM messages WHERE discord_id = " + discord_id);
-
-        execute(statement);
-    }
-
-    public void authorById(long discord_id) throws SQLException {
-        PreparedStatement statement = database.connection().prepareStatement(
-                "DELETE FROM authors WHERE discord_id = " + discord_id);
-
-        execute(statement);
-    }
-
-    public void emojiMeaningPair(String emoji, String meaning) throws SQLException {
-        PreparedStatement statement = database.connection().prepareStatement(
-                "DELETE FROM dictionary WHERE " +
-                        "emoji = " + emoji +
-                        "AND" +
-                        "meaning = " + meaning
+                "DELETE\n" +
+                        "\t\t\tFROM messages\n" +
+                        "\t\t\tWHERE discord_id = ?"
         );
+
+        statement.setLong(1, discord_id);
+
+        execute(statement);
+    }
+
+    public void author(long discord_id) throws SQLException {
+        PreparedStatement statement = database.connection().prepareStatement(
+                "DELETE\n" +
+                        "\t\t\tFROM authors\n" +
+                        "\t\t\tWHERE discord_id = ?"
+        );
+
+        statement.setLong(1, discord_id);
+
+        execute(statement);
+    }
+
+    public void dictionaryEntry(String emoji, String meaning) throws SQLException {
+        PreparedStatement statement = database.connection().prepareStatement(
+                "DELETE\n" +
+                        "\t\t\tFROM dictionary\n" +
+                        "\t\t\tWHERE emoji = ?\n" +
+                        "\t\t\tAND meaning = ?"
+        );
+
+        statement.setString(1, emoji);
+        statement.setString(2, meaning);
 
         execute(statement);
     }
 
     public void emoji(String emoji) throws SQLException {
-        PreparedStatement statement = database.connection().prepareStatement(
-                "DELETE FROM dictionary WHERE emoji = " + emoji);
+        PreparedStatement statement1 = database.connection().prepareStatement(
+                "DELETE\n" +
+                        "\t\t\tFROM reactions\n" +
+                        "\t\t\tWHERE dictionary_emoji = ?"
+        );
 
-        execute(statement);
+        statement1.setString(1, emoji);
+
+
+        PreparedStatement statement2 = database.connection().prepareStatement(
+                "DELETE\n" +
+                        "\t\t\tFROM dictionary\n" +
+                        "\t\t\tWHERE emoji = ?"
+        );
+
+        statement2.setString(1, emoji);
+
+        execute(statement1);
+        execute(statement2);
     }
 
     public void meaning(String meaning) throws SQLException {
         PreparedStatement statement = database.connection().prepareStatement(
-                "DELETE FROM dictionary WHERE meaning = " + meaning);
+                "DELETE\n" +
+                        "\t\t\tFROM dictionary\n" +
+                        "\t\t\tWHERE meaning = ?"
+        );
+
+        statement.setString(1, meaning);
 
         execute(statement);
     }
 
     public void reaction(long message_discord_id, long authors_discord_id, String emoji) throws SQLException {
         PreparedStatement statement = database.connection().prepareStatement(
-                "DELETE FROM reactions WHERE " +
-                        "message_discord_id = " + message_discord_id +
-                        "AND" +
-                        "authors_discord_id = " + authors_discord_id +
-                        "AND" +
-                        "dictionary_emoji = " + emoji
+                "DELETE\n" +
+                        "\t\t\tFROM reactions\n" +
+                        "\t\t\tWHERE message_discord_id = ?\n" +
+                        "\t\t\tAND authors_discord_id = ?\n" +
+                        "\t\t\tAND dictionary_emoji = ?"
         );
+
+        statement.setLong(1, message_discord_id);
+        statement.setLong(2, authors_discord_id);
+        statement.setString(3, emoji);
 
         execute(statement);
     }
 
     public void channel(long text_channel_discord_id) throws SQLException {
         PreparedStatement statement = database.connection().prepareStatement(
-                "DELETE FROM channels WHERE text_channel_discord_id = " + text_channel_discord_id);
+                "DELETE\n" +
+                        "\t\t\tFROM channels\n" +
+                        "\t\t\tWHERE text_channel_discord_id = ?"
+        );
+
+        statement.setLong(1, text_channel_discord_id);
+
+        execute(statement);
+    }
+
+    public void emojisByMeaning(String meaning) throws SQLException {
+        PreparedStatement statement = database.connection().prepareStatement(
+                "DELETE\n" +
+                        "\t\t\tFROM dictionary\n" +
+                        "\t\t\tWHERE meaning = ?"
+        );
+
+        statement.setString(1, meaning);
 
         execute(statement);
     }
@@ -75,8 +128,9 @@ public class Delete {
     private void execute(PreparedStatement statement) throws SQLException {
         database.connection().createStatement().execute("use "+ database.serverName);
         try{
+            if(database.isQueryVisible()) System.out.println("\n" + database.getMySQLUser().username + "> " + statement.toString().substring(43));
             statement.execute();
-            System.out.println(database.getMySQLUser().username + " Executed Delete Statement");
+            System.out.println("\t" + statement.getUpdateCount() + " row(s) updated.");
         }catch(Exception e){
             System.out.println(e.getMessage());
         }
