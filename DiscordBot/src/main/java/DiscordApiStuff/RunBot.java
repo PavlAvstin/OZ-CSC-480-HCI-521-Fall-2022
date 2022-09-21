@@ -10,6 +10,11 @@ import org.javacord.api.entity.intent.Intent;
 import org.javacord.api.entity.server.Server;
 
 public class RunBot {
+    /**
+     * Runs a Discord bot!
+     * @param args the command line arguments
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception {
         // use .env file (root directory by default)
         Dotenv envFile = Dotenv.load();
@@ -29,6 +34,11 @@ public class RunBot {
         handleAllApiStuff(discordApi);
     }
 
+    /**
+     * Starts listening for Reaction add & remove. Message edit & delete.
+     *  Reaction inherently handles message add because messages only save when they have a reaction.
+     * @param discordApi the api to handle all events for, must already be connected
+     */
     public static void handleAllApiStuff(DiscordApi discordApi) {
         // now start the reactions handling
         HandleReactions reactions = new HandleReactions(discordApi);
@@ -49,6 +59,18 @@ public class RunBot {
         slashCommands.startHandlingSlashCommands();
     }
 
+    /**
+     * Start MySQL operations. Sees if the user enabled it (default),
+     *  and if so, creates the database and tables if they don't exist for all guilds the bot is in.
+     *  Also creates a new database and tables for any new guilds the bot joins.
+     * @param envFile the .env file
+     *                - bot token
+     *                - initialization mysql user requires: url, username, password
+     *                - bot mysql user requires: url, username, password
+     * @param args the command line arguments
+     * @param discordApi the discord api, must be already connected
+     * @return true if MySQL and the API successfully integrated, false otherwise
+     */
     public static boolean handleMySql(Dotenv envFile, String[] args, DiscordApi discordApi) {
         try {
             // get command line argument 0, nosql, (if it exists)
@@ -97,6 +119,13 @@ public class RunBot {
         return true;
     }
 
+    /**
+     * Connects to the Discord API using the bot token from the .env file. This will make your bot online.
+     *  Sets intents to GUILDS, GUILD_MESSAGES, GUILD_MESSAGE_REACTIONS, GUILD_MEMBERS, and GUILD_EMOJIS.
+     * @param envFile the .env file with the bot token
+     * @return
+     * @throws Exception if the bot token is not found in the .env file or the .env file is not found
+     */
     public static DiscordApi connectToDiscordApi(Dotenv envFile) throws Exception {
         // probably will be the only token, but naming clearly is good.
         String discordBotToken;
