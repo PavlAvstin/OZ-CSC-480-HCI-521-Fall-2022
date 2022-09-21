@@ -37,10 +37,10 @@ public class RunBot {
         reactions.startHandlingReactions();
 
         // now start the messages handling
-//        HandleMessages messages = new HandleMessages(discordApi);
+        HandleMessages messages = new HandleMessages(discordApi);
 
-        // start listening for messages and reactions
-//        messages.startHandlingMessages();
+        // start listening for messages
+        messages.startHandlingMessages();
 
         // now start the slash command handling
         HandleSlashCommands slashCommands = new HandleSlashCommands(discordApi);

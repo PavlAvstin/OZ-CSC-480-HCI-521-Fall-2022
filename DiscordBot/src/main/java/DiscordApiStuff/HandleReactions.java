@@ -40,7 +40,7 @@ public class HandleReactions {
 
                 if(reactionCount == 1) {
                     // if there is only one reaction that means this is the last reaction, so delete the message
-                    delete.messageById(messageId);
+                    delete.message(messageId);
                     db.closeConnection();
                 }
                 else {
