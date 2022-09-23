@@ -56,7 +56,7 @@ public class HandleReactions {
                 long serverId = reactionAddEvent.getServer().get().getId();
                 long userId = reactionAddEvent.getUser().get().getId();
                 // get the message that was reacted to & insert it into the database
-                HandleMessages.insertMessage(serverId, reactionAddEvent.getMessage().get());
+                HandleMessages.insertMessage(serverId, reactionAddEvent.getMessage().get(), reactionAddEvent.getServer().get());
                 // insert the reaction
                 insertReaction(serverId, userId, reactionAddEvent.getReaction().get());
             }
