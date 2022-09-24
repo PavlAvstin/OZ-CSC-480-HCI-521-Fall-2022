@@ -63,33 +63,14 @@ public class HandleMessages {
         Database db = new Database(serverId, User.BOT);
 
         // first create the channel
-        long channelDatabaseDiscordId = insertChannel(message.getChannel(), db);
+        long channelDatabaseDiscordId = HandleTextChannels.insertChannel(message.getChannel(), db);
         // then create the author
-        long authorDatabaseDiscordId = insertAuthor(message.getAuthor(), db, server);
+        long authorDatabaseDiscordId = HandleAuthors.insertAuthor(message.getAuthor(), db, server);
         long messageId = message.getId();
         String content = message.getContent();
 
         // insert the message
         db.create.message(messageId, authorDatabaseDiscordId, channelDatabaseDiscordId, content);
         db.closeConnection();
-    }
-
-    private static long insertChannel(TextChannel channel, Database db) throws SQLException {
-        long channelId = channel.getId();
-        String channelName = channel.asServerTextChannel().get().getName();
-        db.create.channel(channelId, channelName);
-        return channelId;
-    }
-
-    private static long insertAuthor(MessageAuthor author, Database db, Server server) throws SQLException {
-        long authorId = author.getId();
-        AtomicReference<String> authorName = new AtomicReference<>(author.getDisplayName());
-        author.asUser().ifPresent(user -> {
-            if(user.getNickname(server).isPresent()) {
-                authorName.set(user.getNickname(server).get());
-            }
-        });
-        db.create.author(authorId, authorName.get());
-        return authorId;
     }
 }

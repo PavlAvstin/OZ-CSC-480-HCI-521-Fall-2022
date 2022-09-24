@@ -1,9 +1,12 @@
 package software.design.rest.Resources;
 
+import Admin.Database;
+import com.mysql.jdbc.Driver;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-
-import java.sql.SQLException;
+import org.json.JSONArray;
+import software.design.rest.RestApplication;
+import java.sql.*;
 
 @Path("Test")
 public class TestResource {
@@ -16,7 +19,22 @@ This is a horrible example only made to get it working quickly the rest command 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public void test(@PathParam("id") String id, @PathParam("tableName") String tname) throws SQLException, ClassNotFoundException {
-        //        an important broke
-        //        ReadTable createTable = new ReadTable( tname, id);
+        // go all the way back to the module root
+        Database db = RestApplication.getRestDatabase(1004950494147526747L);
+        JSONArray array = new JSONArray();
+        try {
+            array = db.read.messagesByAuthor(806350925723205642L);
+        }
+        catch (Exception e) {
+            System.out.println("Error reading message");
+        }
+        if(array.isEmpty()) {
+            System.out.println("Found no results");
+        }
+        else {
+            for(Object o : array) {
+                System.out.println(o);
+            }
+        }
     }
 }

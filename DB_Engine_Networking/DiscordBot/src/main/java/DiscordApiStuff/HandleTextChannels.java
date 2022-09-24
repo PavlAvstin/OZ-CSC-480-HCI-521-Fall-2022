@@ -4,6 +4,9 @@ import Admin.Database;
 import Admin.User;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.channel.TextChannel;
+
+import java.sql.SQLException;
 
 public class HandleTextChannels {
     private DiscordApi discordApi;
@@ -17,23 +20,30 @@ public class HandleTextChannels {
         listenForTextChannelNicknameChange();
     }
 
+    public static long insertChannel(TextChannel channel, Database db) throws SQLException {
+        long channelId = channel.getId();
+        String channelName = channel.asServerTextChannel().get().getName();
+        db.create.channel(channelId, channelName);
+        return channelId;
+    }
+
     private void listenForTextChannelNicknameChange() {
         discordApi.addServerChannelChangeNameListener(serverChannelNameEvent -> {
-           // if the channel is a text channel
-              if(serverChannelNameEvent.getChannel().asServerTextChannel().isPresent()) {
+            // if the channel is a text channel
+            if(serverChannelNameEvent.getChannel().asServerTextChannel().isPresent()) {
                 try {
-                     long serverId = serverChannelNameEvent.getServer().getId();
-                     long channelId = serverChannelNameEvent.getChannel().getId();
-                     String channelName = serverChannelNameEvent.getNewName();
-                     // connect to database for this guild
-                     Database db = new Database(serverId, User.BOT);
-                     db.update.channelNickname(channelId, channelName);
-                     db.closeConnection();
+                    long serverId = serverChannelNameEvent.getServer().getId();
+                    long channelId = serverChannelNameEvent.getChannel().getId();
+                    String channelName = serverChannelNameEvent.getNewName();
+                    // connect to database for this guild
+                    Database db = new Database(serverId, User.BOT);
+                    db.update.channelNickname(channelId, channelName);
+                    db.closeConnection();
                 }
                 catch (Exception e) {
-                     e.printStackTrace();
+                    e.printStackTrace();
                 }
-              }
+            }
         });
     }
 

@@ -110,7 +110,14 @@ public class Create {
 
     private void execute(PreparedStatement statement) throws SQLException {
         database.connection().createStatement().execute("use "+ database.serverName);
-        if(database.isQueryVisible()) System.out.println("\n" + database.getMySQLUser().username + "> " + statement.toString().substring(43));
+        if(database.isQueryVisible()) {
+            if(database.isEnum()) {
+                System.out.println("\n" + database.getMySQLUser().username + "> " + statement.toString().substring(43));
+            }
+            else {
+                System.out.println("\n" + database.getUsername() + "> " + statement.toString().substring(43));
+            }
+        }
         try{
             statement.execute();
         }catch(Exception e){
