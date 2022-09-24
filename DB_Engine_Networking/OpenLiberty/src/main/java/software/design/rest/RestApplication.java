@@ -2,7 +2,7 @@ package software.design.rest;
 
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
-import software.design.rest.Resources.TestResource;
+import software.design.rest.Resources.DiscordResource;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +14,7 @@ public class RestApplication extends Application {
 The RestApplication class adds Resources to the project so that things are aware of the REST classes.
  */
     public RestApplication(){
-        singletons.add(new TestResource());
+        singletons.add(new DiscordResource());
     }
 
     @Override
