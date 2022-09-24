@@ -2,9 +2,10 @@ package Admin;
 
 import Query.*;
 
+import com.mysql.cj.jdbc.Driver;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.sql.*;
-
+import com.mysql.jdbc.*;
 
 public class Database {
 
@@ -24,12 +25,17 @@ public class Database {
     // global conn variable
     private Connection connection;
     //tracks the MySql user that's interacting with the database
-    private User MySQLUser = User.INIT;
+    private User MySQLUser = null;
     //each database will have an instance of 'CRUD' query handlers
     public final Create create;
     public final Read read;
     public final Update update;
     public final Delete delete;
+
+    // add support for manual input of sql details
+    private boolean noEnum = false;
+    private final String username;
+    private final String password;
 
     private boolean queryVisible = true;
     public static final String CREATED_AT_QUERY = "FROM_UNIXTIME(((messages.discord_id >> 22) + 1420070400000)/1000) as created_at";
@@ -53,6 +59,39 @@ public class Database {
 
         //MySQL user is set after creating the database, which controls the privileges
         setMySQLUser(user);
+
+        // enums are used here, make sure noEnum is false;
+        noEnum = false;
+        // make user&pass strings null
+        username = null;
+        password = null;
+    }
+
+    /**
+     * Currently intended to only be used with REST
+     * @param id
+     * @param host
+     * @param username
+     * @param password
+     * @throws SQLException
+     */
+    public Database(long id, String host, String username, String password) throws SQLException {
+        DB_URL = host;
+        serverID = id;
+        serverName = "DISCORD_" + serverID;
+        this.username = username;
+        this.password = password;
+
+        this.create = new Create(this);
+        this.read = new Read(this);
+        this.update = new Update(this);
+        this.delete = new Delete(this);
+
+        // we are not using enum so set noEnum to true
+        noEnum = true;
+        Driver driver = new Driver();
+        DriverManager.registerDriver(driver);
+        connection = DriverManager.getConnection(DB_URL, this.username, this.password);
     }
 
     public void setMySQLUser(User user) throws SQLException {
@@ -132,9 +171,9 @@ public class Database {
         );
         System.out.println(" DONE!");
 
-        System.out.print("Granting " + User.REST.username + " user INSERT, DELETE on " + serverName + ".dictionary...");
+        System.out.print("Granting " + User.REST.username + " user DELETE on " + serverName + ".reactions...");
         connection.createStatement().execute(
-                "GRANT INSERT, DELETE ON " + serverName + ".dictionary TO '" + User.REST.username + "'@'localhost';"
+                "GRANT INSERT, DELETE ON " + serverName + ".reactions TO '" + User.REST.username + "'@'localhost';"
         );
         System.out.println(" DONE!");
 
@@ -182,7 +221,14 @@ public class Database {
 
     public ResultSet execute(PreparedStatement statement) throws SQLException {
         connection().createStatement().execute("use "+ serverName);
-        if(queryVisible) System.out.println(getMySQLUser().username + "> " + statement.toString().substring(43));
+        if(queryVisible) {
+            if(noEnum) {
+                System.out.println(username + "> " + statement.toString().substring(43));
+            }
+            else {
+                System.out.println(getMySQLUser().username + "> " + statement.toString().substring(43));
+            }
+        }
 
         ResultSet resultSet = null;
 
@@ -205,4 +251,7 @@ public class Database {
         return resultSet;
     }
 
+    public String getUsername() { return username; }
+    public String getPassword() { return password; }
+    public boolean isEnum() { return !noEnum; }
 }
