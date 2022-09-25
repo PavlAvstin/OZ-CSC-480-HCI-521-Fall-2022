@@ -139,6 +139,15 @@ public class Read {
 
     }
 
+    public JSONArray dictionary() throws SQLException {
+        PreparedStatement statement = database.connection().prepareStatement(
+                "SELECT * FROM dictionary");
+
+        ResultSet resultSet = execute(statement);
+
+        return convertToJSONArray(resultSet);
+    }
+
 
 
 
