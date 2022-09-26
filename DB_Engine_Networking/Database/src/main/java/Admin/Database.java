@@ -4,12 +4,12 @@ import Query.*;
 
 import com.mysql.cj.jdbc.Driver;
 import io.github.cdimascio.dotenv.Dotenv;
+
 import java.sql.*;
-import com.mysql.jdbc.*;
 
 public class Database {
-
     //some constants for input validation
+
     public static final int NICKNAME_LIMIT = 32;
     public static final int EMOJI_LIMIT = 32;
     public static final int MEANING_LIMIT = 32;
@@ -37,11 +37,21 @@ public class Database {
     private final String username;
     private final String password;
 
-    private boolean queryVisible = true;
+    private boolean queryVisible = false;
     public static final String CREATED_AT_QUERY = "FROM_UNIXTIME(((messages.discord_id >> 22) + 1420070400000)/1000) as created_at";
 
+    public static final String[] SKINTONES = {"\uD83C\uDFFB", "\uD83C\uDFFC", "\uD83C\uDFFD", "\uD83C\uDFFE", "\uD83C\uDFFF"};
+
     // Provide the discord ID of the guild you are working with, as well as the appropriate user level
+
+    /**
+     * Class to represent a MySQL database, allows for CRUD operations using a given MySQL username.
+     *
+     * @param id   the id (snowflake) of the guild that this Database class represents
+     * @param user the MySQL user that will be accessing this Database
+     */
     public Database(long id, User user) throws SQLException {
+
         DB_URL = Dotenv.load().get("MYSQL_URL");
         serverID = id;
         serverName = "DISCORD_" + serverID;
@@ -51,7 +61,7 @@ public class Database {
         createDiscordDatabaseIfNotFound();
         createMySQLUsers();
 
-
+        //Instantiate the CRUD classes
         this.create = new Create(this);
         this.read = new Read(this);
         this.update = new Update(this);
@@ -68,12 +78,13 @@ public class Database {
     }
 
     /**
-     * Currently intended to only be used with REST
-     * @param id
-     * @param host
-     * @param username
-     * @param password
-     * @throws SQLException
+     * Class to represent a MySQL database, allows for CRUD operations using a given MySQL username. Currently intended to only be used with REST
+     *
+     * @param id       the id (snowflake) of the guild that this Database class represents
+     * @param host     the URL of the MySQL database that this class will represent
+     * @param username username that will attempt to access the MySQL database
+     * @param password password for the user that will attempt to acces sthe MySQL database
+     * @throws SQLException an exception that provides information on a database access error or other errors
      */
     public Database(long id, String host, String username, String password) throws SQLException {
         DB_URL = host;
@@ -94,26 +105,52 @@ public class Database {
         connection = DriverManager.getConnection(DB_URL, this.username, this.password);
     }
 
+    /**
+     * Sets the current MySQL user
+     *
+     * @param user the user that will become the active MySQL user
+     * @throws SQLException an exception that provides information on a database access error or other errors
+     */
     public void setMySQLUser(User user) throws SQLException {
         MySQLUser = user;
-        connection = DriverManager.getConnection(DB_URL, user.username , user.password);
+        connection = DriverManager.getConnection(DB_URL, user.username, user.password);
     }
 
-    public User getMySQLUser(){
+    /**
+     * Returns the currently active MySQL User
+     *
+     * @return MySQL User
+     */
+    public User getMySQLUser() {
         return MySQLUser;
     }
 
-    public Connection connection(){
+    /**
+     * Returns this Database's connection
+     *
+     * @return connection
+     */
+    public Connection connection() {
         return this.connection;
     }
 
-    public void closeConnection() throws SQLException { connection.close(); }
+    /**
+     * Closes this database's connection
+     *
+     * @throws SQLException an exception that provides information on a database access error or other errors
+     */
+    public void closeConnection() throws SQLException {
+        connection.close();
+    }
 
+    /**
+     * First checks to see if the MySQL database that this Database represents exists, and if it doesn't it creates it.
+     */
     private void createDiscordDatabaseIfNotFound() {
         try {
             boolean exists = this.doesDatabaseExist();
             // if it doesn't exist
-            if(!exists) {
+            if (!exists) {
 
                 // create raw sql statement
                 Statement stmt = connection.createStatement();
@@ -126,8 +163,7 @@ public class Database {
                 System.out.println("Database " + serverName + " created successfully...");
                 createTablesAndFKs();
                 System.out.println("Created default tables for " + serverName);
-            }
-            else {
+            } else {
                 // write another message if exits
                 System.out.println("Database " + serverName + " already exists :)");
             }
@@ -136,32 +172,41 @@ public class Database {
         }
     }
 
+    /**
+     * Checks to see if the MySQL database that this Database represents exists
+     *
+     * @return true if this Database exists
+     */
     public boolean doesDatabaseExist() {
         try {
             // get all the Catalogs (dbs) from this connection
             ResultSet resultSet = this.connection.getMetaData().getCatalogs();
 
             // check if the database exists
-            while(resultSet.next()) {
+            while (resultSet.next()) {
                 // first column in the catalog resultset is the catalog (db) name.
-                if(resultSet.getString(1).compareTo(serverName) == 0) {
+                if (resultSet.getString(1).compareTo(serverName) == 0) {
                     return true;
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
         }
         return false;
     }
 
+    /**
+     * Creates the OZ_REST and OZ_BOT users, and grants the appropriate permissions, with usernames and passwords to match what is contained in the .env file.
+     *
+     * @throws SQLException an exception that provides information on a database access error or other errors
+     */
     public void createMySQLUsers() throws SQLException {
 
         //create the REST user with select privileges besides Dictionary that has insert and deleted, to allow users to define emoji meanings from the GUI
         System.out.print("Creating " + User.REST.username + " user...");
         connection.createStatement().execute(
-                "CREATE USER IF NOT EXISTS '" + User.REST.username +"'@localhost IDENTIFIED BY '" + User.REST.password + "';"
+                "CREATE USER IF NOT EXISTS '" + User.REST.username + "'@localhost IDENTIFIED BY '" + User.REST.password + "';"
         );
         System.out.println(" DONE!");
 
@@ -178,9 +223,9 @@ public class Database {
         System.out.println(" DONE!");
 
         //create the discord bot user with insert, select, delete, update privileges
-        System.out.print("Creating " + User.BOT.username + " user...") ;
+        System.out.print("Creating " + User.BOT.username + " user...");
         connection.createStatement().execute(
-                "CREATE USER IF NOT EXISTS '" + User.BOT.username +"'@localhost IDENTIFIED BY '" + User.BOT.password + "';"
+                "CREATE USER IF NOT EXISTS '" + User.BOT.username + "'@localhost IDENTIFIED BY '" + User.BOT.password + "';"
         );
         System.out.println(" DONE!");
 
@@ -191,67 +236,106 @@ public class Database {
         System.out.println(" DONE!");
     }
 
+    /**
+     * Creates the Tables and Foreign Key restraints for the Database
+     *
+     * @throws SQLException an exception that provides information on a database access error or other errors
+     */
     private void createTablesAndFKs() throws SQLException {
         //create the database tables and foreign keys
         TableCreation.createTablesAndFKs(connection, serverName);
     }
 
-    public static Timestamp getTimestampFromLong(long snowflake){
+    /**
+     * A helper function to convert a Discord ID (snowflake) into a Timestamp.
+     *
+     * @param snowflake Any 64-bit Discord ID
+     * @return The timestamp encoded in the snowflake
+     */
+    public static Timestamp getTimestampFromLong(long snowflake) {
         //convert a long (snowflake) into a timestamp
         String date = String.valueOf(new Date((snowflake >> 22) + DISCORD_EPOCH));
         String time = String.valueOf(new Time((snowflake >> 22) + DISCORD_EPOCH));
         return Timestamp.valueOf(date + " " + time);
     }
 
-    public static long getLongFromDate(int yyyy, int MM, int dd, int hh, int mm, int ss){
-       
-        Timestamp stamp = Timestamp.valueOf("" +yyyy + "-" + MM + "-" + dd + " " + hh + ":" + mm + ":" + ss);
+    /**
+     * A helper function to encode a date and time into a Discord-compatible long.
+     *
+     * @param yyyy Year
+     * @param MM   Month
+     * @param dd   Day
+     * @param hh   Hours
+     * @param mm   Minutes
+     * @param ss   Seconds
+     * @return Snowflake offset by Discord Epoch
+     */
+    public static long getLongFromDate(int yyyy, int MM, int dd, int hh, int mm, int ss) {
+
+        Timestamp stamp = Timestamp.valueOf("" + yyyy + "-" + MM + "-" + dd + " " + hh + ":" + mm + ":" + ss);
 
         return ((stamp.getTime() - Database.DISCORD_EPOCH) << 22);
     }
 
     //toggles whether executed queries and results will be shown in the console
-    public void toggleQueryVisible(){
+
+    /**
+     * Toggles verbose output in the console.
+     */
+    public void toggleQueryVisible() {
         queryVisible = !(queryVisible);
     }
 
-    public boolean isQueryVisible(){
+    /**
+     * Returns whether verbose output is currently enabled.
+     *
+     * @return whether verbose output is currently enabled.
+     */
+    public boolean isQueryVisible() {
         return queryVisible;
     }
 
-    public ResultSet execute(PreparedStatement statement) throws SQLException {
-        connection().createStatement().execute("use "+ serverName);
-        if(queryVisible) {
-            if(noEnum) {
-                System.out.println(username + "> " + statement.toString().substring(43));
-            }
-            else {
-                System.out.println(getMySQLUser().username + "> " + statement.toString().substring(43));
-            }
-        }
-
-        ResultSet resultSet = null;
-
-        try{
-
-            if(statement.execute()){
-                //true if the query returns a set of results
-                resultSet = statement.getResultSet();
-                if(queryVisible) System.out.println(resultSet);
-            }else{
-                //false if the query returns an update count or no results
-                if(queryVisible) System.out.println(statement.getUpdateCount() + " rows updated.");
-
-            }
-
-        }catch(Exception e){
-            System.out.println(e.getMessage());
-        }
-
-        return resultSet;
+    /**
+     * Returns the current User's username
+     *
+     * @return username
+     */
+    public String getUsername() {
+        return username;
     }
 
-    public String getUsername() { return username; }
-    public String getPassword() { return password; }
-    public boolean isEnum() { return !noEnum; }
+    /**
+     * Returns the current User's password
+     *
+     * @return password
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * Returns if the Database is being utilized with the User Enum
+     *
+     * @return is Enum in use
+     */
+    public boolean isEnum() {
+        return !noEnum;
+    }
+
+    /**
+     * Strips the skintone from an emoji
+     *
+     * @param emoji The Emoji that may or may not have a skintone besides default yellow
+     * @return The emoji with the default yellow skintone
+     */
+    public static String removeSkinTone(String emoji) {
+
+        for (String tone : SKINTONES) {
+            if (emoji.contains(tone)) {
+                return emoji.substring(0, emoji.indexOf(tone));
+            }
+        }
+
+        return emoji;
+    }
 }

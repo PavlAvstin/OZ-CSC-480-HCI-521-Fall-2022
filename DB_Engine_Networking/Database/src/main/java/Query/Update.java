@@ -8,10 +8,19 @@ import java.sql.SQLException;
 public class Update {
 
     private final Database database;
-    public Update(Database database){
+
+    public Update(Database database) {
         this.database = database;
     }
 
+    /**
+     * Updates a message with new content and the updated_at field
+     *
+     * @param discord_id The Discord ID of the message
+     * @param content    The new content for the message
+     * @param updated_at The Timestamp the message was updated at
+     * @throws SQLException an exception that provides information on a database access error or other errors
+     */
     public void message(long discord_id, String content, long updated_at) throws SQLException {
         PreparedStatement statement = database.connection().prepareStatement(
                 "UPDATE messages\n" +
@@ -27,15 +36,22 @@ public class Update {
         execute(statement);
     }
 
+    /**
+     * Updates an author's nickname
+     *
+     * @param discord_id      The Discord ID of the author
+     * @param author_nickname The new Nickname for the author
+     * @throws SQLException an exception that provides information on a database access error or other errors
+     */
     public void authorNickname(long discord_id, String author_nickname) throws SQLException {
         //trim if necessary
-        if(author_nickname.length() > Database.NICKNAME_LIMIT) author_nickname =
-                author_nickname.trim().substring(0,Database.NICKNAME_LIMIT);
+        if (author_nickname.length() > Database.NICKNAME_LIMIT) author_nickname =
+                author_nickname.trim().substring(0, Database.NICKNAME_LIMIT);
 
         PreparedStatement statement = database.connection().prepareStatement(
-          "UPDATE authors\n" +
-                  "\t\t\tSET author_nickname = ?\n" +
-                  "\t\t\tWHERE discord_id = ?"
+                "UPDATE authors\n" +
+                        "\t\t\tSET author_nickname = ?\n" +
+                        "\t\t\tWHERE discord_id = ?"
         );
 
         statement.setString(1, author_nickname);
@@ -44,10 +60,17 @@ public class Update {
         execute(statement);
     }
 
+    /**
+     * Updates the nickname of a channel
+     *
+     * @param text_channel_discord_id The Discord ID of the channel
+     * @param text_channel_nickname   The new nickname of the channel
+     * @throws SQLException an exception that provides information on a database access error or other errors
+     */
     public void channelNickname(long text_channel_discord_id, String text_channel_nickname) throws SQLException {
         //trim if necessary
-        if(text_channel_nickname.length() > Database.NICKNAME_LIMIT) text_channel_nickname =
-                text_channel_nickname.trim().substring(0,Database.NICKNAME_LIMIT);
+        if (text_channel_nickname.length() > Database.NICKNAME_LIMIT) text_channel_nickname =
+                text_channel_nickname.trim().substring(0, Database.NICKNAME_LIMIT);
 
         PreparedStatement statement = database.connection().prepareStatement(
                 "UPDATE channels\n" +
@@ -56,25 +79,24 @@ public class Update {
         );
 
         statement.setString(1, text_channel_nickname);
-        statement.setLong(2,text_channel_discord_id);
+        statement.setLong(2, text_channel_discord_id);
 
         execute(statement);
     }
 
     private void execute(PreparedStatement statement) throws SQLException {
-        database.connection().createStatement().execute("use "+ database.serverName);
-        if(database.isQueryVisible()) {
-            if(database.isEnum()) {
+        database.connection().createStatement().execute("use " + database.serverName);
+        if (database.isQueryVisible()) {
+            if (database.isEnum()) {
                 System.out.println("\n" + database.getMySQLUser().username + "> " + statement.toString().substring(43));
-            }
-            else {
+            } else {
                 System.out.println("\n" + database.getUsername() + "> " + statement.toString().substring(43));
             }
         }
-        try{
+        try {
             statement.execute();
             System.out.println("\t" + statement.getUpdateCount() + " row(s) updated.");
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
