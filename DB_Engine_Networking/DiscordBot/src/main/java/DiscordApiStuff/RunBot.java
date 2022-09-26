@@ -67,8 +67,8 @@ public class RunBot {
         // now start the slash command handling
         HandleSlashCommands slashCommands = new HandleSlashCommands(discordApi);
 
-        // start listening for slash commands
-        slashCommands.startHandlingSlashCommands();
+        // start listening for slash commands + button presses
+        slashCommands.initializeHandler();
     }
 
     /**
