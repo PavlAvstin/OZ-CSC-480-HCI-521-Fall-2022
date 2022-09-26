@@ -8,7 +8,9 @@
         <feature>jdbc-4.3</feature>
     </featureManager>
 
+<dataSource>
 
+</dataSource>
 
 
     <!-- This template enables security. To get the full use of all the capabilities, a keystore and user registry are required. -->
