@@ -8,6 +8,13 @@ public class TableCreation {
     private static Connection connection;
     private static String serverName;
 
+    /**
+     * Creates the Database's Tables and Foreign Key constraints
+     *
+     * @param connection the connection to the MySQL database
+     * @param serverName the name of the MySQL server that will have Tables created for
+     * @throws SQLException an exception that provides information on a database access error or other errors
+     */
     public static void createTablesAndFKs(Connection connection, String serverName) throws SQLException {
         TableCreation.connection = connection;
         TableCreation.serverName = serverName;
@@ -82,7 +89,7 @@ public class TableCreation {
     }
 
     private static void createChannelsTable() {
-        try  {
+        try {
 
             connection.createStatement().execute("CREATE TABLE IF NOT EXISTS `channels` (\n" +
                     "    `text_channel_discord_id` BIGINT  NOT NULL ,\n" +
@@ -98,7 +105,7 @@ public class TableCreation {
         }
     }
 
-    private static void createAuthorsTable()  {
+    private static void createAuthorsTable() {
         try {
 
             connection.createStatement().execute("CREATE TABLE IF NOT EXISTS `authors` (\n" +
@@ -121,8 +128,7 @@ public class TableCreation {
                     "REFERENCES `authors` (`discord_id`) ON DELETE CASCADE");
             connection.createStatement().execute("ALTER TABLE `messages` ADD CONSTRAINT `fk_messages_channels_text_channel_discord_id` FOREIGN KEY(`channels_text_channel_discord_id`)\n" +
                     "REFERENCES `channels` (`text_channel_discord_id`) ON DELETE CASCADE");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Error while creating foreign key constraints for table messages for server " + serverName);
             System.out.println(e.getMessage());
         }
@@ -137,8 +143,7 @@ public class TableCreation {
                     "REFERENCES `authors` (`discord_id`)");
             connection.createStatement().execute("ALTER TABLE `reactions` ADD CONSTRAINT `fk_reactions_dictionary_emoji` FOREIGN KEY(`dictionary_emoji`)\n" +
                     "REFERENCES `dictionary` (`emoji`)");
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             System.out.println("Error while creating foreign key constraints for reactions table for server " + serverName);
             System.out.println(e.getMessage());
         }
