@@ -10,6 +10,7 @@ import org.javacord.api.entity.intent.Intent;
 import org.javacord.api.entity.server.Server;
 
 public class RunBot {
+
     /**
      * Runs a Discord bot!
      * @param args the command line arguments
@@ -161,4 +162,5 @@ public class RunBot {
                 )
                 .login().join();
     }
+
 }

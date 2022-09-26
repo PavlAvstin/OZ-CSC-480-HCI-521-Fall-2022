@@ -21,6 +21,7 @@ import java.util.List;
 
 
 public class HandleSlashCommands {
+
     private final DiscordApi discordApi;
     private String reactionToRemove = "";
     private String meaningToRemove = "";
@@ -225,7 +226,6 @@ public class HandleSlashCommands {
         commandCreateEvent.getInteraction().respondLater(true).thenAccept(interactionResponseUpdater -> {
             try {
                 SlashCommandInteraction interaction = commandCreateEvent.getSlashCommandInteraction();
-
                 Database db = new Database(interaction.getServer().get().getId(), User.BOT);
 
                 String reaction = commandCreateEvent
@@ -354,6 +354,7 @@ public class HandleSlashCommands {
             meaningToRemove = null;
         }catch (SQLException ignored){}
     }
+
 
     // Miscellaneous Functions
     private String printDictionary(JSONArray jsonDictionary) {
