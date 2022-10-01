@@ -5,6 +5,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 import software.design.rest.Resources.DiscordResource;
+import software.design.rest.Resources.MeResource;
 
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -17,6 +18,7 @@ public class RestApplication extends Application {
 The RestApplication class adds Resources to the project so that things are aware of the REST classes.
  */
     public RestApplication(){
+        singletons.add(new MeResource());
         singletons.add(new DiscordResource());
     }
 
