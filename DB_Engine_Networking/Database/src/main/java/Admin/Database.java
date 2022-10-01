@@ -38,7 +38,6 @@ public class Database {
     private final String password;
 
     private boolean queryVisible = false;
-    public static final String CREATED_AT_QUERY = "FROM_UNIXTIME(((messages.discord_id >> 22) + 1420070400000)/1000) as created_at";
 
     public static final String[] SKINTONES = {"\uD83C\uDFFB", "\uD83C\uDFFC", "\uD83C\uDFFD", "\uD83C\uDFFE", "\uD83C\uDFFF"};
 
@@ -242,7 +241,6 @@ public class Database {
      * @throws SQLException an exception that provides information on a database access error or other errors
      */
     private void createTablesAndFKs() throws SQLException {
-        //create the database tables and foreign keys
         TableCreation.createTablesAndFKs(connection, serverName);
     }
 
@@ -258,26 +256,6 @@ public class Database {
         String time = String.valueOf(new Time((snowflake >> 22) + DISCORD_EPOCH));
         return Timestamp.valueOf(date + " " + time);
     }
-
-    /**
-     * A helper function to encode a date and time into a Discord-compatible long.
-     *
-     * @param yyyy Year
-     * @param MM   Month
-     * @param dd   Day
-     * @param hh   Hours
-     * @param mm   Minutes
-     * @param ss   Seconds
-     * @return Snowflake offset by Discord Epoch
-     */
-    public static long getLongFromDate(int yyyy, int MM, int dd, int hh, int mm, int ss) {
-
-        Timestamp stamp = Timestamp.valueOf("" + yyyy + "-" + MM + "-" + dd + " " + hh + ":" + mm + ":" + ss);
-
-        return ((stamp.getTime() - Database.DISCORD_EPOCH) << 22);
-    }
-
-    //toggles whether executed queries and results will be shown in the console
 
     /**
      * Toggles verbose output in the console.

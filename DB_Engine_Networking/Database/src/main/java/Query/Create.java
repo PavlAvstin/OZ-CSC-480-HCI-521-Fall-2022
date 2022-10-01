@@ -14,7 +14,8 @@ public class Create {
     }
 
     /**
-     * Adds a new message to the messages table
+     * Adds a new message to the messages table. If no updated_at parameter is provided, it will be derived from the
+     * discord_id of the message being added.
      *
      * @param discord_id                       The Discord ID of the message
      * @param authors_discord_id               The Discord ID of the author who created the message
@@ -25,22 +26,23 @@ public class Create {
     public void message(long discord_id, long authors_discord_id, long channels_text_channel_discord_id, String content) throws SQLException {
 
         //if the message has not been edited but is being newly added to the database, insert null and call the regular function
-        message(discord_id, authors_discord_id, channels_text_channel_discord_id, content, -1L);
+        message(discord_id, authors_discord_id, channels_text_channel_discord_id, content, discord_id);
     }
 
     /**
-     * Adds a new message to the messages table that had already been edited prior to having a valid reaction
+     * Adds a new message to the messages table. If no updated_at parameter is provided, it will be derived from the
+     * discord_id of the message being added.
      *
      * @param discord_id                       The Discord ID of the message
      * @param authors_discord_id               The Discord ID of the author who created the message
      * @param channels_text_channel_discord_id The Discord ID of the channel the message resides in
      * @param content                          The content of the message
-     * @param updated_at                       The time the message was edited. Database.getLongFromDate() to convert a human-readable date into a long
+     * @param updated_at                       The time the message was edited.
      * @throws SQLException an exception that provides information on a database access error or other errors
      */
     public void message(long discord_id, long authors_discord_id, long channels_text_channel_discord_id, String content, long updated_at) throws SQLException {
 
-        //trim to size if necessary
+        //trim to size if necessary (it shouldn't be necessary)
         if (content.length() > Database.MESSAGE_LIMIT) content = content.trim().substring(0, Database.MESSAGE_LIMIT);
 
         //prepare the SQL statement
