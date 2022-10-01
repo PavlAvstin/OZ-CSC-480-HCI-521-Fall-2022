@@ -28,10 +28,11 @@ public class Read {
      */
     public JSONObject message(long discord_id) throws SQLException {
         PreparedStatement statement = database.connection().prepareStatement(
-                "SELECT discord_id, authors_discord_id, channels_text_channel_discord_id, content, updated_at, text_channel_nickname, " + Database.CREATED_AT_QUERY + "\n" +
-                        "\t\t\tFROM messages, channels\n" +
+                "SELECT messages.discord_id, authors_discord_id, channels_text_channel_discord_id, content, updated_at, text_channel_nickname, author_nickname\n" +
+                        "\t\t\tFROM messages, channels, authors\n" +
                         "\t\t\tWHERE channels_text_channel_discord_id = text_channel_discord_id\n" +
-                        "\t\t\tAND discord_id = ?"
+                        "\t\t\tAND authors_discord_id = authors.discord_id\n" +
+                        "\t\t\tAND messages.discord_id = ?"
 
         );
 
@@ -85,9 +86,11 @@ public class Read {
      */
     public JSONArray messagesByAuthor(long authors_discord_id) throws SQLException {
         PreparedStatement statement = database.connection().prepareStatement(
-                "SELECT *, " + Database.CREATED_AT_QUERY + "\n" +
-                        "\t\t\tFROM messages\n" +
-                        "\t\t\tWHERE authors_discord_id = ?"
+                "SELECT messages.discord_id, authors_discord_id, channels_text_channel_discord_id, content, updated_at, text_channel_nickname, author_nickname\n" +
+                        "\t\t\tFROM messages, channels, authors\n" +
+                        "\t\t\tWHERE authors_discord_id = ?\n" +
+                        "\t\t\tAND channels_text_channel_discord_id = text_channel_discord_id\n" +
+                        "\t\t\tAND authors_discord_id = authors.discord_id"
         );
 
         statement.setLong(1, authors_discord_id);
@@ -128,7 +131,7 @@ public class Read {
      */
     public JSONArray messagesByReaction(String emoji) throws SQLException {
         PreparedStatement statement = database.connection().prepareStatement(
-                "SELECT DISTINCT messages.authors_discord_id, dictionary_emoji, updated_at, channels_text_channel_discord_id, content, messages.discord_id, " + Database.CREATED_AT_QUERY + "\n" +
+                "SELECT DISTINCT messages.authors_discord_id, dictionary_emoji, updated_at, channels_text_channel_discord_id, content, messages.discord_id\n" +
                         "\t\t\tFROM reactions, messages, authors\n" +
                         "\t\t\tWHERE message_discord_id = messages.discord_id\n" +
                         "\t\t\tAND messages.authors_discord_id = authors.discord_id\n" +
@@ -151,7 +154,7 @@ public class Read {
      */
     public JSONArray messagesByEmojiMeaning(String meaning) throws SQLException {
         PreparedStatement statement = database.connection().prepareStatement(
-                "SELECT DISTINCT messages.authors_discord_id, emoji, updated_at, meaning, channels_text_channel_discord_id, content, messages.discord_id, " + Database.CREATED_AT_QUERY + " \n" +
+                "SELECT DISTINCT messages.authors_discord_id, emoji, updated_at, meaning, channels_text_channel_discord_id, content, messages.discord_id\n" +
                         "\t\t\tFROM reactions, dictionary, messages\n" +
                         "\t\t\tWHERE message_discord_id = messages.discord_id\n" +
                         "\t\t\tAND dictionary_emoji = dictionary.emoji\n" +
