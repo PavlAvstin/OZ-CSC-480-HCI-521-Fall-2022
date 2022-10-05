@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.List;
 
 
@@ -27,8 +28,8 @@ public class HandleSlashCommands {
 
     private final DiscordApi discordApi;
     private String reactionToRemove = "";
-    private String meaningToRemove = "";
-
+    private static final String [] reactions = { "🧠", "⭐️", "❓", "😂" };
+    private static final String [] meanings = { "Interesting", "Important", "Confusing", "Funny" };
 
     //Initializing Handler
 
@@ -55,9 +56,8 @@ public class HandleSlashCommands {
                 Arrays.asList(
                         dictionaryCommand(),
                         meaningCommand(),
-                        addPairCommand(),
-                        removePairCommand(),
-                        clearDictionary()
+                        addPairAndDefaultsCommand(),
+                        removeReactionAndDictionaryCommand()
                 )
         ).join();
 
@@ -94,13 +94,19 @@ public class HandleSlashCommands {
                     if(interaction.getOptions().get(0).getName().equals("pair")){
                         handleAddPairCommand(commandCreateEvent);
                     }
+                    else if (interaction.getOptions().get(0).getName().equals("defaults")) {
+                        handleAddDefaultsCommand(commandCreateEvent);
+                    }
                 }
                 break;
 
                 case "remove":
                 {
-                    if(interaction.getOptions().get(0).getName().equals("pair")) {
-                        handleRemovePairCommand(commandCreateEvent);
+                    if(interaction.getOptions().get(0).getName().equals("reaction")) {
+                        handleRemoveReactionCommand(commandCreateEvent);
+                    }
+                    else if (interaction.getOptions().get(0).getName().equals("dictionary")) {
+                        handleRemoveDictionaryCommand(commandCreateEvent);
                     }
                 }
                 break;
@@ -123,6 +129,7 @@ public class HandleSlashCommands {
         System.out.println("Bot now listening for slash commands...");
     }
 
+
     /**
      * Creates the button press listener
      * and passes the handling of each button press
@@ -132,9 +139,12 @@ public class HandleSlashCommands {
         this.discordApi.addButtonClickListener(buttonClickEvent -> {
             String customId = buttonClickEvent.getButtonInteraction().getCustomId();
             switch (customId){
-                case "remove":
-                    handleRemovePairButton(buttonClickEvent);
+                case "removeReaction":
+                    handleRemoveReactionButton(buttonClickEvent);
                 break;
+                case "removeDictionary":
+                    handleRemoveDictionaryButton(buttonClickEvent);
+                    break;
                 case "cancel":
                     handleCancelButton(buttonClickEvent);
                 break;
@@ -142,6 +152,7 @@ public class HandleSlashCommands {
         });
         System.out.println("Bot now listening for button presses...");
     }
+
 
 
     // Command Definitions
@@ -171,11 +182,17 @@ public class HandleSlashCommands {
     }
 
     /**
-     * Defines the '/add pair (reaction) (meaning)' command
+     * Defines the '/add pair (reaction) (meaning)'
+     * and the '/add defaults' command
      */
-    private SlashCommandBuilder addPairCommand() {
-        return SlashCommand.with("add", "sets the meaning of a reaction",
+    private SlashCommandBuilder addPairAndDefaultsCommand() {
+        return SlashCommand.with("add", "description",
                 List.of(
+                        SlashCommandOption.create(
+                                SlashCommandOptionType.SUB_COMMAND,
+                                "defaults",
+                                "sets the meaning of a reaction"
+                        ),
                         SlashCommandOption.createWithOptions(
                                 SlashCommandOptionType.SUB_COMMAND,
                                 "pair",
@@ -193,45 +210,37 @@ public class HandleSlashCommands {
                                                 "The meaning of the reaction",
                                                 true
                                         )
-                                ))));
+                                )
+                        )));
     }
 
     /**
-     * Defines the '/remove pair (reaction) (meaning)' command
+     * Defines the '/remove reaction (reaction)'
+     * and the '/remove dictionary' command
      */
-    private SlashCommandBuilder removePairCommand() {
-        return SlashCommand.with("remove", "sets the meaning of a reaction",
+    private SlashCommandBuilder removeReactionAndDictionaryCommand() {
+        return SlashCommand.with("remove", "description",
                 List.of(
+                        SlashCommandOption.create(
+                                SlashCommandOptionType.SUB_COMMAND,
+                                "dictionary",
+                                "Removes all reactions from the dictionary"
+                        ),
                         SlashCommandOption.createWithOptions(
                                 SlashCommandOptionType.SUB_COMMAND,
-                                "pair",
-                                "sets the meaning of a reaction",
+                                "reaction",
+                                "Removes a single reaction from the dictionary",
                                 List.of(
                                         SlashCommandOption.createWithChoices(
                                                 SlashCommandOptionType.STRING,
                                                 "reaction",
-                                                "The reaction to set",
-                                                true
-                                        ),
-                                        SlashCommandOption.createWithChoices(
-                                                SlashCommandOptionType.STRING,
-                                                "meaning",
-                                                "The meaning of the reaction",
+                                                "the reaction to be removed",
                                                 true
                                         )
-                                ))));
+                                ))
+                        ));
     }
 
-    private SlashCommandBuilder clearDictionary(){
-        return SlashCommand.with("clear", "sets the meaning of a reaction",
-                List.of(
-                        SlashCommandOption.createWithOptions(
-                                SlashCommandOptionType.SUB_COMMAND,
-                                "dictionary",
-                                "sets the meaning of a reaction"
-
-                                )));
-    }
 
     //Command Handling
 
@@ -260,6 +269,31 @@ public class HandleSlashCommands {
                         .update();
             }
         });
+    }
+
+    private void handleAddDefaultsCommand(SlashCommandCreateEvent commandCreateEvent) {
+        commandCreateEvent.getInteraction().respondLater(true).thenAccept(interactionResponseUpdater -> {
+            try {
+                SlashCommandInteraction interaction = commandCreateEvent.getSlashCommandInteraction();
+                Database db = new Database(interaction.getServer().get().getId(), User.BOT);
+
+
+                for(int i = 0; i< reactions.length; i++) {
+                    db.create.dictionaryEntry(reactions[i], meanings[i]);
+                }
+                interactionResponseUpdater
+                        .setContent("The default reactions have been added")
+                        .update();
+
+                db.closeConnection();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                interactionResponseUpdater
+                        .setContent("An error occurred")
+                        .update();
+            }
+        });
+
     }
 
     /**
@@ -319,12 +353,17 @@ public class HandleSlashCommands {
 
 
                 if(EmojiManager.isEmoji(reaction) && EmojiParser.extractEmojis(reaction).size() == 1){
-                    db.create.dictionaryEntry(reaction, meaning);
-                    interactionResponseUpdater
-                            .setContent("the " + reaction + " reaction now means: " + meaning)
-                            .update();
-                }
-                else{
+                    if(db.read.meaningsByEmoji(reaction).length() == 0) {
+                        db.create.dictionaryEntry(reaction, meaning);
+                        interactionResponseUpdater
+                                .setContent("the " + reaction + " reaction now means: " + meaning)
+                                .update();
+                    } else {
+                        interactionResponseUpdater
+                                .setContent("the " + reaction + " reaction already exists in the dictionary")
+                                .update();
+                    }
+                } else {
                     interactionResponseUpdater
                             .setContent("incorrect format")
                             .update();
@@ -340,30 +379,28 @@ public class HandleSlashCommands {
     }
 
     /**
-     * Handles the '/remove pair (reaction) (meaning)' command
+     * Handles the '/remove reaction (reaction)' command
      * by displaying a confirmation request
      * (Ephemerally)
      */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    private void handleRemovePairCommand(SlashCommandCreateEvent commandCreateEvent){
-        commandCreateEvent.getInteraction().respondLater(true).thenAccept(interactionResponseUpdater -> {
+    private void handleRemoveReactionCommand(SlashCommandCreateEvent commandCreateEvent){
+        commandCreateEvent.getInteraction().respondLater().thenAccept(interactionResponseUpdater -> {
             try {
                 SlashCommandInteraction interaction = commandCreateEvent.getSlashCommandInteraction();
                 Database db = new Database(interaction.getServer().get().getId(), User.BOT);
 
                 String reaction = interaction.getArguments().get(0).getStringValue().get();
-                String meaning = interaction.getArguments().get(1).getStringValue().get();
 //                if(EmojiManager.isEmoji(reaction) && EmojiParser.extractEmojis(reaction).size() == 1){
 //
 //                }
                 if (db.read.meaningsByEmoji(reaction).length() != 0) {
                     reactionToRemove = reaction;
-                    meaningToRemove = meaning;
                     interactionResponseUpdater
                             .addComponents(
                                     ActionRow.of(
                                             Button.secondary("cancel", "cancel"),
-                                            Button.danger("remove", "remove pair"))
+                                            Button.danger("removeReaction", "remove pair"))
                             )
                             .update();
                 }
@@ -382,6 +419,19 @@ public class HandleSlashCommands {
         });
     }
 
+    private void handleRemoveDictionaryCommand(SlashCommandCreateEvent commandCreateEvent) {
+        commandCreateEvent.getInteraction().respondLater().thenAccept(interactionResponseUpdater -> {
+
+                interactionResponseUpdater
+                        .addComponents(
+                                ActionRow.of(
+                                        Button.secondary("cancel", "cancel"),
+                                        Button.danger("removeDictionary", "remove dictionary"))
+                        )
+                        .update();
+        });
+    }
+
 
     //Button Handling
 
@@ -392,14 +442,16 @@ public class HandleSlashCommands {
      * (Ephemerally)
      */
     private void handleCancelButton(ButtonClickEvent buttonClickEvent) {
-        buttonClickEvent.getButtonInteraction()
+
+        ButtonInteraction interaction = buttonClickEvent.getButtonInteraction();
+        interaction.getMessage().removeContent();
+        interaction
                 .createImmediateResponder()
                 .setFlags(MessageFlag.EPHEMERAL)
-                .setContent("removal canceled")
+                .setContent("removal cancelled")
                 .respond();
-        buttonClickEvent.getButtonInteraction().getMessage().delete();
+
         reactionToRemove = null;
-        meaningToRemove = null;
     }
 
     /**
@@ -410,23 +462,54 @@ public class HandleSlashCommands {
      * (Ephemerally)
      */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    private void handleRemovePairButton(ButtonClickEvent buttonClickEvent) {
+    private void handleRemoveReactionButton(ButtonClickEvent buttonClickEvent) {
         try {
             ButtonInteraction interaction = buttonClickEvent.getButtonInteraction();
             Database db = new Database(interaction.getServer().get().getId(), User.BOT);
+            String meaningToRemove = ((JSONObject)(db.read.meaningsByEmoji(reactionToRemove).get(0))).get("meaning").toString();
             db.delete.dictionaryEntry(reactionToRemove, meaningToRemove);
-            interaction.getMessage().delete();
-            buttonClickEvent.getButtonInteraction()
+
+            interaction.getMessage().removeContent();
+            interaction
                     .createImmediateResponder()
                     .setFlags(MessageFlag.EPHEMERAL)
                     .setContent("removal confirmed")
                     .respond();
 
+            interaction.getMessage().delete();
+
             reactionToRemove = null;
-            meaningToRemove = null;
+
         }catch (SQLException ignored){}
     }
 
+    private void handleRemoveDictionaryButton(ButtonClickEvent buttonClickEvent) {
+        try {
+            ButtonInteraction interaction = buttonClickEvent.getButtonInteraction();
+            Database db = new Database(interaction.getServer().get().getId(), User.BOT);
+
+
+            JSONArray jsonDictionary = db.read.dictionary();
+            for (Object obj : jsonDictionary){
+                JSONObject tableRow = (JSONObject) (obj);
+                String reaction = (String) tableRow.get("emoji");
+                String meaning = (String) tableRow.get("meaning");
+                db.delete.dictionaryEntry(reaction, meaning);
+            }
+
+
+            interaction.getMessage().removeContent();
+            interaction
+                    .createImmediateResponder()
+                    .setFlags(MessageFlag.EPHEMERAL)
+                    .setContent("removal confirmed")
+                    .respond();
+
+            interaction.getMessage().delete();
+
+
+        } catch (SQLException ignored){}
+    }
 
     // Miscellaneous Functions
 
