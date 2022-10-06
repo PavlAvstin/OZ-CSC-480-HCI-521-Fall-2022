@@ -46,6 +46,8 @@ public class Create {
         if (content.length() > Database.MESSAGE_LIMIT)
             content = content.trim().substring(0, Database.MESSAGE_LIMIT);
 
+        //prepare the SQL statement
+        PreparedStatement statement = database.connection().prepareStatement(
         try(PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO messages\n" +
                         "\t\t\tVALUES(?, ?, ?, ?, ?)"
