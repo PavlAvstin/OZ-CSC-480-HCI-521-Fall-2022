@@ -111,6 +111,7 @@ public class TableCreation {
             connection.createStatement().execute("CREATE TABLE IF NOT EXISTS `authors` (\n" +
                     "    `discord_id` BIGINT  NOT NULL ,\n" +
                     "    `author_nickname` varchar(32)  NOT NULL ,\n" +
+                    "    `avatar_hash` varchar(32) NULL ,\n" +
                     "    PRIMARY KEY (\n" +
                     "        `discord_id`\n" +
                     "    )\n" +
