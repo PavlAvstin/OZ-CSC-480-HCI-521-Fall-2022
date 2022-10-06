@@ -9,9 +9,11 @@ import java.sql.SQLException;
 public class Create {
 
     private final Database database;
+    private final Connection connection;
 
     public Create(Database database) {
         this.database = database;
+        this.connection = database.connection();
     }
 
     /**
@@ -22,10 +24,8 @@ public class Create {
      * @param authors_discord_id               The Discord ID of the author who created the message
      * @param channels_text_channel_discord_id The Discord ID of the channel the message resides in
      * @param content                          The content of the message
-     * @throws SQLException an exception that provides information on a database access error or other errors
      */
-    public void message(long discord_id, long authors_discord_id, long channels_text_channel_discord_id, String content) throws SQLException {
-
+    public void message(long discord_id, long authors_discord_id, long channels_text_channel_discord_id, String content) {
         //if the message has not been edited but is being newly added to the database, insert null and call the regular function
         message(discord_id, authors_discord_id, channels_text_channel_discord_id, content, discord_id);
     }
@@ -40,40 +40,26 @@ public class Create {
      * @param content                          The content of the message
      * @param updated_at                       The time the message was edited.
      */
-    public void message(long discord_id, long authors_discord_id, long channels_text_channel_discord_id, String content, long updated_at) throws SQLException {
+    public void message(long discord_id, long authors_discord_id, long channels_text_channel_discord_id, String content, long updated_at) {
 
         //trim to size if necessary (it shouldn't be necessary)
-        if (content.length() > Database.MESSAGE_LIMIT) content = content.trim().substring(0, Database.MESSAGE_LIMIT);
+        if (content.length() > Database.MESSAGE_LIMIT)
+            content = content.trim().substring(0, Database.MESSAGE_LIMIT);
 
-//        try(Connection connection = database.connection();
-//            PreparedStatement statement = connection.prepareStatement(
-//                "INSERT INTO messages\n" +
-//                        "\t\t\tVALUES(?, ?, ?, ?, ?)"
-//        )){
-//            statement.setLong(1, discord_id);
-//            statement.setLong(2, authors_discord_id);
-//            statement.setLong(3, channels_text_channel_discord_id);
-//            statement.setString(4, content);
-//            statement.setTimestamp(5, Database.getTimestampFromLong(updated_at));
-//
-//            execute(statement, connection);
-//        }catch(SQLException e){
-//            System.out.println(e.getMessage());
-//        }
-
-        //prepare the SQL statement
-        PreparedStatement statement = database.connection().prepareStatement(
+        try(PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO messages\n" +
                         "\t\t\tVALUES(?, ?, ?, ?, ?)"
-        );
+        )){
+            statement.setLong(1, discord_id);
+            statement.setLong(2, authors_discord_id);
+            statement.setLong(3, channels_text_channel_discord_id);
+            statement.setString(4, content);
+            statement.setTimestamp(5, Database.getTimestampFromLong(updated_at));
 
-        statement.setLong(1, discord_id);
-        statement.setLong(2, authors_discord_id);
-        statement.setLong(3, channels_text_channel_discord_id);
-        statement.setString(4, content);
-        statement.setTimestamp(5, Database.getTimestampFromLong(updated_at));
-
-        execute(statement);
+            execute(statement);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
@@ -89,15 +75,18 @@ public class Create {
             nickname = nickname.trim().substring(0, Database.NICKNAME_LIMIT);
 
         //prepare the SQL statement
-        PreparedStatement statement = database.connection().prepareStatement(
+        try(PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO authors\n" +
                         "\t\t\tVALUES(?, ?, NULL)"
-        );
+        )) {
 
-        statement.setLong(1, discord_id);
-        statement.setString(2, nickname);
+            statement.setLong(1, discord_id);
+            statement.setString(2, nickname);
 
-        execute(statement);
+            execute(statement);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
@@ -114,16 +103,18 @@ public class Create {
             nickname = nickname.trim().substring(0, Database.NICKNAME_LIMIT);
 
         //prepare the SQL statement
-        PreparedStatement statement = database.connection().prepareStatement(
+        try(PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO authors\n" +
                         "\t\t\tVALUES(?, ?, ?)"
-        );
+        )) {
+            statement.setLong(1, discord_id);
+            statement.setString(2, nickname);
+            statement.setString(3, avatar_hash);
 
-        statement.setLong(1, discord_id);
-        statement.setString(2, nickname);
-        statement.setString(3, avatar_hash);
-
-        execute(statement);
+            execute(statement);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
@@ -134,21 +125,21 @@ public class Create {
      * @throws SQLException an exception that provides information on a database access error or other errors
      */
     public void dictionaryEntry(String emoji, String meaning) throws SQLException {
-
         //trim to size if necessary
         if (meaning.length() > Database.MEANING_LIMIT) meaning = meaning.trim().substring(0, Database.MEANING_LIMIT);
         if (emoji.length() > Database.EMOJI_LIMIT) emoji = emoji.trim().substring(0, Database.EMOJI_LIMIT);
 
-        //prepare the SQL statement
-        PreparedStatement statement = database.connection().prepareStatement(
+        try(PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO dictionary\n" +
                         "\t\t\tVALUES(?, ?)"
-        );
+        )) {
+            statement.setString(1, Database.removeSkinTone(emoji));
+            statement.setString(2, meaning);
 
-        statement.setString(1, Database.removeSkinTone(emoji));
-        statement.setString(2, meaning);
-
-        execute(statement);
+            execute(statement);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
@@ -162,19 +153,21 @@ public class Create {
     public void reaction(long message_discord_id, long authors_discord_id, String emoji) throws SQLException {
 
         //trim to size if necessary
-        if (emoji.length() > Database.EMOJI_LIMIT) emoji = emoji.trim().substring(0, Database.EMOJI_LIMIT);
+        if (emoji.length() > Database.EMOJI_LIMIT)
+            emoji = emoji.trim().substring(0, Database.EMOJI_LIMIT);
 
-        //prepare the SQL statement
-        PreparedStatement statement = database.connection().prepareStatement(
+        try(PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO reactions\n" +
                         "\t\t\tVALUES(?, ?, ?)"
-        );
+        )) {
+            statement.setLong(1, message_discord_id);
+            statement.setLong(2, authors_discord_id);
+            statement.setString(3, Database.removeSkinTone(emoji));
 
-        statement.setLong(1, message_discord_id);
-        statement.setLong(2, authors_discord_id);
-        statement.setString(3, Database.removeSkinTone(emoji));
-
-        execute(statement);
+            execute(statement);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
@@ -191,35 +184,21 @@ public class Create {
             text_channel_nickname = text_channel_nickname.trim().substring(0, 32);
 
         //prepare the SQL statement
-        PreparedStatement statement = database.connection().prepareStatement(
+        try(PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO channels\n" +
                         "\t\t\tVALUES(?, ?)"
-        );
+        )) {
+            statement.setLong(1, text_channel_discord_id);
+            statement.setString(2, text_channel_nickname);
 
-        statement.setLong(1, text_channel_discord_id);
-        statement.setString(2, text_channel_nickname);
-
-        execute(statement);
+            execute(statement);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
     }
 
-//    private void execute(PreparedStatement statement, Connection connection) throws SQLException {
-//        connection.createStatement().execute("use " + database.serverName);
-//        if (database.isQueryVisible()) {
-//            if (database.isEnum()) {
-//                System.out.println("\n" + database.getMySQLUser().username + "> " + statement.toString().substring(43));
-//            } else {
-//                System.out.println("\n" + database.getUsername() + "> " + statement.toString().substring(43));
-//            }
-//        }
-//        try {
-//            statement.execute();
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
-//    }
-
     private void execute(PreparedStatement statement) throws SQLException {
-        database.connection().createStatement().execute("use " + database.serverName);
+        connection.createStatement().execute("use " + database.serverName);
         if (database.isQueryVisible()) {
             if (database.isEnum()) {
                 System.out.println("\n" + database.getMySQLUser().username + "> " + statement.toString().substring(43));

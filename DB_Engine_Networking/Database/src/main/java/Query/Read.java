@@ -5,17 +5,16 @@ import Admin.Database;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class Read {
 
     private final Database database;
+    private final Connection connection;
 
     public Read(Database database) {
         this.database = database;
+        this.connection = database.connection();
     }
 
     /**
@@ -23,73 +22,86 @@ public class Read {
      *
      * @param discord_id The Discord ID of the message being sought
      * @return Returns a JSON Object containing the message
-     * @throws SQLException an exception that provides information on a database access error or other errors
      */
-    public JSONObject message(long discord_id) throws SQLException {
-        PreparedStatement statement = database.connection().prepareStatement(
+    public JSONObject message(long discord_id)  {
+
+        JSONObject row = new JSONObject();
+
+        try(PreparedStatement statement = connection.prepareStatement(
                 "SELECT messages.discord_id, authors_discord_id, channels_text_channel_discord_id, content, updated_at, text_channel_nickname, author_nickname\n" +
                         "\t\t\tFROM messages, channels, authors\n" +
                         "\t\t\tWHERE channels_text_channel_discord_id = text_channel_discord_id\n" +
                         "\t\t\tAND authors_discord_id = authors.discord_id\n" +
                         "\t\t\tAND messages.discord_id = ?"
+        )) {
+            statement.setLong(1, discord_id);
+            ResultSet resultSet = execute(statement);
 
-        );
+            if (!resultSet.next()) return row;
 
-        statement.setLong(1, discord_id);
+            String[] columnNames = getColumnNames(resultSet);
 
-        ResultSet resultSet = execute(statement);
-        if (!resultSet.next()) return new JSONObject();
+            for (String columnName : columnNames) {
+                row.put(columnName, resultSet.getObject(columnName));
+            }
 
-        String[] columnNames = getColumnNames(resultSet);
+            if (database.isQueryVisible()) System.out.println("\t\t" + row);
 
-        JSONObject row = new JSONObject();
-
-        for (String columnName : columnNames) {
-            row.put(columnName, resultSet.getObject(columnName));
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
-
-        if (database.isQueryVisible()) System.out.println("\t\t" + row);
         return row;
-
     }
 
     /**
      * Reads the author's nickname
      *
      * @param discord_id The Discord ID of the author
-     * @return The author's nickname
-     * @throws SQLException an exception that provides information on a database access error or other errors
+     * @return The author's nickname, or an empty string if there is an SQL exception.
      */
-    public String nickname(long discord_id) throws SQLException {
-        PreparedStatement statement = database.connection().prepareStatement(
+    public String nickname(long discord_id) {
+        try(PreparedStatement statement = connection.prepareStatement(
                 "SELECT author_nickname\n" +
                         "\t\t\tFROM authors\n" +
-                        "\t\t\tWHERE discord_id = ?");
+                        "\t\t\tWHERE discord_id = ?"
+        )){
+            statement.setLong(1, discord_id);
 
-        statement.setLong(1, discord_id);
+            ResultSet resultSet = execute(statement);
 
-        ResultSet resultSet = execute(statement);
-        if (!resultSet.next()) return "";
+            //if the resultSet is empty
+            if (!resultSet.next()) return "ERROR - RESULT SET EMPTY";
 
-        if (database.isQueryVisible()) System.out.println("\t\t" + resultSet.getString(1));
+            if (database.isQueryVisible()) System.out.println("\t\t" + resultSet.getString(1));
 
-        return resultSet.getString(1);
+            return resultSet.getString(1);
+        } catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+        //if there's an exception
+        return "ERROR - SQL EXCEPTION";
     }
 
-    public String avatarHash(long discord_id) throws SQLException {
-        PreparedStatement statement = database.connection().prepareStatement(
+    public String avatarHash(long discord_id) {
+        try(PreparedStatement statement = connection.prepareStatement(
                 "SELECT avatar_hash\n" +
                         "\t\t\tFROM authors\n" +
-                        "\t\t\tWHERE discord_id = ?");
+                        "\t\t\tWHERE discord_id = ?"
+        )) {
+            statement.setLong(1, discord_id);
+            ResultSet resultSet = execute(statement);
 
-        statement.setLong(1, discord_id);
+            //if resultSet is empty
+            if (!resultSet.next()) return "ERROR - RESULT SET EMPTY";
 
-        ResultSet resultSet = execute(statement);
-        if (!resultSet.next()) return "";
+            if (database.isQueryVisible()) System.out.println("\t\t" + resultSet.getString(1));
 
-        if (database.isQueryVisible()) System.out.println("\t\t" + resultSet.getString(1));
-
-        return resultSet.getString(1);
+            return resultSet.getString(1);
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        //if there was an exception
+        return "ERROR - SQL EXCEPTION";
     }
 
     /**
@@ -97,23 +109,25 @@ public class Read {
      *
      * @param authors_discord_id The Discord ID of the author
      * @return A JSON Array of the Discord IDs of each stored message the author has posted
-     * @throws SQLException an exception that provides information on a database access error or other errors
      */
-    public JSONArray messagesByAuthor(long authors_discord_id) throws SQLException {
-        PreparedStatement statement = database.connection().prepareStatement(
+    public JSONArray messagesByAuthor(long authors_discord_id) {
+        try(PreparedStatement statement = connection.prepareStatement(
                 "SELECT messages.discord_id, authors_discord_id, channels_text_channel_discord_id, content, updated_at, text_channel_nickname, author_nickname\n" +
                         "\t\t\tFROM messages, channels, authors\n" +
                         "\t\t\tWHERE authors_discord_id = ?\n" +
                         "\t\t\tAND channels_text_channel_discord_id = text_channel_discord_id\n" +
                         "\t\t\tAND authors_discord_id = authors.discord_id"
-        );
+        )) {
+            statement.setLong(1, authors_discord_id);
 
-        statement.setLong(1, authors_discord_id);
+            ResultSet resultSet = execute(statement);
 
-        ResultSet resultSet = execute(statement);
-
-        return convertToJSONArray(resultSet);
-
+            return convertToJSONArray(resultSet);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+        //empty results if there's an exception
+        return new JSONArray();
     }
 
     /**
@@ -121,20 +135,24 @@ public class Read {
      *
      * @param message_discord_id The Discord ID of the message
      * @return A JSON Array of each reaction made to a message
-     * @throws SQLException an exception that provides information on a database access error or other errors
      */
-    public JSONArray reactionsByMessage(long message_discord_id) throws SQLException {
-        PreparedStatement statement = database.connection().prepareStatement(
+    public JSONArray reactionsByMessage(long message_discord_id) {
+        try(PreparedStatement statement = connection.prepareStatement(
                 "SELECT *\n" +
                         "\t\t\tFROM reactions\n" +
                         "\t\t\tWHERE message_discord_id = ?"
-        );
+        )){
+            statement.setLong(1, message_discord_id);
 
-        statement.setLong(1, message_discord_id);
+            ResultSet resultSet = execute(statement);
 
-        ResultSet resultSet = execute(statement);
+            return convertToJSONArray(resultSet);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
 
-        return convertToJSONArray(resultSet);
+        //if there's an exception
+        return new JSONArray();
     }
 
     /**
@@ -142,22 +160,26 @@ public class Read {
      *
      * @param emoji The reaction emoji
      * @return A JSON Array of all the messages with the specified reaction
-     * @throws SQLException an exception that provides information on a database access error or other errors
      */
-    public JSONArray messagesByReaction(String emoji) throws SQLException {
-        PreparedStatement statement = database.connection().prepareStatement(
+    public JSONArray messagesByReaction(String emoji) {
+        try(PreparedStatement statement = connection.prepareStatement(
                 "SELECT DISTINCT messages.authors_discord_id, dictionary_emoji, updated_at, channels_text_channel_discord_id, content, messages.discord_id\n" +
                         "\t\t\tFROM reactions, messages, authors\n" +
                         "\t\t\tWHERE message_discord_id = messages.discord_id\n" +
                         "\t\t\tAND messages.authors_discord_id = authors.discord_id\n" +
                         "\t\t\tAND dictionary_emoji = ?"
-        );
+        )){
+            statement.setString(1, Database.removeSkinTone(emoji));
 
-        statement.setString(1, Database.removeSkinTone(emoji));
+            ResultSet resultSet = execute(statement);
 
-        ResultSet resultSet = execute(statement);
+            return convertToJSONArray(resultSet);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
 
-        return convertToJSONArray(resultSet);
+        //if there's an exception
+        return new JSONArray();
     }
 
     /**
@@ -165,23 +187,26 @@ public class Read {
      *
      * @param meaning The meaning of reactions for messages being sought
      * @return A JSON Array of messages
-     * @throws SQLException an exception that provides information on a database access error or other errors
      */
-    public JSONArray messagesByEmojiMeaning(String meaning) throws SQLException {
-        PreparedStatement statement = database.connection().prepareStatement(
+    public JSONArray messagesByEmojiMeaning(String meaning) {
+        try(PreparedStatement statement = connection.prepareStatement(
                 "SELECT DISTINCT messages.authors_discord_id, emoji, updated_at, meaning, channels_text_channel_discord_id, content, messages.discord_id\n" +
                         "\t\t\tFROM reactions, dictionary, messages\n" +
                         "\t\t\tWHERE message_discord_id = messages.discord_id\n" +
                         "\t\t\tAND dictionary_emoji = dictionary.emoji\n" +
                         "\t\t\tAND meaning = ?"
-        );
+        )){
+            statement.setString(1, meaning);
 
-        statement.setString(1, meaning);
+            ResultSet resultSet = execute(statement);
 
-        ResultSet resultSet = execute(statement);
+            return convertToJSONArray(resultSet);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
 
-        return convertToJSONArray(resultSet);
-
+        //if there's an exception
+        return new JSONArray();
     }
 
     /**
@@ -189,20 +214,24 @@ public class Read {
      *
      * @param emoji The emoji
      * @return A JSON Array of emoji-reaction pairs
-     * @throws SQLException an exception that provides information on a database access error or other errors
      */
-    public JSONArray meaningsByEmoji(String emoji) throws SQLException {
-        PreparedStatement statement = database.connection().prepareStatement(
+    public JSONArray meaningsByEmoji(String emoji) {
+        try(PreparedStatement statement = connection.prepareStatement(
                 "SELECT emoji, meaning\n" +
                         "\t\t\tFROM dictionary\n" +
-                        "\t\t\tWHERE emoji = ?");
+                        "\t\t\tWHERE emoji = ?"
+        )){
+            statement.setString(1, Database.removeSkinTone(emoji));
 
-        statement.setString(1, Database.removeSkinTone(emoji));
+            ResultSet resultSet = execute(statement);
 
-        ResultSet resultSet = execute(statement);
+            return convertToJSONArray(resultSet);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
 
-        return convertToJSONArray(resultSet);
-
+        //if there's an exception
+        return new JSONArray();
     }
 
     /**
@@ -212,12 +241,18 @@ public class Read {
      * @throws SQLException an exception that provides information on a database access error or other errors
      */
     public JSONArray dictionary() throws SQLException {
-        PreparedStatement statement = database.connection().prepareStatement(
-                "SELECT * FROM dictionary");
+        try(PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM dictionary"
+        )){
+            ResultSet resultSet = execute(statement);
 
-        ResultSet resultSet = execute(statement);
+            return convertToJSONArray(resultSet);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
 
-        return convertToJSONArray(resultSet);
+        //if there's an exception
+        return new JSONArray();
     }
 
     private String[] getColumnNames(ResultSet resultSet) throws SQLException {
@@ -256,8 +291,7 @@ public class Read {
     }
 
     private ResultSet execute(PreparedStatement statement) throws SQLException {
-
-        database.connection().createStatement().execute("use " + database.serverName);
+        connection.createStatement().execute("use " + database.serverName);
         if (database.isQueryVisible()) {
             if (database.isEnum()) {
                 System.out.println("\n" + database.getMySQLUser().username + "> " + statement.toString().substring(43));
@@ -283,6 +317,4 @@ public class Read {
 
         return resultSet;
     }
-
-
 }
