@@ -142,7 +142,7 @@ public class TableCreation {
             connection.createStatement().execute("ALTER TABLE `reactions` ADD CONSTRAINT `fk_reactions_authors_discord_id` FOREIGN KEY(`authors_discord_id`)\n" +
                     "REFERENCES `authors` (`discord_id`)");
             connection.createStatement().execute("ALTER TABLE `reactions` ADD CONSTRAINT `fk_reactions_dictionary_emoji` FOREIGN KEY(`dictionary_emoji`)\n" +
-                    "REFERENCES `dictionary` (`emoji`)");
+                    "REFERENCES `dictionary` (`emoji`)" + "ON DELETE CASCADE");
         } catch (SQLException e) {
             System.out.println("Error while creating foreign key constraints for reactions table for server " + serverName);
             System.out.println(e.getMessage());
