@@ -45,22 +45,6 @@ public class Create {
         //trim to size if necessary (it shouldn't be necessary)
         if (content.length() > Database.MESSAGE_LIMIT) content = content.trim().substring(0, Database.MESSAGE_LIMIT);
 
-//        try(Connection connection = database.connection();
-//            PreparedStatement statement = connection.prepareStatement(
-//                "INSERT INTO messages\n" +
-//                        "\t\t\tVALUES(?, ?, ?, ?, ?)"
-//        )){
-//            statement.setLong(1, discord_id);
-//            statement.setLong(2, authors_discord_id);
-//            statement.setLong(3, channels_text_channel_discord_id);
-//            statement.setString(4, content);
-//            statement.setTimestamp(5, Database.getTimestampFromLong(updated_at));
-//
-//            execute(statement, connection);
-//        }catch(SQLException e){
-//            System.out.println(e.getMessage());
-//        }
-
         //prepare the SQL statement
         PreparedStatement statement = database.connection().prepareStatement(
                 "INSERT INTO messages\n" +
@@ -201,22 +185,6 @@ public class Create {
 
         execute(statement);
     }
-
-//    private void execute(PreparedStatement statement, Connection connection) throws SQLException {
-//        connection.createStatement().execute("use " + database.serverName);
-//        if (database.isQueryVisible()) {
-//            if (database.isEnum()) {
-//                System.out.println("\n" + database.getMySQLUser().username + "> " + statement.toString().substring(43));
-//            } else {
-//                System.out.println("\n" + database.getUsername() + "> " + statement.toString().substring(43));
-//            }
-//        }
-//        try {
-//            statement.execute();
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
-//    }
 
     private void execute(PreparedStatement statement) throws SQLException {
         database.connection().createStatement().execute("use " + database.serverName);
