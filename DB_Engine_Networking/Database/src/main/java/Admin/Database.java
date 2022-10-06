@@ -13,6 +13,7 @@ public class Database {
     public static final int NICKNAME_LIMIT = 32;
     public static final int EMOJI_LIMIT = 32;
     public static final int MEANING_LIMIT = 32;
+    public static final int AVATAR_HASH_LIMIT = 32;
     public static final int MESSAGE_LIMIT = 4000;
     public static final long DISCORD_EPOCH = 1420070400000L;
 

@@ -2,6 +2,7 @@ package Query;
 
 import Admin.Database;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -38,12 +39,27 @@ public class Create {
      * @param channels_text_channel_discord_id The Discord ID of the channel the message resides in
      * @param content                          The content of the message
      * @param updated_at                       The time the message was edited.
-     * @throws SQLException an exception that provides information on a database access error or other errors
      */
     public void message(long discord_id, long authors_discord_id, long channels_text_channel_discord_id, String content, long updated_at) throws SQLException {
 
         //trim to size if necessary (it shouldn't be necessary)
         if (content.length() > Database.MESSAGE_LIMIT) content = content.trim().substring(0, Database.MESSAGE_LIMIT);
+
+//        try(Connection connection = database.connection();
+//            PreparedStatement statement = connection.prepareStatement(
+//                "INSERT INTO messages\n" +
+//                        "\t\t\tVALUES(?, ?, ?, ?, ?)"
+//        )){
+//            statement.setLong(1, discord_id);
+//            statement.setLong(2, authors_discord_id);
+//            statement.setLong(3, channels_text_channel_discord_id);
+//            statement.setString(4, content);
+//            statement.setTimestamp(5, Database.getTimestampFromLong(updated_at));
+//
+//            execute(statement, connection);
+//        }catch(SQLException e){
+//            System.out.println(e.getMessage());
+//        }
 
         //prepare the SQL statement
         PreparedStatement statement = database.connection().prepareStatement(
@@ -68,7 +84,6 @@ public class Create {
      * @throws SQLException an exception that provides information on a database access error or other errors
      */
     public void author(long discord_id, String nickname) throws SQLException {
-
         //trim to size if necessary
         if (nickname.length() > Database.NICKNAME_LIMIT)
             nickname = nickname.trim().substring(0, Database.NICKNAME_LIMIT);
@@ -76,11 +91,37 @@ public class Create {
         //prepare the SQL statement
         PreparedStatement statement = database.connection().prepareStatement(
                 "INSERT INTO authors\n" +
-                        "\t\t\tVALUES(?, ?)"
+                        "\t\t\tVALUES(?, ?, NULL)"
         );
 
         statement.setLong(1, discord_id);
         statement.setString(2, nickname);
+
+        execute(statement);
+    }
+
+    /**
+     * Adds a new author to the Authors table
+     *
+     * @param discord_id The Discord ID of the author being added
+     * @param nickname   The Nickname of the author being added
+     * @param avatar_hash The optional hash of the author's avatar
+     * @throws SQLException an exception that provides information on a database access error or other errors
+     */
+    public void author(long discord_id, String nickname, String avatar_hash) throws SQLException {
+        //trim to size if necessary
+        if (nickname.length() > Database.NICKNAME_LIMIT)
+            nickname = nickname.trim().substring(0, Database.NICKNAME_LIMIT);
+
+        //prepare the SQL statement
+        PreparedStatement statement = database.connection().prepareStatement(
+                "INSERT INTO authors\n" +
+                        "\t\t\tVALUES(?, ?, ?)"
+        );
+
+        statement.setLong(1, discord_id);
+        statement.setString(2, nickname);
+        statement.setString(3, avatar_hash);
 
         execute(statement);
     }
@@ -160,6 +201,22 @@ public class Create {
 
         execute(statement);
     }
+
+//    private void execute(PreparedStatement statement, Connection connection) throws SQLException {
+//        connection.createStatement().execute("use " + database.serverName);
+//        if (database.isQueryVisible()) {
+//            if (database.isEnum()) {
+//                System.out.println("\n" + database.getMySQLUser().username + "> " + statement.toString().substring(43));
+//            } else {
+//                System.out.println("\n" + database.getUsername() + "> " + statement.toString().substring(43));
+//            }
+//        }
+//        try {
+//            statement.execute();
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
+//    }
 
     private void execute(PreparedStatement statement) throws SQLException {
         database.connection().createStatement().execute("use " + database.serverName);

@@ -4,6 +4,7 @@ import Admin.Database;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 public class Update {
 
@@ -55,6 +56,47 @@ public class Update {
         );
 
         statement.setString(1, author_nickname);
+        statement.setLong(2, discord_id);
+
+        execute(statement);
+    }
+
+    /**
+     * Updates the author's avatar hash to the provided value.
+     * @param discord_id the author's discord ID
+     * @param avatar_hash the hash code of the avatar for the author.
+     * @throws SQLException an exception that provides information on a database access error or other errors
+     */
+    public void avatarHash(long discord_id, String avatar_hash) throws SQLException {
+        //trim if necessary
+        if (avatar_hash.length() > Database.AVATAR_HASH_LIMIT) avatar_hash =
+                avatar_hash.trim().substring(0, Database.AVATAR_HASH_LIMIT);
+
+        PreparedStatement statement = database.connection().prepareStatement(
+                "UPDATE authors\n" +
+                        "\t\t\tSET avatar_hash = ?\n" +
+                        "\t\t\tWHERE discord_id = ?"
+        );
+
+        statement.setString(1, avatar_hash);
+        statement.setLong(2, discord_id);
+
+        execute(statement);
+    }
+
+    /**
+     * Sets the author's avatar hash to null
+     * @param discord_id The Discord ID of the author
+     * @throws SQLException an exception that provides information on a database access error or other errors
+     */
+    public void avatarHashToNull(long discord_id) throws SQLException {
+        PreparedStatement statement = database.connection().prepareStatement(
+                "UPDATE authors\n" +
+                        "\t\t\tSET avatar_hash = ?\n" +
+                        "\t\t\tWHERE discord_id = ?"
+        );
+
+        statement.setNull(1, Types.VARCHAR);
         statement.setLong(2, discord_id);
 
         execute(statement);

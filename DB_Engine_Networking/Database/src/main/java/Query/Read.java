@@ -16,7 +16,6 @@ public class Read {
 
     public Read(Database database) {
         this.database = database;
-
     }
 
     /**
@@ -63,7 +62,7 @@ public class Read {
      */
     public String nickname(long discord_id) throws SQLException {
         PreparedStatement statement = database.connection().prepareStatement(
-                "SELECT *\n" +
+                "SELECT author_nickname\n" +
                         "\t\t\tFROM authors\n" +
                         "\t\t\tWHERE discord_id = ?");
 
@@ -72,9 +71,25 @@ public class Read {
         ResultSet resultSet = execute(statement);
         if (!resultSet.next()) return "";
 
-        if (database.isQueryVisible()) System.out.println("\t\t" + resultSet.getString(2));
+        if (database.isQueryVisible()) System.out.println("\t\t" + resultSet.getString(1));
 
-        return resultSet.getString(2);
+        return resultSet.getString(1);
+    }
+
+    public String avatarHash(long discord_id) throws SQLException {
+        PreparedStatement statement = database.connection().prepareStatement(
+                "SELECT avatar_hash\n" +
+                        "\t\t\tFROM authors\n" +
+                        "\t\t\tWHERE discord_id = ?");
+
+        statement.setLong(1, discord_id);
+
+        ResultSet resultSet = execute(statement);
+        if (!resultSet.next()) return "";
+
+        if (database.isQueryVisible()) System.out.println("\t\t" + resultSet.getString(1));
+
+        return resultSet.getString(1);
     }
 
     /**

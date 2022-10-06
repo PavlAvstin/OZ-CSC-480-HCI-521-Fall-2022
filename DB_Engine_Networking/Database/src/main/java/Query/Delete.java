@@ -74,7 +74,7 @@ public class Delete {
      * Deletes an Emoji from the dictionary table
      *
      * @param emoji The emoji being deleted
-     * @throws SQLException
+     * @throws SQLException an exception that provides information on a database access error or other errors
      */
     public void emoji(String emoji) throws SQLException {
         PreparedStatement statement1 = database.connection().prepareStatement(
