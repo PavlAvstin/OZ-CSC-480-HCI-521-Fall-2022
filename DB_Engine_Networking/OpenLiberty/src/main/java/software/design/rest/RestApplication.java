@@ -1,6 +1,7 @@
 package software.design.rest;
 
 import Admin.Database;
+import Admin.User;
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
@@ -27,8 +28,8 @@ The RestApplication class adds Resources to the project so that things are aware
         return singletons;
     }
 
-    public static Database getRestDatabase(long id) throws SQLException {
+    public static Database getRestDatabase(long id, String envURl, String envUser, String envPassword ) throws SQLException {
         Dotenv dotenv = Dotenv.configure().directory("../../../../../../").load();
-        return new Database(id, dotenv.get("MYSQL_URL"), dotenv.get("MYSQL_REST_USER"), dotenv.get("MYSQL_REST_USER_PASSWORD"));
+        return new Database(id, dotenv.get(envURl), dotenv.get(envUser), dotenv.get(envPassword));
     }
 }
