@@ -1,10 +1,6 @@
 package software.design.rest.Resources;
 
 import Admin.Database;
-import Admin.User;
-import Query.Read;
-import com.ibm.websphere.security.social.UserProfileManager;
-import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -14,8 +10,6 @@ import jakarta.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import software.design.rest.RestApplication;
-
-import java.sql.DriverManager;
 
 @Path("Discord")
 public class DiscordResource {

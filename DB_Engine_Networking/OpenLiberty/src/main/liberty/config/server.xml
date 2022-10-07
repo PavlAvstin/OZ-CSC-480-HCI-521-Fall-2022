@@ -34,7 +34,7 @@
     <applicationManager autoExpand="true"/>
 
     <!-- Configures the application on a specified context root -->
-    <webApplication contextRoot="/" location="OZ-480F22.war" />
+<!--    <webApplication contextRoot="/" location="OZ-480F22.war" />-->
 
     <!-- Start Discord O2Auth Config -->
     <oauth2Login
