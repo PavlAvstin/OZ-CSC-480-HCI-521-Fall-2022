@@ -5,7 +5,6 @@
     <featureManager>
         <feature>jakartaee-9.1</feature>
         <feature>microProfile-5.0</feature>
-        <feature>jdbc-4.3</feature>
         <feature>socialLogin-1.0</feature>
         <feature>transportSecurity-1.0</feature>
         <feature>restfulWSClient-3.0</feature>
@@ -14,9 +13,6 @@
         <feature>jwt-1.0</feature>
     </featureManager>
 
-<dataSource>
-
-</dataSource>
 
 
     <!-- This template enables security. To get the full use of all the capabilities, a keystore and user registry are required. -->
@@ -38,7 +34,7 @@
     <applicationManager autoExpand="true"/>
 
     <!-- Configures the application on a specified context root -->
-    <webApplication contextRoot="/" location="OZ-480F22.war" />
+<!--    <webApplication contextRoot="/" location="OZ-480F22.war" />-->
 
     <!-- Start Discord O2Auth Config -->
     <oauth2Login

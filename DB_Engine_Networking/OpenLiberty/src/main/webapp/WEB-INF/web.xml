@@ -9,7 +9,7 @@
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
 
-    <!-- SECURITY CONSTRAINTS -->
+<!--     SECURITY CONSTRAINTS -->
     <security-constraint id="GlobalSecurityConstraint">
         <web-resource-collection id="GlobalWebResourceCollection">
             <web-resource-name>Protected with Users roles</web-resource-name>

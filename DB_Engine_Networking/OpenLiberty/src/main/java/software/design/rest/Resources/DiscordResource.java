@@ -1,10 +1,6 @@
 package software.design.rest.Resources;
 
 import Admin.Database;
-import Admin.User;
-import Query.Read;
-import com.ibm.websphere.security.social.UserProfileManager;
-import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -13,8 +9,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.sql.DriverManager;
+import software.design.rest.RestApplication;
 
 @Path("Discord")
 public class DiscordResource {
@@ -33,9 +28,9 @@ public class DiscordResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response Nickname(@PathParam("Server_id") Long Server_id, @PathParam("Discord_id") Long Discord_id) throws Throwable {
         Database db = null;
-        DriverManager.registerDriver(new com.mysql.jdbc.Driver());
         try {
-            db = new Admin.Database(Server_id, User.REST);
+             db = RestApplication.getRestDatabase(Server_id, "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");
+
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -58,9 +53,8 @@ public class DiscordResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response Msg(@PathParam("Server_id") Long Server_id,@PathParam("Discord_id") Long Discord_id) throws Throwable {
         Database db = null;
-        DriverManager.registerDriver(new com.mysql.jdbc.Driver());
         try {
-            db = new Admin.Database(Server_id, User.REST);
+            db = RestApplication.getRestDatabase(Server_id, "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -84,9 +78,8 @@ public class DiscordResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response MsgByAuthor(@PathParam("Server_id") Long Server_id, @PathParam("Discord_id") Long Discord_id) throws Throwable {
         Database db = null;
-        DriverManager.registerDriver(new com.mysql.jdbc.Driver());
         try {
-             db = new Admin.Database(Server_id, User.REST);
+            db = RestApplication.getRestDatabase(Server_id, "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");
        }catch (Exception e){
            e.printStackTrace();
        }
@@ -97,4 +90,6 @@ public class DiscordResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
+
+
 }
