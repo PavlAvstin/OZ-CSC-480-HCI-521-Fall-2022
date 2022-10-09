@@ -1,6 +1,6 @@
 # **Software Artifact Quality Assurance Log (SAQAL)**
 ## <sub>V .04</sub>
-
+## Information
 **Software Artifact Name:** <Insert Name Here>
   
 **Software Artifact Version:** <Insert Version Here>
@@ -9,7 +9,7 @@
   
 **QA Members Who Filed This:** <Insert Names Here>
 
-- **Issues:**
+## - **Issues:**
      - **Github Issue #:** <Insert Number>
        - **Link:** <Insert [<Issue Name>](<Link to Issue>)>
        - **Resolved:** <Insert Resolution>
@@ -21,7 +21,7 @@
        - **Resolved:** <Insert Resolution>
   
   
-### **Legend**
+## **Legend**
 
 **Software Artifact Name:** Name of the software artifact that was reviewed
 
