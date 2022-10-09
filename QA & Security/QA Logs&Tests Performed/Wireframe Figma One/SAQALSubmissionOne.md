@@ -14,7 +14,7 @@
        - Link: [FredBoat bot example usage not cited](https://github.com/PavlAvstin/OZ-CSC-480-HCI-521-Fall-2022/issues/17)
        - Resolved: IP
      - Github Issue #: 18
-       - Link: [Improper spelling on "Dscirdo authetication" label](https://github.com/PavlAvstin/OZ-CSC-480-HCI-521-Fall-2022/issues/17](https://github.com/PavlAvstin/OZ-CSC-480-HCI-521-Fall-2022/issues/18)
+       - Link: [Improper spelling on "Dscirdo authetication" label](https://github.com/PavlAvstin/OZ-CSC-480-HCI-521-Fall-2022/issues/18)
        - Resolved: R
      - Github Issue #: 19
        - Link: ["How it Works?" page incomplete sentence](https://github.com/PavlAvstin/OZ-CSC-480-HCI-521-Fall-2022/issues/19)
