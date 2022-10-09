@@ -9,16 +9,16 @@
   
   **QA Members Who Filed This:** <Insert Names Here>
 
-## - **Issues:**
-     - Github Issue #: <Insert Number>
-       - Link: <Insert [<Issue Name>](<Link to Issue>)>
-       - Resolved: <Insert Resolution>
-     - Github Issue #: <Insert Number>
-       - Link: <Insert [<Issue Name>](<Link to Issue>)>
-       - Resolved: <Insert Resolution>
-     - Github Issue #: <Insert Number>
-       - Link: <Insert [<Issue Name>](<Link to Issue>)>
-       - Resolved: <Insert Resolution>
+## **Issues:**
+  - Github Issue #: <Insert Number>
+    - Link: <Insert [<Issue Name>](<Link to Issue>)>
+    - Resolved: <Insert Resolution>
+  - Github Issue #: <Insert Number>
+    - Link: <Insert [<Issue Name>](<Link to Issue>)>
+    - Resolved: <Insert Resolution>
+  - Github Issue #: <Insert Number>
+    - Link: <Insert [<Issue Name>](<Link to Issue>)>
+    - Resolved: <Insert Resolution>
 
 ## **Legend**
   **Software Artifact Name:** Name of the software artifact that was reviewed
