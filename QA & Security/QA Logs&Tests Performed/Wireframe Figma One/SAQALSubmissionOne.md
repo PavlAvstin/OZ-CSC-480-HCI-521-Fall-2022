@@ -9,26 +9,26 @@
   
   **QA Members Who Filed This:** John Harrington
 
-## - **Issues:**
-     - Github Issue #: 17
-       - Link: [FredBoat bot example usage not cited](https://github.com/PavlAvstin/OZ-CSC-480-HCI-521-Fall-2022/issues/17)
+## **Issues:**
+   - Github Issue #: 17
+       - Link: [FredBoat bot example usage not cited](https://github/PavlAvstin/OZ-CSC-480-HCI-521-Fall-2022/issues/17)
        - Resolved: IP
-     - Github Issue #: 18
+  - Github Issue #: 18
        - Link: [Improper spelling on "Dscirdo authetication" label](https://github.com/PavlAvstin/OZ-CSC-480-HCI-521-Fall-2022/issues/18)
        - Resolved: R
-     - Github Issue #: 19
+  - Github Issue #: 19
        - Link: ["How it Works?" page incomplete sentence](https://github.com/PavlAvstin/OZ-CSC-480-HCI-521-Fall-2022/issues/19)
        - Resolved: R
-     - Github Issue #: 20
+  - Github Issue #: 20
        - Link: ["Want to learn why this bot was created?" inconsistent capitalization](https://github.com/PavlAvstin/OZ-CSC-480-HCI-521-Fall-2022/issues/20)
        - Resolved: R
-     - Github Issue #: 21
+  - Github Issue #: 21
        - Link: ["Why we made this?" improper grammar](https://github.com/PavlAvstin/OZ-CSC-480-HCI-521-Fall-2022/issues/21)
        - Resolved: R
-     - Github Issue #: 22
+  - Github Issue #: 22
        - Link: ["Who we made it for?" improper grammar](https://github.com/PavlAvstin/OZ-CSC-480-HCI-521-Fall-2022/issues/22)
        - Resolved: R
-     - Github Issue #: 23
+  - Github Issue #: 23
        - Link: ["Who made it?" improper grammar](https://github.com/PavlAvstin/OZ-CSC-480-HCI-521-Fall-2022/issues/23)
        - Resolved: R
 
