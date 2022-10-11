@@ -1,10 +1,7 @@
 package software.design.rest.Resources;
 
 import Admin.Database;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.json.JSONArray;
@@ -90,6 +87,7 @@ public class DiscordResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
+
 
 
 }
