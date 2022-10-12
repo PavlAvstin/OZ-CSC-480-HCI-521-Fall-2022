@@ -76,7 +76,6 @@ public class BotResource {
         Database db = null;
         try {
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
-            String cn= channel_name;
             db.create.channel(Long.parseLong(channel_id),channel_name);
             db.closeConnection();
         } catch (SQLException e) {
