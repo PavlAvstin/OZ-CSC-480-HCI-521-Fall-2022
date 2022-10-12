@@ -2,7 +2,9 @@ package software.design.rest.Resources;
 
 import Admin.Database;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Request;
 import jakarta.ws.rs.core.Response;
+import org.json.JSONArray;
 import software.design.rest.RestApplication;
 
 import java.sql.SQLException;
@@ -13,6 +15,8 @@ import java.sql.SQLException;
 @Path("BOT")
 public class BotResource {
 
+
+//Channel REST
     /**
      * Delete channel.
      *
@@ -20,16 +24,16 @@ public class BotResource {
      * @param channel_id the channel id
      * @throws SQLException the sql exception
      */
-    @Path("Channel/{server_id}/{channel_id}")
+    @Path("Channel")
     @DELETE
-    public void DeleteChannel(@PathParam("server_id") Long server_id, @PathParam("channel_id") Long channel_id) throws SQLException {
+    public void DeleteChannel(@FormParam("server_id") String server_id, @FormParam("channel_id") String channel_id) throws SQLException {
         Database db = null;
         try{
-            db = RestApplication.getRestDatabase(server_id, "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
         }catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        db.delete.channel(channel_id);
+        db.delete.channel(Long.parseLong(channel_id));
         db.closeConnection();
     }
 
@@ -41,14 +45,14 @@ public class BotResource {
      * @param channel_name the channel name
      * @return the response
      */
-    @Path("Channel/{server_id}/{channel_id}/{channel_name}")
+    @Path("Channel")
     @PUT
-    public Response updateChannel(@PathParam("server_id") Long server_id, @PathParam("channel_id") long channel_id,@PathParam("channel_name") String channel_name){
+    public Response updateChannel(@FormParam("server_id") String server_id, @FormParam("channel_id") String channel_id,@FormParam("channel_name") String channel_name){
         Database db = null;
         try {
-            db = RestApplication.getRestDatabase(server_id, "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
-            db.update.channelNickname(channel_id, channel_name);
-
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            db.update.channelNickname(Long.parseLong(channel_id), channel_name);
+            db.closeConnection();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -66,13 +70,15 @@ public class BotResource {
      * @param channel_name the channel name
      * @return the response
      */
-    @Path("Channel/{server_id}/{channel_id}/{channel_name}")
+    @Path("Channel")
     @POST
-    public Response postChannel(@PathParam("server_id") Long server_id,@PathParam("channel_id") Long channel_id, @PathParam("channel_name") String channel_name){
+    public Response postChannel(@FormParam("server_id") String server_id,@FormParam("channel_id") String channel_id, @FormParam("channel_name") String channel_name){
         Database db = null;
         try {
-            db = RestApplication.getRestDatabase(server_id, "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
-            db.create.channel(channel_id,channel_name);
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            String cn= channel_name;
+            db.create.channel(Long.parseLong(channel_id),channel_name);
+            db.closeConnection();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
