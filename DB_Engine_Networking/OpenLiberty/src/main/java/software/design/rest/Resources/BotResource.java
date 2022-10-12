@@ -17,6 +17,7 @@ public class BotResource {
 
 
 //Channel REST
+
     /**
      * Delete channel.
      *
@@ -85,6 +86,53 @@ public class BotResource {
         return Response.status(Response.Status.ACCEPTED).entity("Channel: "+channel_name+" Created").build();
 
     }
+
+    /**
+     * Post author response.
+     *
+     * @param server_id   the server id
+     * @param author_id   the author id
+     * @param author_name the author name
+     * @param avatar_hash the avatar hash
+     * @return the response
+     */
+//Author Rest Calls
+    @Path("Author")
+    @POST
+    public Response postAuthor(@FormParam("server_id") String server_id, @FormParam("author_id") String author_id, @FormParam("author_name") String author_name,@FormParam("avatar_hash") String avatar_hash){
+        Database db = null;
+        try{
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            db.create.author(Long.parseLong(author_id), author_name,avatar_hash);
+            db.closeConnection();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return Response.status(Response.Status.ACCEPTED).build();
+    }
+
+    /**
+     * Update author response.
+     *
+     * @param server_id   the server id
+     * @param author_id   the author id
+     * @param author_name the author name
+     * @return the response
+     */
+    @Path("Author")
+    @PUT
+    public Response updateAuthor(@FormParam("server_id") String server_id, @FormParam("author_id") String author_id, @FormParam("author_name") String author_name){
+        Database db = null;
+        try{
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            db.update.authorNickname(Long.parseLong(author_id), author_name);
+            db.closeConnection();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return Response.status(Response.Status.ACCEPTED).build();
+    }
+
 
 
 
