@@ -132,6 +132,79 @@ public class BotResource {
         }
         return Response.status(Response.Status.ACCEPTED).build();
     }
+//    Messages
+
+    /**
+     * Create msg response.
+     *
+     * @param server_id  the server id
+     * @param message_id the message id
+     * @param author_id  the author id
+     * @param channel_id the channel id
+     * @param content    the content
+     * @return the response
+     * @throws SQLException the sql exception
+     */
+    @Path("Messages")
+    @POST
+    public Response createMsg(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id,@FormParam("author_id") String author_id, @FormParam("channel_id") String channel_id, @FormParam("content") String content) throws SQLException {
+        Database db = null;
+        try{
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            db.create.message(Long.parseLong(message_id),Long.parseLong(author_id),Long.parseLong(channel_id),content);
+
+        } catch (SQLException e) {
+        throw new RuntimeException(e);
+        }
+        return Response.status(Response.Status.ACCEPTED).build();
+    }
+
+    /**
+     * Update msg response.
+     *
+     * @param server_id  the server id
+     * @param message_id the message id
+     * @param content    the content
+     * @param time       the time
+     * @return the response
+     * @throws SQLException the sql exception
+     */
+    @Path("Messages")
+    @PUT
+    public Response updateMsg(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id, @FormParam("content") String content, @FormParam("time") String time) throws SQLException {
+        Database db = null;
+        try{
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            db.update.message(Long.parseLong(message_id),content,Long.parseLong(time));
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return Response.status(Response.Status.ACCEPTED).build();
+    }
+
+    /**
+     * Delete msg response.
+     *
+     * @param server_id  the server id
+     * @param message_id the message id
+     * @return the response
+     * @throws SQLException the sql exception
+     */
+    @Path("Messages")
+    @DELETE
+    public Response deleteMsg(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id) throws SQLException {
+        Database db = null;
+        try{
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            db.delete.message(Long.parseLong(message_id));
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return Response.status(Response.Status.ACCEPTED).build();
+    }
+
 
 
 
