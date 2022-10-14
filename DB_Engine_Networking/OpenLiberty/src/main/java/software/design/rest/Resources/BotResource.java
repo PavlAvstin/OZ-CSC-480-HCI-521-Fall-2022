@@ -204,6 +204,48 @@ public class BotResource {
         }
         return Response.status(Response.Status.ACCEPTED).build();
     }
+//Reactions
+//- db.delete.reaction(long serverId, long messageId, long authorId, String emoji)
+//- db.create.reaction(long serverId, long messageId, userId, String emoji)
+//- db.read.reactionsByMessage(long serverId, long messageId)
+    @Path("Reactions")
+    @POST
+    public Response createReaction(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id, @FormParam("user_id") String user_id, @FormParam("emoji") String emoji) throws SQLException {
+        Database db;
+        try {
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            db.create.reaction(Long.parseLong(message_id),Long.parseLong(user_id),emoji);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return Response.status(Response.Status.ACCEPTED).build();
+    }
+
+    @Path("Reactions")
+    @GET
+    public Response readMessage(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id){
+        Database db;
+        try {
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            db.read.reactionsByMessage(Long.parseLong(message_id));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return Response.status(Response.Status.ACCEPTED).build();
+    }
+
+    @Path("Reactions")
+    @DELETE
+    public void delMessage(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id, @FormParam("user_id") String user_id, @FormParam("emoji") String emoji){
+        Database db;
+        try {
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            db.delete.reaction(Long.parseLong(message_id),Long.parseLong(user_id),emoji);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 
 
