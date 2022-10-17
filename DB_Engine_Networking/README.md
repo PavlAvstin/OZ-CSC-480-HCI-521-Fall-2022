@@ -26,23 +26,19 @@ MYSQL_BOT_USER="OZ_bot"
 MYSQL_BOT_USER_PASSWORD="password"
 ```
 Note: *It is recommended to surround the values with quotes to prevent some machines causing issues with special characters.*
-- Set `DISCORD_BOT_TOKEN` equal to the token of your discord bot.<br/>
-- Set `MYSQL_URL` equal to the URL of your MySQL server. localhost being the IP address, then 3306 being the port (default).<br/>
-- Set `MYSQL_INITIALIZATION_USER` equal to the username of the MySQL user you created earlier.<br/>
-- Set `MYSQL_INITIALIZATION_USER_PASSWORD` equal to the password of the MySQL user you created earlier.<br/>
-- Set `MYSQL_REST_USER_PASSWORD` AND `MYSQL_BOT_USER_PASSWORD` to two new, unique passwords. These users will be created. You can change their usernames if you'd like, but it isn't necessary.<br/>
+- Set `DISCORD_BOT_TOKEN` equal to the token of your discord bot.
+- Set `MYSQL_URL` equal to the URL of your MySQL server. localhost being the IP address, then 3306 being the port (default).
+- Set `MYSQL_INITIALIZATION_USER` equal to the username of the MySQL user you created earlier.
+- Set `MYSQL_INITIALIZATION_USER_PASSWORD` equal to the password of the MySQL user you created earlier.
+- Set `MYSQL_REST_USER_PASSWORD` AND `MYSQL_BOT_USER_PASSWORD` to two new, unique passwords. These users will be created. You can change their usernames if you'd like, but it isn't necessary.
+
 ## OpenLiberty
-- Copy the `.env` file from the DiscordBot module to the root of OpenLiberty module. Remove the `DISCORD_BOT_TOKEN=` line in the OpenLiberty `.env` file.<br/>
+- Copy the `.env` file from the DiscordBot module to the root of OpenLiberty module. Remove the `DISCORD_BOT_TOKEN=` line in the OpenLiberty `.env` file.
 - Make sure you are in the root of the OpenLiberty module.
-<br/>
-  <br/>
-CLIENT_ID and CLIENT_SECRET are the client id and client secret of your discord application.<br/>
-  <br/>
-If you are on a UNIX based system, run the following commands: <br/>
-```
-export DISCORD_CLIENT_ID="CLIENT_ID"
-export DISCORD_CLIENT_SECRET="CLIENT_SECRET"
-```
+
+CLIENT_ID and CLIENT_SECRET are the client id and client secret of your discord application.
+
+If you are on a UNIX based system, run the following commands: `export DISCORD_CLIENT_ID=CLIENT_ID` and `export DISCORD_CLIENT_SECRET=CLIENT_SECRET`
 If you are on a Windows system, follow [this guide](https://www.architectryan.com/2018/08/31/how-to-change-environment-variables-on-windows-10/) to set environment variables.<br/>
 # Running DiscordBot & OpenLiberty
 - In the root/parent directory of the project run `mvn clean install` to build the project.
