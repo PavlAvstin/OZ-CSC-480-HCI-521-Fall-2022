@@ -1,24 +1,21 @@
 # **Software Artifact Quality Assurance Log (SAQAL)**
 ## <sub>V .04</sub>
 ## Information
-  **Software Artifact Name:** <Insert Name Here>
+  **Software Artifact Name:** Discord Bot Style Guide 1
   
-  **Software Artifact Version:** <Insert Version Here>
+  **Software Artifact Version:** V1
   
-  **Date This Log Was Written:** <Insert Date Here>
+  **Date This Log Was Written:** 10/16/2022
   
-  **QA Members Who Filed This:** <Insert Names Here>
+  **QA Members Who Filed This:** John Harrington / Sven Kappeler
 
 ## **Issues:**
-  - Github Issue #: <Insert Number>
-    - Link: <Insert [<Issue Name>](<Link to Issue>)>
-    - Resolved: <Insert Resolution>
-  - Github Issue #: <Insert Number>
-    - Link: <Insert [<Issue Name>](<Link to Issue>)>
-    - Resolved: <Insert Resolution>
-  - Github Issue #: <Insert Number>
-    - Link: <Insert [<Issue Name>](<Link to Issue>)>
-    - Resolved: <Insert Resolution>
+  - Github Issue #: 24
+    - Link: ["Log In" Methods: Strange Wording](https://github.com/PavlAvstin/OZ-CSC-480-HCI-521-Fall-2022/issues/24)
+    - Resolved: Y
+  - Github Issue #: 25
+    - Link: ["Landing Page": Missing Feature/Label](https://github.com/PavlAvstin/OZ-CSC-480-HCI-521-Fall-2022/issues/25)
+    - Resolved: R
 
 ## **Legend**
   **Software Artifact Name:** Name of the software artifact that was reviewed
