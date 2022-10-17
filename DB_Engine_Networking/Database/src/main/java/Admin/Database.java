@@ -90,19 +90,18 @@ public class Database {
         DB_URL = host;
         serverID = id;
         serverName = "DISCORD_" + serverID;
+
+        // we are not using enum so set noEnum to true
+        noEnum = true;
         this.username = username;
         this.password = password;
-
+        Driver driver = new Driver();
+        DriverManager.registerDriver(driver);
+        connection = DriverManager.getConnection(DB_URL, this.username, this.password);
         this.create = new Create(this);
         this.read = new Read(this);
         this.update = new Update(this);
         this.delete = new Delete(this);
-
-        // we are not using enum so set noEnum to true
-        noEnum = true;
-        Driver driver = new Driver();
-        DriverManager.registerDriver(driver);
-        connection = DriverManager.getConnection(DB_URL, this.username, this.password);
     }
 
     /**
