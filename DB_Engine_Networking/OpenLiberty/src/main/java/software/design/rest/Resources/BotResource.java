@@ -1,7 +1,11 @@
 package software.design.rest.Resources;
 
 import Admin.Database;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.annotation.HttpConstraint;
+import jakarta.servlet.annotation.ServletSecurity;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Request;
 import jakarta.ws.rs.core.Response;
 import org.json.JSONArray;
@@ -9,10 +13,12 @@ import software.design.rest.RestApplication;
 
 import java.sql.SQLException;
 
+
 /**
  * The type Bot resource.
  */
-@Path("BOT")
+//@RolesAllowed("bot")
+@Path("bot")
 public class BotResource {
 
 
@@ -25,7 +31,7 @@ public class BotResource {
      * @param channel_id the channel id
      * @throws SQLException the sql exception
      */
-    @Path("Channel")
+    @Path("channel")
     @DELETE
     public void DeleteChannel(@FormParam("server_id") String server_id, @FormParam("channel_id") String channel_id) throws SQLException {
         Database db = null;
@@ -46,7 +52,7 @@ public class BotResource {
      * @param channel_name the channel name
      * @return the response
      */
-    @Path("Channel")
+    @Path("channel")
     @PUT
     public Response updateChannel(@FormParam("server_id") String server_id, @FormParam("channel_id") String channel_id,@FormParam("channel_name") String channel_name){
         Database db = null;
@@ -71,7 +77,7 @@ public class BotResource {
      * @param channel_name the channel name
      * @return the response
      */
-    @Path("Channel")
+    @Path("channel")
     @POST
     public Response postChannel(@FormParam("server_id") String server_id,@FormParam("channel_id") String channel_id, @FormParam("channel_name") String channel_name){
         Database db = null;
@@ -97,7 +103,7 @@ public class BotResource {
      * @return the response
      */
 //Author Rest Calls
-    @Path("Author")
+    @Path("author")
     @POST
     public Response postAuthor(@FormParam("server_id") String server_id, @FormParam("author_id") String author_id, @FormParam("author_name") String author_name,@FormParam("avatar_hash") String avatar_hash){
         Database db = null;
@@ -119,7 +125,7 @@ public class BotResource {
      * @param author_name the author name
      * @return the response
      */
-    @Path("Author")
+    @Path("author")
     @PUT
     public Response updateAuthor(@FormParam("server_id") String server_id, @FormParam("author_id") String author_id, @FormParam("author_name") String author_name){
         Database db = null;
@@ -145,7 +151,7 @@ public class BotResource {
      * @return the response
      * @throws SQLException the sql exception
      */
-    @Path("Messages")
+    @Path("messages")
     @POST
     public Response createMsg(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id,@FormParam("author_id") String author_id, @FormParam("channel_id") String channel_id, @FormParam("content") String content) throws SQLException {
         Database db = null;
@@ -154,7 +160,7 @@ public class BotResource {
             db.create.message(Long.parseLong(message_id),Long.parseLong(author_id),Long.parseLong(channel_id),content);
 
         } catch (SQLException e) {
-        throw new RuntimeException(e);
+            throw new RuntimeException(e);
         }
         return Response.status(Response.Status.ACCEPTED).build();
     }
@@ -169,7 +175,7 @@ public class BotResource {
      * @return the response
      * @throws SQLException the sql exception
      */
-    @Path("Messages")
+    @Path("messages")
     @PUT
     public Response updateMsg(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id, @FormParam("content") String content, @FormParam("time") String time) throws SQLException {
         Database db = null;
@@ -191,7 +197,7 @@ public class BotResource {
      * @return the response
      * @throws SQLException the sql exception
      */
-    @Path("Messages")
+    @Path("messages")
     @DELETE
     public Response deleteMsg(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id) throws SQLException {
         Database db = null;
@@ -204,13 +210,15 @@ public class BotResource {
         }
         return Response.status(Response.Status.ACCEPTED).build();
     }
+
 //Reactions
 //- db.delete.reaction(long serverId, long messageId, long authorId, String emoji)
 //- db.create.reaction(long serverId, long messageId, userId, String emoji)
 //- db.read.reactionsByMessage(long serverId, long messageId)
-    @Path("Reactions")
+    @Path("reactions")
     @POST
     public Response createReaction(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id, @FormParam("user_id") String user_id, @FormParam("emoji") String emoji) throws SQLException {
+        System.out.println("Reaction given: " + emoji);
         Database db;
         try {
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
@@ -221,7 +229,7 @@ public class BotResource {
         return Response.status(Response.Status.ACCEPTED).build();
     }
 
-    @Path("Reactions")
+    @Path("reactions")
     @GET
     public Response readMessage(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id){
         Database db;
@@ -234,7 +242,7 @@ public class BotResource {
         return Response.status(Response.Status.ACCEPTED).build();
     }
 
-    @Path("Reactions")
+    @Path("reactions")
     @DELETE
     public void delMessage(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id, @FormParam("user_id") String user_id, @FormParam("emoji") String emoji){
         Database db;
