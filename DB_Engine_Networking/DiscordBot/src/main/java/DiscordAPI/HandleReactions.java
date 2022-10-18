@@ -1,12 +1,16 @@
-package DiscordApiStuff;
+package DiscordAPI;
 
+import API.FormData;
 import Admin.Database;
 import Admin.User;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Reaction;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.sql.SQLException;
+import java.util.concurrent.CompletableFuture;
 
 public class HandleReactions {
     private DiscordApi discordApi;
@@ -56,9 +60,13 @@ public class HandleReactions {
                 long serverId = reactionAddEvent.getServer().get().getId();
                 long userId = reactionAddEvent.getUser().get().getId();
                 // get the message that was reacted to & insert it into the database
-                HandleMessages.insertMessage(serverId, reactionAddEvent.getMessage().get(), reactionAddEvent.getServer().get());
-                // insert the reaction
-                insertReaction(serverId, userId, reactionAddEvent.getReaction().get());
+                HandleMessages.insertMessage(serverId, reactionAddEvent.getMessage().get(), reactionAddEvent.getServer().get()).thenAccept(messageResponse -> {
+                    System.out.println(messageResponse.getCode());
+                    // insert the reaction
+                    insertReaction(serverId, userId, reactionAddEvent.getReaction().get()).thenAccept(reactionResponse -> {
+                        System.out.println("Reaction added with response code: " + reactionResponse.getCode());
+                    });
+                });
             }
             catch(Exception e) {
                 System.out.println("Reaction error, handling message & reaction: " + e.getMessage());
@@ -66,13 +74,16 @@ public class HandleReactions {
         });
     }
 
-    private void insertReaction(long serverId, long userId, Reaction reaction) throws SQLException {
-        Database db = new Database(serverId, User.BOT);
+    private CompletableFuture<CloseableHttpResponse> insertReaction(long serverId, long userId, Reaction reaction) {
         System.out.println("Inserting reaction: " + reaction.getEmoji().asUnicodeEmoji().get());
-        db.create.reaction(reaction.getMessage().getId(),
-                userId,
-                reaction.getEmoji().asUnicodeEmoji().get());
-        db.closeConnection();
+
+        FormData request = new FormData();
+        JSONObject reactionJson = new JSONObject();
+        reactionJson.put("server_id", "" + serverId);
+        reactionJson.put("message_id", "" + reaction.getMessage().getId());
+        reactionJson.put("user_id", "" + userId);
+        reactionJson.put("emoji", reaction.getEmoji().asUnicodeEmoji().get());
+        return request.post(reactionJson, "http://localhost:9080/api/bot/reactions");
     }
 
     private long getReactionCount(long serverId, long messageId) throws SQLException {
