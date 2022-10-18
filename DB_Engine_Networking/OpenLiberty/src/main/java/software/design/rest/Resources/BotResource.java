@@ -1,26 +1,20 @@
 package software.design.rest.Resources;
 
 import Admin.Database;
-import jakarta.annotation.security.RolesAllowed;
-import jakarta.servlet.annotation.HttpConstraint;
-import jakarta.servlet.annotation.ServletSecurity;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.Request;
 import jakarta.ws.rs.core.Response;
-import org.json.JSONArray;
 import software.design.rest.RestApplication;
 
+import javax.annotation.security.RolesAllowed;
 import java.sql.SQLException;
 
 
 /**
  * The type Bot resource.
  */
-//@RolesAllowed("bot")
+@RolesAllowed("bot")
 @Path("bot")
 public class BotResource {
-
 
 //Channel REST
 
@@ -149,11 +143,10 @@ public class BotResource {
      * @param channel_id the channel id
      * @param content    the content
      * @return the response
-     * @throws SQLException the sql exception
      */
     @Path("messages")
     @POST
-    public Response createMsg(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id,@FormParam("author_id") String author_id, @FormParam("channel_id") String channel_id, @FormParam("content") String content) throws SQLException {
+    public Response createMsg(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id,@FormParam("author_id") String author_id, @FormParam("channel_id") String channel_id, @FormParam("content") String content) {
         Database db = null;
         try{
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
@@ -173,11 +166,10 @@ public class BotResource {
      * @param content    the content
      * @param time       the time
      * @return the response
-     * @throws SQLException the sql exception
      */
     @Path("messages")
     @PUT
-    public Response updateMsg(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id, @FormParam("content") String content, @FormParam("time") String time) throws SQLException {
+    public Response updateMsg(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id, @FormParam("content") String content, @FormParam("time") String time) {
         Database db = null;
         try{
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
