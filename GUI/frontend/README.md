@@ -6,6 +6,9 @@ Node.js must be installed
 You can run this command to check if Node is installed
 > node -v
 
+If you don't have Node.js you can download it here
+> https://nodejs.org/en/download/
+
 ## Install packages
 Open a command line and naviage to the frontend directory
 
