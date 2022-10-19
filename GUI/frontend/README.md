@@ -7,7 +7,7 @@ You can run this command to check if Node is installed
 > node -v
 
 ## Install packages
-Open a command line and naviage to the frontend directory
+Open a command line and navigate to the frontend directory
 
 run 
 > npm install 
