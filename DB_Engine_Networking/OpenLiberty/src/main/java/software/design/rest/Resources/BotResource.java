@@ -32,7 +32,7 @@ public class BotResource {
         try{
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
         }catch (SQLException e) {
-            throw new RuntimeException(e);
+            Response.serverError().entity(e.getErrorCode()).build();
         }
         db.delete.channel(Long.parseLong(channel_id));
         db.closeConnection();
@@ -55,7 +55,7 @@ public class BotResource {
             db.update.channelNickname(Long.parseLong(channel_id), channel_name);
             db.closeConnection();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            Response.serverError().entity(e.getErrorCode()).build();
         }
 //        TODO:Add a condition  to check for existence of Channel
 
@@ -80,7 +80,7 @@ public class BotResource {
             db.create.channel(Long.parseLong(channel_id),channel_name);
             db.closeConnection();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            Response.serverError().entity(e.getErrorCode()).build();
         }
 
         return Response.status(Response.Status.ACCEPTED).entity("Channel: "+channel_name+" Created").build();
@@ -106,7 +106,7 @@ public class BotResource {
             db.create.author(Long.parseLong(author_id), author_name,avatar_hash);
             db.closeConnection();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            Response.serverError().entity(e.getErrorCode()).build();
         }
         return Response.status(Response.Status.ACCEPTED).build();
     }
@@ -128,7 +128,7 @@ public class BotResource {
             db.update.authorNickname(Long.parseLong(author_id), author_name);
             db.closeConnection();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            Response.serverError().entity(e.getErrorCode()).build();
         }
         return Response.status(Response.Status.ACCEPTED).build();
     }
@@ -154,7 +154,7 @@ public class BotResource {
             db.create.message(Long.parseLong(message_id),Long.parseLong(author_id),Long.parseLong(channel_id),content);
 
         } catch (SQLException e) {
-        throw new RuntimeException(e);
+            Response.serverError().entity(e.getErrorCode()).build();
         }
         return Response.status(Response.Status.ACCEPTED).build();
     }
@@ -178,7 +178,7 @@ public class BotResource {
             db.update.message(Long.parseLong(message_id),content,Long.parseLong(time));
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            Response.serverError().entity(e.getErrorCode()).build();
         }
         return Response.status(Response.Status.ACCEPTED).build();
     }
@@ -200,7 +200,7 @@ public class BotResource {
             db.delete.message(Long.parseLong(message_id));
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            Response.serverError().entity(e.getErrorCode()).build();
         }
         return Response.status(Response.Status.ACCEPTED).build();
     }
@@ -216,7 +216,7 @@ public class BotResource {
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
             db.create.reaction(Long.parseLong(message_id),Long.parseLong(user_id),emoji);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            Response.serverError().entity(e.getErrorCode()).build();
         }
         return Response.status(Response.Status.ACCEPTED).build();
     }
@@ -229,7 +229,7 @@ public class BotResource {
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
             db.read.reactionsByMessage(Long.parseLong(message_id));
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            Response.serverError().entity(e.getErrorCode()).build();
         }
         return Response.status(Response.Status.ACCEPTED).build();
     }
@@ -242,7 +242,7 @@ public class BotResource {
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
             db.delete.reaction(Long.parseLong(message_id),Long.parseLong(user_id),emoji);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            Response.serverError().entity(e.getErrorCode()).build();
         }
     }
 
