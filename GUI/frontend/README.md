@@ -10,7 +10,7 @@ If you don't have Node.js you can download it here
 > https://nodejs.org/en/download/
 
 ## Install packages
-Open a command line and naviage to the frontend directory
+Open a command line and navigate to the frontend directory
 
 run 
 > npm install 
