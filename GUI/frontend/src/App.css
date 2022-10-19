@@ -6,6 +6,10 @@
   height: 100%;
 }
 
+.SignIn {
+  background-color: #7289d9;
+}
+
 .app-header {
   position: fixed;
   z-index: 1;
@@ -13,7 +17,7 @@
   left: 0;
   width: 100%;
   height: 15%;
-  background-color :#7289da;
+  background-color :#7289d9;
   font-size: 64px;
   
 }
@@ -31,13 +35,21 @@
 .home-button {
   position: absolute;
   top: 50%;
-  height: 70%;
+  height: 100%;
+  width: 25%;
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
-  left: 2%;
+  background-color: transparent;
+  border-color: transparent;
 }
 
-.login-button {
+.home-logo {
+  height: 100%;
+  width: 100%;
+}
+
+.logout-button {
+  color: white;
   font-family: "Barlow";
   position: absolute;
   top: 50%;
@@ -63,7 +75,6 @@
   top: 25%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: blue;
 }
 
 .description {
@@ -86,6 +97,9 @@
   transform: translate(-50%, -50%);
 }
 
+.clickable {
+  cursor: pointer;
+}
 #login {
   position: absolute;
   width: 5%;
