@@ -38,7 +38,7 @@
 
     <!-- Start Discord O2Auth Config -->
     <oauth2Login
-        id="PostMarker" clientId="1031751361014022265" clientSecret="0kbeYyKM5LN7ZnlZFbyuBIyJpytCpQD5"
+        id="discordLogin" clientId="${discord.client.id}" clientSecret="${discord.client.secret}"
         scope="identify guilds guilds.members.read" responseType="code"
         tokenEndpointAuthMethod="client_secret_post"
         authorizationEndpoint="https://discord.com/oauth2/authorize"
