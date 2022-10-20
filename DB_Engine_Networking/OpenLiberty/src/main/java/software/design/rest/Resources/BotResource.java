@@ -1,6 +1,7 @@
 package software.design.rest.Resources;
 
 import Admin.Database;
+import com.vdurmont.emoji.EmojiParser;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import software.design.rest.RestApplication;
@@ -212,13 +213,17 @@ public class BotResource {
     public Response createReaction(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id, @FormParam("user_id") String user_id, @FormParam("emoji") String emoji) throws SQLException {
         System.out.println("Reaction given: " + emoji);
         Database db;
+        Long messageId = Long.parseLong(message_id);
+        Long authorId = Long.parseLong(user_id);
+        emoji = EmojiParser.extractEmojis(emoji).get(0);
+        System.out.println("INSERTING REACTION\n" + messageId + "\n" + authorId + "\n" + emoji);
         try {
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
-            db.create.reaction(Long.parseLong(message_id),Long.parseLong(user_id),emoji);
+            db.create.reaction(messageId, authorId, emoji);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return Response.status(Response.Status.ACCEPTED).build();
+        return Response.status(Response.Status.CREATED).build();
     }
 
     @Path("reactions")
