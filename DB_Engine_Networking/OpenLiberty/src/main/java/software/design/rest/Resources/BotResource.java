@@ -291,7 +291,6 @@ public class BotResource {
     @DELETE
     public void deleteDictionaryEntry(@FormParam("server_id") String server_id, @FormParam("reaction") String reaction , @FormParam("meaning") String meaning){
         Database db;
-        JSONArray result;
         try {
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
             db.delete.dictionaryEntry(reaction,meaning);
