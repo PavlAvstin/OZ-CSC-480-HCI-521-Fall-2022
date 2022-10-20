@@ -234,6 +234,7 @@ public class BotResource {
         return Response.status(Response.Status.ACCEPTED).build();
     }
 
+
     @Path("Reactions")
     @DELETE
     public void delMessage(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id, @FormParam("user_id") String user_id, @FormParam("emoji") String emoji){
@@ -245,6 +246,62 @@ public class BotResource {
             Response.serverError().entity(e.getErrorCode()).build();
         }
     }
+
+    @Path("Dictionary")
+    @POST
+    public Response createPair(@FormParam("server_id") String server_id, @FormParam("reaction") String reaction, @FormParam("meaning") String meaning){
+        Database db;
+        try {
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            db.create.dictionaryEntry(reaction,meaning);
+        } catch (SQLException e) {
+            return Response.serverError().entity(e.getErrorCode()).build();
+        }
+       return Response.status(Response.Status.ACCEPTED).build();
+    }
+
+    @Path("Dictionary")
+    @GET
+    public Response readMeaning(@FormParam("server_id") String server_id, @FormParam("reaction") String reaction){
+        Database db;
+        JSONArray result;
+        try {
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            result = db.read.meaningsByEmoji(reaction);
+        } catch (SQLException e) {
+           return Response.serverError().entity(e.getErrorCode()).build();
+        }
+        return Response.status(Response.Status.ACCEPTED).entity(result).build();
+    }
+    @Path("Dictionary")
+    @GET
+    public Response readDict(@FormParam("server_id") String server_id){
+        Database db;
+        JSONArray result;
+        try {
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            result = db.read.dictionary();
+        } catch (SQLException e) {
+            return Response.serverError().entity(e.getErrorCode()).build();
+        }
+        return Response.status(Response.Status.ACCEPTED).entity(result).build();
+    }
+
+    @Path("Dictionary")
+    @DELETE
+    public void deleteDictionaryEntry(@FormParam("server_id") String server_id, @FormParam("reaction") String reaction , @FormParam("meaning") String meaning){
+        Database db;
+        JSONArray result;
+        try {
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            db.delete.dictionaryEntry(reaction,meaning);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
 
 
 
