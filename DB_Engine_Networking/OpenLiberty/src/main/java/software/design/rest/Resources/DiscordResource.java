@@ -10,8 +10,9 @@ import jakarta.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import software.design.rest.RestApplication;
+import java.util.Iterator;
 
-@Path("discord")
+@Path("Discord")
 public class DiscordResource {
 //   I wonder if Some kind of DDOS Attack could probably be made
 
