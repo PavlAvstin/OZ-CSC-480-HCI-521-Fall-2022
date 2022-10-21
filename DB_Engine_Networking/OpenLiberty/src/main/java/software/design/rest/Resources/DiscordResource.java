@@ -7,6 +7,7 @@ import jakarta.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import software.design.rest.RestApplication;
+import java.util.Iterator;
 
 @Path("Discord")
 public class DiscordResource {
@@ -87,6 +88,34 @@ public class DiscordResource {
         }
     }
 
+    @Path("msgs-in-channel")
+    @GET
+    @Produces
+    public Response msgsInChannel(@FormParam("guild_id") String guildId, @FormParam("channel_id") String channelId) {
+        Database db;
+        try {
+            db = RestApplication.getRestDatabase(Long.parseLong(guildId), "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");
+        }
+        catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        JSONArray jsonArray = db.read.messagesByChannel(Long.parseLong(channelId));
+        Iterator<Object> jsonIterator = jsonArray.iterator();
+        while(jsonIterator.hasNext()) {
+            JSONObject jsonObj = (JSONObject) jsonIterator.next();
+            String objString = jsonObj.toString();
+            if(objString != null) {
+                try {
+                    JSONObject convert = new JSONObject(objString);
+                    Long messageId = Long.parseLong(convert.get("discord_id").toString());
+                    jsonObj.put("reactions", db.read.reactionsByMessage(messageId));
+                }
+                catch (Exception e) {
 
 
+                }
+            }
+        }
+        return Response.status(Response.Status.ACCEPTED).entity(jsonArray.toString()).build();
+    }
 }
