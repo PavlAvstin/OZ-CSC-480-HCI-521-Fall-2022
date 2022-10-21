@@ -1,20 +1,15 @@
 package software.design.rest.Resources;
 
 import Admin.Database;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import software.design.rest.RestApplication;
 
-@Path("discord")
+@Path("Discord")
 public class DiscordResource {
-//   I wonder if Some kind of DDOS Attack could probably be made
-
     /**
      * Nickname response.
      *
@@ -23,16 +18,16 @@ public class DiscordResource {
      * @return the response
      * @throws Throwable the throwable
      */
-    @Path("Nickname/{Server_id}/{Discord_id}")
+    @Path("Nickname")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response Nickname(@PathParam("Server_id") Long Server_id, @PathParam("Discord_id") Long Discord_id) throws Throwable {
+    public Response Nickname(@FormParam("Server_id") Long Server_id, @FormParam("Discord_id") Long Discord_id) throws Throwable {
         Database db = null;
         try {
              db = RestApplication.getRestDatabase(Server_id, "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");
 
         }catch (Exception e){
-            e.printStackTrace();
+            return Response.serverError().entity(e.getMessage()).build();
         }
         if(db !=null){
             String nickname = db.read.nickname(Discord_id);
@@ -48,15 +43,15 @@ public class DiscordResource {
      * @return the response
      * @throws Throwable the throwable
      */
-    @Path("Msg/{Server_id}/{Discord_id}")
+    @Path("Msg")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response Msg(@PathParam("Server_id") Long Server_id,@PathParam("Discord_id") Long Discord_id) throws Throwable {
+    public Response Msg(@FormParam("Server_id") Long Server_id,@FormParam("Discord_id") Long Discord_id) throws Throwable {
         Database db = null;
         try {
             db = RestApplication.getRestDatabase(Server_id, "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");
         }catch (Exception e){
-            e.printStackTrace();
+            return Response.serverError().entity(e.getMessage()).build();
         }
         if(db !=null){
             JSONObject jsonObject = db.read.message(Discord_id);
@@ -73,16 +68,17 @@ public class DiscordResource {
      * @return the response
      * @throws Throwable the throwable
      */
-    @Path("MsgByAuthor/{Server_id}/{Discord_id}")
+    @Path("MsgByAuthor")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response MsgByAuthor(@PathParam("Server_id") Long Server_id, @PathParam("Discord_id") Long Discord_id) throws Throwable {
+    public Response MsgByAuthor(@FormParam("Server_id") Long Server_id, @FormParam("Discord_id") Long Discord_id) throws Throwable {
         Database db = null;
         try {
             db = RestApplication.getRestDatabase(Server_id, "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");
        }catch (Exception e){
-           e.printStackTrace();
-       }
+            return Response.serverError().entity(e.getMessage()).build();
+
+        }
         if(db !=null){
             JSONArray jsonArray = db.read.messagesByAuthor(Discord_id);
             return Response.status(Response.Status.ACCEPTED).entity(jsonArray.toString()).build();
@@ -114,6 +110,7 @@ public class DiscordResource {
                     jsonObj.put("reactions", db.read.reactionsByMessage(messageId));
                 }
                 catch (Exception e) {
+
 
                 }
             }
