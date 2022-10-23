@@ -9,6 +9,12 @@
 ## Discord Application
 - First, obtain your application client id & client secret.
 ![Client Keys](https://i.imgur.com/976iJwQ.png)
+- While you're under this tab enter your redirect uris. *Replace localhost with the FQDN if the project is **not** running locally*
+```
+http://localhost:9443/ibm/api/social-login/redirect/discordLogin
+https://localhost:9443/ibm/api/social-login/redirect/discordLogin
+```
+![Redirect Uris](https://i.imgur.com/sOtQLQG.png)
 - Then, under bot obtain your token.
 ![Bot Token](https://i.imgur.com/JTkDtHc.png)
 - Finally, enable the bots intents under the bot tab. It requires `MESSAGE CONTENT INTENT` & `SERVER MEMBERS INTENT` to be enabled
