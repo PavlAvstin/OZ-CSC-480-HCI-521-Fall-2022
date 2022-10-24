@@ -57,7 +57,8 @@ public class HandleSlashCommands {
                         dictionaryCommand(),
                         meaningCommand(),
                         addPairAndDefaultsCommand(),
-                        removalCommands()
+                        removalCommands(),
+                        inviteCommand()
                 )
         ).join();
 
@@ -114,6 +115,12 @@ public class HandleSlashCommands {
                 }
                 break;
 
+                case "invite":
+                {
+                    handleInviteCommand(commandCreateEvent);
+                }
+                break;
+
                 default:
                 {
                     commandCreateEvent
@@ -134,6 +141,7 @@ public class HandleSlashCommands {
 
         System.out.println("Bot now listening for slash commands...");
     }
+
 
     /**
      * Creates the button press listener
@@ -263,6 +271,10 @@ public class HandleSlashCommands {
                         ));
     }
 
+    private SlashCommandBuilder inviteCommand(){
+        return SlashCommand.with("invite", "Gives a invite link for the bot to join another server");
+    }
+
 
     //Command Handling
 
@@ -380,9 +392,9 @@ public class HandleSlashCommands {
                 String reaction = interaction.getArguments().get(0).getStringValue().get();
                 String meaning = interaction.getArguments().get(1).getStringValue().get();
 
-
+//                System.out.println("reaction: "+reaction + "meaning : "+ meaning);
                 if(EmojiManager.isEmoji(reaction) && EmojiParser.extractEmojis(reaction).size() == 1){
-
+//                    System.out.println("reaction: "+reaction + "is an emoji");
                     if(db.read.meaningsByEmoji(reaction).length() == 0) {
                         db.create.dictionaryEntry(reaction, meaning);
                         interactionResponseUpdater
@@ -397,7 +409,7 @@ public class HandleSlashCommands {
                     interactionResponseUpdater
                             .setContent("incorrect format")
                             .update();
-                 }
+                }
 
                 db.closeConnection();
             } catch (SQLException e) {
@@ -521,6 +533,18 @@ public class HandleSlashCommands {
         });
     }
 
+    /**
+     * Handles the '/invite' command
+     * by displaying the invitation link
+     * (Ephemerally)
+     */
+    private void handleInviteCommand(SlashCommandCreateEvent commandCreateEvent) {
+        commandCreateEvent.getInteraction().respondLater(true).thenAccept(interactionResponseUpdater -> {
+            interactionResponseUpdater
+                    .setContent("Bot invite Link: "+discordApi.createBotInvite())
+                    .update();
+        });
+    }
 
     //Button Handling
 

@@ -234,6 +234,26 @@ public class Read {
         return new JSONArray();
     }
 
+    public JSONArray messagesByChannel(long channels_text_channel_discord_id) {
+        try(PreparedStatement statement = connection.prepareStatement(
+                "SELECT DISTINCT messages.discord_id, messages.authors_discord_id, updated_at, content \n" +
+                        "\t\t\tFROM messages\n" +
+                        "\t\t\tWHERE channels_text_channel_discord_id = ?"
+        )){
+            statement.setLong(1, channels_text_channel_discord_id);
+
+            ResultSet resultSet = execute(statement);
+
+            return convertToJSONArray(resultSet);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+
+        //if there's an exception
+        return new JSONArray();
+    }
+
+
     /**
      * Reads the entire dictionary table
      *
