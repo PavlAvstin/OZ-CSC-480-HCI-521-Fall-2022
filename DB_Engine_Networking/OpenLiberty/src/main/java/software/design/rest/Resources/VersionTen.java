@@ -76,7 +76,8 @@ public class VersionTen {
             String databaseMessageContent = "```" + messageJson.get("content") + "```";
             String usernameAndDiscriminator = "<@" + UserProfileManager.getUserProfile().getClaims().getAllClaims().get("id") + ">";
             String headerMessageContent = usernameAndDiscriminator + " has sent you a message from <#" + messageJson.get("channels_text_channel_discord_id") + ">\n";
-            return postDiscordApi("https://discord.com/api/v10/channels/" + channelId + "/messages", new JSONObject().put("content", headerMessageContent + databaseMessageContent), true);
+            String footerMessageContent = "https://discord.com/channels/" + guildId + "/" + messageJson.get("channels_text_channel_discord_id") + "/" + messageId;
+            return postDiscordApi("https://discord.com/api/v10/channels/" + channelId + "/messages", new JSONObject().put("content", headerMessageContent + databaseMessageContent + footerMessageContent), true);
         }catch (Exception e){
             return Response.serverError().entity(e.getMessage()).build();
         }
