@@ -1,11 +1,24 @@
 # Prerequisites 
-- An existing [discord application](https://discord.com/login?redirect_to=%2Fdevelopers%2Fapplications) with a bot (the token for the bot, as well as client id & client secret for the application.)
+- An existing [discord application](https://discord.com/login?redirect_to=%2Fdevelopers%2Fapplications) with a bot.
 - A running MySQL server
 - JRE 11
 - Maven
 
 # Setup
 - Moving forward, make sure you are in the `DB_Engine_Networking` directory. Consider this folder the root/parent directory.
+## Discord Application
+- First, obtain your application client id & client secret.
+![Client Keys](https://i.imgur.com/976iJwQ.png)
+- While you're under this tab enter your redirect uris. *Replace localhost with the FQDN if the project is **not** running locally*
+```
+http://localhost:9443/ibm/api/social-login/redirect/discordLogin
+https://localhost:9443/ibm/api/social-login/redirect/discordLogin
+```
+![Redirect Uris](https://i.imgur.com/sOtQLQG.png)
+- Then, under bot obtain your token.
+![Bot Token](https://i.imgur.com/JTkDtHc.png)
+- Finally, enable the bots intents under the bot tab. It requires `MESSAGE CONTENT INTENT` & `SERVER MEMBERS INTENT` to be enabled
+![Bot Intents](https://i.imgur.com/nWorBp9.png)
 ## MySQL
 - Enter your MySQL shell
 - Create a MySQL user with all privileges on all databases. The command to do this is <br/> `CREATE USER 'username'@'localhost' IDENTIFIED BY 'password'; GRANT ALL PRIVILEGES ON *.* TO 'username'@'localhost'; FLUSH PRIVILEGES;` <br/><br/>**Replace username and password with your own. <br/><br/>Replace localhost with the IP the user will be accessing from. If the MySQL server is running on the same machine you can leave it as localhost.<br/><br/>**

@@ -7,7 +7,7 @@ import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 import software.design.rest.Resources.BotResource;
 import software.design.rest.Resources.DiscordResource;
-import software.design.rest.Resources.MeResource;
+import software.design.rest.Resources.VersionTen;
 
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -20,7 +20,7 @@ public class RestApplication extends Application {
 The RestApplication class adds Resources to the project so that things are aware of the REST classes.
  */
     public RestApplication(){
-        singletons.add(new MeResource());
+        singletons.add(new VersionTen());
         singletons.add(new DiscordResource());
         singletons.add(new BotResource());
     }
@@ -33,5 +33,10 @@ The RestApplication class adds Resources to the project so that things are aware
     public static Database getRestDatabase(long id, String envURl, String envUser, String envPassword ) throws SQLException {
         Dotenv dotenv = Dotenv.configure().directory("../../../../../../").load();
         return new Database(id, dotenv.get(envURl), dotenv.get(envUser), dotenv.get(envPassword));
+    }
+
+    public static String getBotToken() {
+        Dotenv dotenv = Dotenv.configure().directory("../../../../../../").load();
+        return dotenv.get("DISCORD_BOT_TOKEN");
     }
 }

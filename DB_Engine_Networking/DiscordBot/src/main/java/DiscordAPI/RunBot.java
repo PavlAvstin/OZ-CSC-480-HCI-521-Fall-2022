@@ -1,4 +1,4 @@
-package DiscordApiStuff;
+package DiscordAPI;
 
 import Admin.Database;
 import Admin.TableCreation;
