@@ -75,7 +75,7 @@ public class VersionTen {
             db.closeConnection();
             String databaseMessageContent = "```" + messageJson.get("content") + "```";
             String usernameAndDiscriminator = "<@" + UserProfileManager.getUserProfile().getClaims().getAllClaims().get("id") + ">";
-            String headerMessageContent = usernameAndDiscriminator + " has sent you a message from {serverName}\n";
+            String headerMessageContent = usernameAndDiscriminator + " has sent you a message from <#" + messageJson.get("channels_text_channel_discord_id") + ">\n";
             return postDiscordApi("https://discord.com/api/v10/channels/" + channelId + "/messages", new JSONObject().put("content", headerMessageContent + databaseMessageContent), true);
         }catch (Exception e){
             return Response.serverError().entity(e.getMessage()).build();
@@ -119,16 +119,16 @@ public class VersionTen {
 
     /**
      *
-     * @param accessToken
+     * @param authToken
      * @param url
      * @return
      */
-    private CloseableHttpResponse postWithAuthHeader(String accessToken, String url, JSONObject body, boolean useBotToken) {
+    private CloseableHttpResponse postWithAuthHeader(String authToken, String url, JSONObject body, boolean useBotToken) {
         try {
             CloseableHttpClient client = HttpClients.createDefault();
             HttpPost post = new HttpPost(url);
-            if(useBotToken) post.setHeader("Authorization", "Bot " + accessToken);
-            else post.setHeader("Authorization", "Bearer " + accessToken);
+            if(useBotToken) post.setHeader("Authorization", "Bot " + authToken);
+            else post.setHeader("Authorization", "Bearer " + authToken);
             StringEntity jsonBody = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
             post.setEntity(jsonBody);
             return client.execute(post);
@@ -138,8 +138,8 @@ public class VersionTen {
             return null;
         }
     }
-    private String postResponseBodyWithAuthHeader(String accessToken, String url, JSONObject body, boolean useBotToken) throws IOException, ParseException {
-        CloseableHttpResponse response = postWithAuthHeader(accessToken, url, body, useBotToken);
+    private String postResponseBodyWithAuthHeader(String authToken, String url, JSONObject body, boolean useBotToken) throws IOException, ParseException {
+        CloseableHttpResponse response = postWithAuthHeader(authToken, url, body, useBotToken);
         assert response != null;
         HttpEntity responseEntity = response.getEntity();
         String responseString = EntityUtils.toString(responseEntity, "UTF-8");
@@ -175,16 +175,16 @@ public class VersionTen {
 
     /**
      *
-     * @param accessToken
+     * @param authToken
      * @param url
      * @return
      */
-    private CloseableHttpResponse getWithAuthHeader(String accessToken, String url, boolean useBotToken) {
+    private CloseableHttpResponse getWithAuthHeader(String authToken, String url, boolean useBotToken) {
         try {
             CloseableHttpClient client = HttpClients.createDefault();
             HttpGet get = new HttpGet(url);
-            if(useBotToken) get.setHeader("Authorization", "Bot " + accessToken);
-            else get.setHeader("Authorization", "Bearer " + accessToken);
+            if(useBotToken) get.setHeader("Authorization", "Bot " + authToken);
+            else get.setHeader("Authorization", "Bearer " + authToken);
             return client.execute(get);
         }
         catch (Exception e) {
@@ -193,8 +193,8 @@ public class VersionTen {
         }
     }
 
-    private String getResponseBodyWithAuthHeader(String accessToken, String url, boolean useBotToken) throws IOException, ParseException {
-        CloseableHttpResponse response = getWithAuthHeader(accessToken, url, useBotToken);
+    private String getResponseBodyWithAuthHeader(String authToken, String url, boolean useBotToken) throws IOException, ParseException {
+        CloseableHttpResponse response = getWithAuthHeader(authToken, url, useBotToken);
         assert response != null;
         HttpEntity responseEntity = response.getEntity();
         String responseString = EntityUtils.toString(responseEntity, "UTF-8");
