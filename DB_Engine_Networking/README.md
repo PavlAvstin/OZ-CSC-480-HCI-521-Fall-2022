@@ -46,7 +46,7 @@ Note: *It is recommended to surround the values with quotes to prevent some mach
 - Set `MYSQL_REST_USER_PASSWORD` AND `MYSQL_BOT_USER_PASSWORD` to two new, unique passwords. These users will be created. You can change their usernames if you'd like, but it isn't necessary.
 
 ## OpenLiberty
-- Copy the `.env` file from the DiscordBot module to the root of OpenLiberty module. Remove the `DISCORD_BOT_TOKEN=` line in the OpenLiberty `.env` file.
+- Copy the `.env` file from the DiscordBot module to the root of OpenLiberty module.
 - Make sure you are in the root of the OpenLiberty module.
 
 CLIENT_ID and CLIENT_SECRET are the client id and client secret of your discord application.
