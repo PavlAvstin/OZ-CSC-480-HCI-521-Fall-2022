@@ -4,6 +4,7 @@ import Admin.Database;
 import com.vdurmont.emoji.EmojiParser;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
+import org.json.JSONArray;
 import software.design.rest.RestApplication;
 
 import javax.annotation.security.RolesAllowed;
