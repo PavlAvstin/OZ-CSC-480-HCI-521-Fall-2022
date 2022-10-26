@@ -21,7 +21,7 @@ https://localhost:9443/ibm/api/social-login/redirect/discordLogin
 ![Bot Intents](https://i.imgur.com/nWorBp9.png)
 ## MySQL
 - Enter your MySQL shell
-- Create a MySQL user with all privileges on all databases. The command to do this is <br/> `CREATE USER 'username'@'localhost' IDENTIFIED BY 'password'; GRANT ALL PRIVILEGES ON *.* TO 'username'@'localhost'; FLUSH PRIVILEGES;` <br/><br/>**Replace username and password with your own. <br/><br/>Replace localhost with the IP the user will be accessing from. If the MySQL server is running on the same machine you can leave it as localhost.<br/><br/>**
+- Create a MySQL user with all privileges on all databases. The command to do this is <br/> `CREATE USER 'username'@'localhost' IDENTIFIED BY 'password'; GRANT ALL PRIVILEGES ON *.* TO 'username'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;` <br/><br/>**Replace username and password with your own. <br/><br/>Replace localhost with the IP the user will be accessing from. If the MySQL server is running on the same machine you can leave it as localhost.<br/><br/>**
 ## DiscordBot
 - In the root of DiscordBot module (folder) create a file called `.env` with the following content:
 ```.env
