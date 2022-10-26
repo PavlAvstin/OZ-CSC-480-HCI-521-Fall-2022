@@ -3,6 +3,7 @@ package DiscordAPI;
 import API.JavaFormData;
 import Admin.Database;
 import Admin.User;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Reaction;
 import org.json.JSONArray;
@@ -79,7 +80,7 @@ public class HandleReactions {
             return CompletableFuture.supplyAsync(() -> {
                 JavaFormData request = null;
                 try {
-                    request = new JavaFormData(new URL("http://localhost:9080/api/bot/reactions"));
+                    request = new JavaFormData(new URL(Dotenv.load().get("OPEN_LIBERTY_FQDN") + "/api/bot/reactions"));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
