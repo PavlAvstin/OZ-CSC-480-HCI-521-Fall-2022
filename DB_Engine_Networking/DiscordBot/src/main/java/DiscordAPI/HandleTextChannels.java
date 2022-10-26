@@ -3,14 +3,12 @@ package DiscordAPI;
 import API.FormData;
 import Admin.Database;
 import Admin.User;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.HttpResponse;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.TextChannel;
 import org.json.JSONObject;
-
-import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
 
 public class HandleTextChannels {
@@ -33,7 +31,7 @@ public class HandleTextChannels {
         channelJson.put("server_id", "" + serverId);
         channelJson.put("channel_id", "" + channelId);
         channelJson.put("channel_name", "" + channelName);
-        return request.post(channelJson, "http://localhost:9080/api/bot/channel");
+        return request.post(channelJson, Dotenv.load().get("OPEN_LIBERTY_FQDN") + "/api/bot/channel");
     }
 
     private void listenForTextChannelNicknameChange() {
