@@ -30,7 +30,7 @@ public class BotResource {
     @Path("channel")
     @DELETE
     public void DeleteChannel(@FormParam("server_id") String server_id, @FormParam("channel_id") String channel_id) throws SQLException {
-        Database db = null;
+        Database db;
         try{
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
         }catch (SQLException e) {
@@ -76,7 +76,7 @@ public class BotResource {
     @Path("channel")
     @POST
     public Response postChannel(@FormParam("server_id") String server_id,@FormParam("channel_id") String channel_id, @FormParam("channel_name") String channel_name){
-        Database db = null;
+        Database db;
         try {
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
             db.create.channel(Long.parseLong(channel_id),channel_name);
@@ -102,7 +102,7 @@ public class BotResource {
     @Path("author")
     @POST
     public Response postAuthor(@FormParam("server_id") String server_id, @FormParam("author_id") String author_id, @FormParam("author_name") String author_name,@FormParam("avatar_hash") String avatar_hash){
-        Database db = null;
+        Database db;
         try{
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
             db.create.author(Long.parseLong(author_id), author_name,avatar_hash);
@@ -124,7 +124,8 @@ public class BotResource {
     @Path("author")
     @PUT
     public Response updateAuthor(@FormParam("server_id") String server_id, @FormParam("author_id") String author_id, @FormParam("author_name") String author_name){
-        Database db = null;
+        Database db;
+        System.out.println(server_id); System.out.println(author_id); System.out.println(author_name);
         try{
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
             db.update.authorNickname(Long.parseLong(author_id), author_name);
@@ -149,7 +150,7 @@ public class BotResource {
     @Path("messages")
     @POST
     public Response createMsg(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id,@FormParam("author_id") String author_id, @FormParam("channel_id") String channel_id, @FormParam("content") String content) {
-        Database db = null;
+        Database db;
         try{
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
             db.create.message(Long.parseLong(message_id),Long.parseLong(author_id),Long.parseLong(channel_id),content);
@@ -172,7 +173,7 @@ public class BotResource {
     @Path("messages")
     @PUT
     public Response updateMsg(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id, @FormParam("content") String content, @FormParam("time") String time) {
-        Database db = null;
+        Database db;
         try{
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
             db.update.message(Long.parseLong(message_id),content,Long.parseLong(time));
@@ -194,7 +195,7 @@ public class BotResource {
     @Path("messages")
     @DELETE
     public Response deleteMsg(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id) throws SQLException {
-        Database db = null;
+        Database db;
         try{
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
             db.delete.message(Long.parseLong(message_id));
