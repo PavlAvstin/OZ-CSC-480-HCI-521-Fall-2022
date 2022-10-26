@@ -27,6 +27,8 @@ https://localhost:9443/ibm/api/social-login/redirect/discordLogin
 ```.env
 DISCORD_BOT_TOKEN=""
 
+OPEN_LIBERTY_FQDN="http://localhost:9080"
+
 MYSQL_URL="jdbc:mysql://localhost:3306/"
 
 MYSQL_INITIALIZATION_USER="OZ_init"
@@ -40,6 +42,7 @@ MYSQL_BOT_USER_PASSWORD="password"
 ```
 Note: *It is recommended to surround the values with quotes to prevent some machines causing issues with special characters.*
 - Set `DISCORD_BOT_TOKEN` equal to the token of your discord bot.
+- Set `OPEN_LIBERTY_FQDN` equal to the url of your OpenLiberty server + port (if applicable)
 - Set `MYSQL_URL` equal to the URL of your MySQL server. localhost being the IP address, then 3306 being the port (default).
 - Set `MYSQL_INITIALIZATION_USER` equal to the username of the MySQL user you created earlier.
 - Set `MYSQL_INITIALIZATION_USER_PASSWORD` equal to the password of the MySQL user you created earlier.
