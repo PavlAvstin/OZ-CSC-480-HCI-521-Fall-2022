@@ -9,6 +9,8 @@ import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.intent.Intent;
 import org.javacord.api.entity.server.Server;
 
+import java.util.Objects;
+
 public class RunBot {
 
     /**
@@ -19,6 +21,11 @@ public class RunBot {
     public static void main(String[] args) throws Exception {
         // use .env file (root directory by default)
         Dotenv envFile = Dotenv.load();
+
+        if(Dotenv.load().get("OPEN_LIBERTY_FQDN") == null || Objects.equals(Dotenv.load().get("OPEN_LIBERTY_FQDN"), "")) {
+            System.out.println("ERROR:\nMISSING ENV VARIABLE:\nOPEN_LIBERTY_FQDN");
+            return;
+        }
 
         DiscordApi discordApi = connectToDiscordApi(envFile);
 
