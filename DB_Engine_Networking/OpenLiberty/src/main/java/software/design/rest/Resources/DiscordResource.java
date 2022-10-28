@@ -19,7 +19,7 @@ public class DiscordResource {
      * @throws Throwable the throwable
      */
     @Path("Nickname")
-    @GET
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response Nickname(@FormParam("Server_id") Long Server_id, @FormParam("Discord_id") Long Discord_id) throws Throwable {
         Database db = null;
@@ -44,7 +44,7 @@ public class DiscordResource {
      * @throws Throwable the throwable
      */
     @Path("Msg")
-    @GET
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response Msg(@FormParam("Server_id") Long Server_id,@FormParam("Discord_id") Long Discord_id) throws Throwable {
         Database db = null;
@@ -69,7 +69,7 @@ public class DiscordResource {
      * @throws Throwable the throwable
      */
     @Path("MsgByAuthor")
-    @GET
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response MsgByAuthor(@FormParam("Server_id") Long Server_id, @FormParam("Discord_id") Long Discord_id) throws Throwable {
         Database db = null;
