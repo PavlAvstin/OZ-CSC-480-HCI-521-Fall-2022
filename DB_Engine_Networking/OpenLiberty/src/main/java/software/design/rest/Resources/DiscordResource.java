@@ -89,7 +89,7 @@ public class DiscordResource {
     }
 
     @Path("msgs-in-channel")
-    @GET
+    @POST
     @Produces
     public Response msgsInChannel(@FormParam("guild_id") String guildId, @FormParam("channel_id") String channelId) {
         Database db;
