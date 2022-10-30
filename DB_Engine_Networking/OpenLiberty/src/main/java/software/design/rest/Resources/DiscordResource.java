@@ -99,23 +99,79 @@ public class DiscordResource {
         catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+        JSONArray jsonArray = getMessagesWithReactionsAndAllAuthors(db, channelId);
+        return Response.status(Response.Status.ACCEPTED).entity(jsonArray.toString()).build();
+    }
+
+    /**
+     * Get an array of messages with authors, and reactions. Each reaction will have an author as well.
+     *
+     * @param db Already initialized database
+     * @param channelId String channel id where the messages will be pulled from
+     * @return Returns a JSONArray of the messages with its author, along with the reactions on each message and the author of each reaction.
+     */
+    private JSONArray getMessagesWithReactionsAndAllAuthors(Database db, String channelId) {
+        // get all the messages in guild channel
         JSONArray jsonArray = db.read.messagesByChannel(Long.parseLong(channelId));
-        Iterator<Object> jsonIterator = jsonArray.iterator();
-        while(jsonIterator.hasNext()) {
-            JSONObject jsonObj = (JSONObject) jsonIterator.next();
-            String objString = jsonObj.toString();
-            if(objString != null) {
-                try {
-                    JSONObject convert = new JSONObject(objString);
-                    Long messageId = Long.parseLong(convert.get("discord_id").toString());
-                    jsonObj.put("reactions", db.read.reactionsByMessage(messageId));
-                }
-                catch (Exception e) {
-
-
-                }
+        // go through each message
+        for(Object o : jsonArray) {
+            // convert object to jsonobject
+            JSONObject jsonObj = (JSONObject) o;
+            if (jsonObj != null) {
+                // append author data
+                appendAuthorData(db, jsonObj);
+                // append reactions
+                appendAuthorDataToReactions(db, jsonObj);
             }
         }
-        return Response.status(Response.Status.ACCEPTED).entity(jsonArray.toString()).build();
+        return jsonArray;
+    }
+
+    /**
+     * Mutates reactions data to append the author with it
+     *
+     * @param db Already initialized database
+     * @param jsonObject Message JSONObject from db.read.messagesByChannel
+     */
+    private void appendAuthorDataToReactions(Database db, JSONObject jsonObject) {
+        try {
+            // convert author id to long
+            Long messageId = Long.parseLong(jsonObject.get("discord_id").toString());
+            // get the reactions for this message
+            JSONArray reactionsJsonArray = db.read.reactionsByMessage(messageId);
+            // for each reaction
+            for (Object value : reactionsJsonArray) {
+                // convert regular java object to JSONObject (we know its a JSONObject)
+                JSONObject authorJsonObj = (JSONObject) value;
+                // if its not null
+                if (authorJsonObj != null) {
+                    // append author data
+                    appendAuthorData(db, authorJsonObj);
+                }
+            }
+            // put mutated data into the object
+            jsonObject.put("reactions", reactionsJsonArray);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * Mutates message data to append author
+     *
+     * @param db Already initialized database
+     * @param jsonObject Message JSONObject from db.read.messagesByChannel
+     */
+    private void appendAuthorData(Database db, JSONObject jsonObject) {
+        try {
+            // convert author id to long
+            Long authorId = Long.parseLong(jsonObject.get("authors_discord_id").toString());
+            // get the author from the database, then put it in as author on the object
+            jsonObject.put("author", db.read.author(authorId));
+            // remove the original key value pair as it would be redundant to leave it
+            jsonObject.remove("authors_discord_id");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
