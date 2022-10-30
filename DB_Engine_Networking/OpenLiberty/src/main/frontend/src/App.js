@@ -46,7 +46,7 @@ const Messages = () => {
   // Api calls, these methods should be wrapped in a useEffect hook
   // Get the authenticated user's info
   const getClaims = async () => {
-    requestOptions = {
+    var requestOptions = {
       method: 'GET',
       redirect: 'follow'
     }
@@ -56,7 +56,7 @@ const Messages = () => {
 
   // Get the authenticated user's guilds
   const getGuilds = async () => {
-    requestOptions = {
+    var requestOptions = {
       method: 'GET',
       redirect: 'follow'
     }
@@ -66,7 +66,7 @@ const Messages = () => {
 
   // Get all channels from a guild
   const getChannels = async (guild_id) => {
-    requestOptions = {
+    var requestOptions = {
       method: 'GET',
       redirect: 'follow'
     }
