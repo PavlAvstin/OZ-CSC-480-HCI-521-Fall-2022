@@ -18,7 +18,7 @@
     <security-constraint id="GlobalSecurityConstraint">
         <web-resource-collection id="GlobalWebResourceCollection">
             <web-resource-name>Protected with Users roles</web-resource-name>
-            <url-pattern>/*</url-pattern>
+            <url-pattern>/messages</url-pattern>
             <http-method>GET</http-method>
             <http-method>POST</http-method>
         </web-resource-collection>
