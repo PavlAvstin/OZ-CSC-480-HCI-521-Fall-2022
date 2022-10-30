@@ -18,6 +18,39 @@ public class Read {
     }
 
     /**
+     * Reads the author with the given Discord ID
+     *
+     * @param discord_id The Discord ID of the author being sought
+     * @return Returns a JSON Object containing the author
+     */
+    public JSONObject author(long discord_id) {
+        JSONObject row = new JSONObject();
+
+        try(PreparedStatement statement = connection.prepareStatement(
+                "SELECT *\n" +
+                        "\t\t\tFROM authors\n" +
+                        "\t\t\tWHERE discord_id = ?"
+        )) {
+            statement.setLong(1, discord_id);
+            ResultSet resultSet = execute(statement);
+
+            if (!resultSet.next()) return row;
+
+            String[] columnNames = getColumnNames(resultSet);
+
+            for (String columnName : columnNames) {
+                row.put(columnName, resultSet.getObject(columnName));
+            }
+
+            if (database.isQueryVisible()) System.out.println("\t\t" + row);
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return row;
+    }
+
+    /**
      * Reads the message with the given Discord ID
      *
      * @param discord_id The Discord ID of the message being sought
