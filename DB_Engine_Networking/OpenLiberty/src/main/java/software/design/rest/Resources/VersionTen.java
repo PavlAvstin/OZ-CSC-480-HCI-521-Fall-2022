@@ -15,6 +15,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import software.design.rest.RestApplication;
 
@@ -40,13 +41,31 @@ public class VersionTen {
     }
 
     /**
-     * Get all guilds you're in
+     * Get all guilds you're in, which the bot is also in
      */
     @Path("@me/guilds")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response guilds() {
-        return getDiscordApi("https://discord.com/api/v10/users/@me/guilds", false);
+        String botGuildsJsonString = getDiscordApi("https://discord.com/api/v10/users/@me/guilds", true).getEntity().toString();
+        String userGuildsJsonString = getDiscordApi("https://discord.com/api/v10/users/@me/guilds", false).getEntity().toString();
+        // convert to json arrays
+        JSONArray botGuildsJson = new JSONArray(botGuildsJsonString);
+        JSONArray userGuildsJson = new JSONArray(userGuildsJsonString);
+        // go through users guilds and see if bot has the id
+        JSONArray guilds = new JSONArray();
+        for (int i = 0; i < userGuildsJson.length(); i++) {
+            JSONObject userGuild = userGuildsJson.getJSONObject(i);
+            String userGuildId = userGuild.getString("id");
+            for (int j = 0; j < botGuildsJson.length(); j++) {
+                JSONObject botGuild = botGuildsJson.getJSONObject(j);
+                String botGuildId = botGuild.getString("id");
+                if (userGuildId.equals(botGuildId)) {
+                    guilds.put(userGuild);
+                }
+            }
+        };
+        return Response.status(Response.Status.ACCEPTED).entity(guilds.toString()).build();
     }
 
     /**
