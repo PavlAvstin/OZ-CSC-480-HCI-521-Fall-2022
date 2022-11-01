@@ -7,6 +7,7 @@ import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 import software.design.rest.Resources.BotResource;
 import software.design.rest.Resources.DiscordResource;
+import software.design.rest.Resources.JWTResource;
 import software.design.rest.Resources.VersionTen;
 
 import java.sql.SQLException;
@@ -23,6 +24,7 @@ The RestApplication class adds Resources to the project so that things are aware
         singletons.add(new VersionTen());
         singletons.add(new DiscordResource());
         singletons.add(new BotResource());
+        singletons.add(new JWTResource());
     }
 
     @Override

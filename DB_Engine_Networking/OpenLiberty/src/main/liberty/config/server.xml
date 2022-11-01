@@ -23,14 +23,9 @@
         </group>
     </basicRegistry>
 
-    <!-- This template enables security. To get the full use of all the capabilities, a keystore and user registry are required. -->
+    <keyStore id="defaultKeyStore"/>
 
-    <!-- For the keystore, default keys are generated and stored in a keystore. To provide the keystore password, generate an 
-        encoded password using bin/securityUtility encode and add it below in the password attribute of the keyStore element. 
-        Then uncomment the keyStore element. -->
-    <!--
-    <keyStore password=""/> 
-    -->
+    <jwtBuilder expiresInSeconds="60" id="myBuilder" issuer="OZ-CSC480-F22" keyAlias="default"/>
 
     <!-- To access this server from a remote client add a host attribute to the following element, e.g. host="*" -->
     <httpEndpoint httpPort="9080"
