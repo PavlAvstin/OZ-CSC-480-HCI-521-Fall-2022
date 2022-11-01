@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="new server">
+
+    <!-- Enable features -->
+    <featureManager>
+        <feature>jakartaee-9.1</feature>
+        <feature>transportSecurity-1.0</feature>
+        <feature>restfulWSClient-3.0</feature>
+        <feature>cdi-3.0</feature>
+        <feature>jsonb-2.0</feature>
+        <feature>mpJwt-2.0</feature>
+        <feature>mpConfig-3.0</feature>
+    </featureManager>
+
+
+    <keyStore id="defaultKeyStore"/>
+
+    <!-- To access this server from a remote client add a host attribute to the following element, e.g. host="*" -->
+    <httpEndpoint httpPort="9081"
+                   httpsPort="9444"
+                   id="defaultHttpEndpoint"
+                   host="*" />
+
+    <!-- Automatically expand WAR files and EAR files -->
+    <applicationManager autoExpand="true"/>
+
+    <!-- tag::webApplication[] -->
+    <webApplication location="LibertyMPJWT.war"
+                    contextRoot="/">
+    </webApplication>
+    <!-- end::webApplication[] -->
+
+    <!-- Default SSL configuration enables trust for default certificates from the Java runtime -->
+    <ssl id="defaultSSLConfig" trustDefaultCerts="true" />
+</server>

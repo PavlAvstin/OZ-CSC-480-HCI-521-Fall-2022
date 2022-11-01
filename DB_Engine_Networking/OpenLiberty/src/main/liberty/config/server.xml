@@ -25,7 +25,7 @@
 
     <keyStore id="defaultKeyStore"/>
 
-    <jwtBuilder expiresInSeconds="60" id="myBuilder" issuer="OZ-CSC480-F22" keyAlias="default"/>
+    <jwtBuilder expiresInSeconds="60" id="480" issuer="OZ-CSC480-F22" keyAlias="default" jwkEnabled="true"/>
 
     <!-- To access this server from a remote client add a host attribute to the following element, e.g. host="*" -->
     <httpEndpoint httpPort="9080"
@@ -57,7 +57,7 @@
     <authFilter id="authFilter1">
         <requestUrl
                 id="myUrlFilter"
-                urlPattern="api"
+                urlPattern="api/jwt/key"
                 matchType="notContain" />
     </authFilter>
 

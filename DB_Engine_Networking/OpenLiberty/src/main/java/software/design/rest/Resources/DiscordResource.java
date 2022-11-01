@@ -139,6 +139,7 @@ public class DiscordResource {
             Long messageId = Long.parseLong(jsonObject.get("discord_id").toString());
             // get the reactions for this message
             JSONArray reactionsJsonArray = db.read.reactionsByMessage(messageId);
+            System.out.println(reactionsJsonArray);
             // for each reaction
             for (Object value : reactionsJsonArray) {
                 // convert regular java object to JSONObject (we know its a JSONObject)

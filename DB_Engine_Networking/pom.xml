@@ -12,6 +12,7 @@
         <module>OpenLiberty</module>
         <module>DiscordBot</module>
         <module>Database</module>
+        <module>OpenLibertyMPJWT</module>
     </modules>
 
     <properties>
