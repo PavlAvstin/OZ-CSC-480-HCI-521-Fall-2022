@@ -262,7 +262,7 @@ public class HandleSlashCommands {
                                                 "the reaction to be removed",
                                                 true
                                         )
-                        )),
+                                )),
                         SlashCommandOption.createWithOptions(
                                 SlashCommandOptionType.SUB_COMMAND,
                                 "message",
@@ -274,9 +274,9 @@ public class HandleSlashCommands {
                                                 "the ID of the message to be removed",
                                                 true
                                         )
-                        ))
+                                ))
 
-                        ));
+                ));
     }
 
     private SlashCommandBuilder inviteCommand(){
@@ -365,17 +365,17 @@ public class HandleSlashCommands {
                         .getSlashCommandInteraction()
                         .getArguments().get(0)
                         .getStringRepresentationValue().get();
-                    if (db.read.meaningsByEmoji(reaction).length() != 0) {
-                        String meaning = (String) ((JSONObject) (db.read.meaningsByEmoji(reaction).get(0))).get("meaning");
-                        interactionResponseUpdater
-                                .setContent(reaction + " means " + meaning)
-                                .update();
-                    }
-                    else {
-                        interactionResponseUpdater
-                                .setContent(reaction + " does not exist in dictionary ")
-                                .update();
-                    }
+                if (db.read.meaningsByEmoji(reaction).length() != 0) {
+                    String meaning = (String) ((JSONObject) (db.read.meaningsByEmoji(reaction).get(0))).get("meaning");
+                    interactionResponseUpdater
+                            .setContent(reaction + " means " + meaning)
+                            .update();
+                }
+                else {
+                    interactionResponseUpdater
+                            .setContent(reaction + " does not exist in dictionary ")
+                            .update();
+                }
                 db.closeConnection();
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -499,49 +499,49 @@ public class HandleSlashCommands {
      */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     private void handleRemoveMessageCommand(SlashCommandCreateEvent commandCreateEvent) {
-            try {
-                SlashCommandInteraction interaction = commandCreateEvent.getSlashCommandInteraction();
-                Database db = new Database(interaction.getServer().get().getId(), User.BOT);
+        try {
+            SlashCommandInteraction interaction = commandCreateEvent.getSlashCommandInteraction();
+            Database db = new Database(interaction.getServer().get().getId(), User.BOT);
 
-                long messageID = Long.parseLong(interaction.getArguments().get(0).getStringValue().get());
+            long messageID = Long.parseLong(interaction.getArguments().get(0).getStringValue().get());
 
-                if (db.read.message(messageID).length() > 0) {
-                    messageToRemove.put(interaction.getServer().get().getId(),messageID);
-                    String textInputLabel = "Type 'remove' to Confirm Removal";
-                    commandCreateEvent.getInteraction().respondWithModal(
-                            "removeMessage",
-                            "Confirm Removal",
-                            ActionRow.of(TextInput.create(TextInputStyle.SHORT, "text_input_id", textInputLabel, true))
-                    );
-                }
-                else {
-                    commandCreateEvent.getInteraction().respondLater().thenAccept(interactionResponseUpdater -> {
+            if (db.read.message(messageID).length() > 0) {
+                messageToRemove.put(interaction.getServer().get().getId(),messageID);
+                String textInputLabel = "Type 'remove' to Confirm Removal";
+                commandCreateEvent.getInteraction().respondWithModal(
+                        "removeMessage",
+                        "Confirm Removal",
+                        ActionRow.of(TextInput.create(TextInputStyle.SHORT, "text_input_id", textInputLabel, true))
+                );
+            }
+            else {
+                commandCreateEvent.getInteraction().respondLater().thenAccept(interactionResponseUpdater -> {
                     interactionResponseUpdater
                             .setContent("the messageID: " + messageID + " was not found in the database")
                             .update();
-                    });
-                }
-
-                db.closeConnection();
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-                commandCreateEvent.getInteraction().respondLater().thenAccept(interactionResponseUpdater -> {
-                    interactionResponseUpdater
-                            .setFlags(MessageFlag.EPHEMERAL)
-                            .setContent("An error occurred")
-                            .update();
                 });
-            } catch(NumberFormatException e){
-                commandCreateEvent.getInteraction().respondLater().thenAccept(interactionResponseUpdater -> {
+            }
 
-                    interactionResponseUpdater
+            db.closeConnection();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            commandCreateEvent.getInteraction().respondLater().thenAccept(interactionResponseUpdater -> {
+                interactionResponseUpdater
+                        .setFlags(MessageFlag.EPHEMERAL)
+                        .setContent("An error occurred")
+                        .update();
+            });
+        } catch(NumberFormatException e){
+            commandCreateEvent.getInteraction().respondLater().thenAccept(interactionResponseUpdater -> {
+
+                interactionResponseUpdater
                         .setFlags(MessageFlag.EPHEMERAL)
                         .setContent("incorrect format")
                         .update();
-                });
+            });
 
-            }
+        }
     }
 
     /**
