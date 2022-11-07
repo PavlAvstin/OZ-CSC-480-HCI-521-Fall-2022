@@ -1,12 +1,15 @@
-package DiscordApiStuff;
+package DiscordAPI;
 
+import API.FormData;
 import Admin.Database;
 import Admin.User;
+import io.github.cdimascio.dotenv.Dotenv;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.TextChannel;
-
-import java.sql.SQLException;
+import org.json.JSONObject;
+import java.util.concurrent.CompletableFuture;
 
 public class HandleTextChannels {
     private DiscordApi discordApi;
@@ -20,11 +23,15 @@ public class HandleTextChannels {
         listenForTextChannelNicknameChange();
     }
 
-    public static long insertChannel(TextChannel channel, Database db) throws SQLException {
+    public static CompletableFuture<CloseableHttpResponse> insertChannel(TextChannel channel, long serverId) {
         long channelId = channel.getId();
         String channelName = channel.asServerTextChannel().get().getName();
-        db.create.channel(channelId, channelName);
-        return channelId;
+        FormData request = new FormData();
+        JSONObject channelJson = new JSONObject();
+        channelJson.put("server_id", "" + serverId);
+        channelJson.put("channel_id", "" + channelId);
+        channelJson.put("channel_name", "" + channelName);
+        return request.post(channelJson, Dotenv.load().get("OPEN_LIBERTY_FQDN") + "/api/bot/channel");
     }
 
     private void listenForTextChannelNicknameChange() {

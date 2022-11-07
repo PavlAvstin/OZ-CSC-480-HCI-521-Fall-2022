@@ -9,6 +9,11 @@
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
 
+    <error-page>
+        <error-code>404</error-code>
+        <location>index.html</location>
+    </error-page>
+
 <!--     SECURITY CONSTRAINTS -->
     <security-constraint id="GlobalSecurityConstraint">
         <web-resource-collection id="GlobalWebResourceCollection">
@@ -19,6 +24,7 @@
         </web-resource-collection>
         <auth-constraint id="DiscordMembersAuthConstraint">
             <role-name>users</role-name>
+            <role-name>bot</role-name>
         </auth-constraint>
     </security-constraint>
 </web-app>

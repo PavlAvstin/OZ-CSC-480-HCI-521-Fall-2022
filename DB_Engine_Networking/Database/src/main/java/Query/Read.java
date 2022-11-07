@@ -18,6 +18,39 @@ public class Read {
     }
 
     /**
+     * Reads the author with the given Discord ID
+     *
+     * @param discord_id The Discord ID of the author being sought
+     * @return Returns a JSON Object containing the author
+     */
+    public JSONObject author(long discord_id) {
+        JSONObject row = new JSONObject();
+
+        try(PreparedStatement statement = connection.prepareStatement(
+                "SELECT *\n" +
+                        "\t\t\tFROM authors\n" +
+                        "\t\t\tWHERE discord_id = ?"
+        )) {
+            statement.setLong(1, discord_id);
+            ResultSet resultSet = execute(statement);
+
+            if (!resultSet.next()) return row;
+
+            String[] columnNames = getColumnNames(resultSet);
+
+            for (String columnName : columnNames) {
+                row.put(columnName, resultSet.getObject(columnName));
+            }
+
+            if (database.isQueryVisible()) System.out.println("\t\t" + row);
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return row;
+    }
+
+    /**
      * Reads the message with the given Discord ID
      *
      * @param discord_id The Discord ID of the message being sought
@@ -233,6 +266,26 @@ public class Read {
         //if there's an exception
         return new JSONArray();
     }
+
+    public JSONArray messagesByChannel(long channels_text_channel_discord_id) {
+        try(PreparedStatement statement = connection.prepareStatement(
+                "SELECT DISTINCT messages.discord_id, messages.authors_discord_id, updated_at, content \n" +
+                        "\t\t\tFROM messages\n" +
+                        "\t\t\tWHERE channels_text_channel_discord_id = ?"
+        )){
+            statement.setLong(1, channels_text_channel_discord_id);
+
+            ResultSet resultSet = execute(statement);
+
+            return convertToJSONArray(resultSet);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+
+        //if there's an exception
+        return new JSONArray();
+    }
+
 
     /**
      * Reads the entire dictionary table
