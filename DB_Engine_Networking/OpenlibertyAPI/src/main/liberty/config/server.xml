@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="new server">
+
+    <!-- Enable features -->
+    <featureManager>
+        <feature>jakartaee-9.1</feature>
+        <feature>microProfile-5.0</feature>
+        <feature>transportSecurity-1.0</feature>
+        <feature>restfulWSClient-3.0</feature>
+        <feature>cdi-3.0</feature>
+        <feature>jsonb-2.0</feature>
+        <feature>jwt-1.0</feature>
+    </featureManager>
+
+    <basicRegistry id="basic" realm="customRealm">
+        <user name="${bot.liberty.user}" password="${bot.liberty.password}" />
+        <group name="bot">
+            <member name="${bot.liberty.user}" />
+        </group>
+        <group name="users">
+            <member name="${bot.liberty.user}" />
+        </group>
+    </basicRegistry>
+
+    <keyStore id="defaultKeyStore"/>
+
+    <jwtBuilder expiresInSeconds="60" id="480" issuer="OZ-CSC480-F22" keyAlias="default" jwkEnabled="true"/>
+
+    <!-- To access this server from a remote client add a host attribute to the following element, e.g. host="*" -->
+    <httpEndpoint httpPort="9080"
+                   httpsPort="9443"
+                   id="defaultHttpEndpoint"
+                   host="*" />
+
+    <!-- Automatically expand WAR files and EAR files -->
+    <applicationManager autoExpand="true"/>
+
+    <!-- Configures the application on a specified context root -->
+<!--    <webApplication contextRoot="/" location="OZ-480F22.war" />-->
+
+    <!-- End Discord OAuth2 Config -->
+
+    <authFilter id="authFilter1">
+        <requestUrl
+                id="myUrlFilter"
+                urlPattern="api/jwt/key"
+                matchType="notContain" />
+    </authFilter>
+
+    <!-- tag::webApplication[] -->
+    <webApplication location="OpenLibAPI.war"
+                    contextRoot="/">
+        <!-- tag::applicationBnd[] -->
+        <application-bnd>
+            <!-- tag::users[] -->
+            <security-role name="users">
+                <special-subject type="ALL_AUTHENTICATED_USERS"/>
+            </security-role>
+            <!-- end::users[] -->
+        </application-bnd>
+        <!-- end::applicationBnd[] -->
+    </webApplication>
+    <!-- end::webApplication[] -->
+
+    <!-- Default SSL configuration enables trust for default certificates from the Java runtime -->
+    <ssl id="defaultSSLConfig" trustDefaultCerts="true" />
+</server>

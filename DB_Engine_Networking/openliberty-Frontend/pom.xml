@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>software.design</groupId>
-    <artifactId>openliberty-starter</artifactId>
+    <artifactId>openliberty-Frontend</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
@@ -88,7 +88,7 @@
     </dependencies>
 
     <build>
-        <finalName>OZ-480F22</finalName>
+        <finalName>openliberty-Frontend</finalName>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -100,20 +100,6 @@
                     <groupId>io.openliberty.tools</groupId>
                     <artifactId>liberty-maven-plugin</artifactId>
                     <version>3.6.1</version>
-<!--                    JDBC CONFIG CHECK THIS FOR JDBC ERRORS -->
-                    <configuration>
-                        <copyDependencies>
-                            <dependencyGroup>
-                                <location>jdbc</location>
-                                <dependency>
-                                    <groupId>com.ibm.db2</groupId>
-                                    <artifactId>jcc</artifactId>
-                                    <version>11.5.6.0</version>
-                                </dependency>
-                            </dependencyGroup>
-                        </copyDependencies>
-                    </configuration>
-
                 </plugin>
             </plugins>
         </pluginManagement>
