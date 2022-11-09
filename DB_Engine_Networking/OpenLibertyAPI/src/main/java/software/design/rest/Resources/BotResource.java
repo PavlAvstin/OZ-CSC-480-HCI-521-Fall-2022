@@ -2,19 +2,23 @@ package software.design.rest.Resources;
 
 import Admin.Database;
 import com.vdurmont.emoji.EmojiParser;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import org.json.JSONArray;
 import software.design.rest.RestApplication;
 
-import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.DenyAll;
 import java.sql.SQLException;
 
 
 /**
  * The type Bot resource.
  */
-@RolesAllowed("bot")
+@RolesAllowed({"bot"})
+@RequestScoped
+@DenyAll
 @Path("bot")
 public class BotResource {
 
@@ -229,6 +233,7 @@ public class BotResource {
     }
 
     @Path("reactions")
+    @RolesAllowed("bot")
     @GET
     public Response readMessage(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id){
         Database db;

@@ -11,9 +11,9 @@ import org.json.JSONObject;
 import software.design.rest.RestApplication;
 import java.util.Iterator;
 
-@Path("Discord")
+@Path("discord")
 public class DiscordResource {
-    @Path("jwtProtectedPath")
+    @Path("demoPath")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response jwtProtectedPath(@Context HttpHeaders headers) {

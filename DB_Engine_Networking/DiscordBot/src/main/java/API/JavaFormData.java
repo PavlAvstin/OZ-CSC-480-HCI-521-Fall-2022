@@ -1,5 +1,8 @@
 package API;
 
+import io.github.cdimascio.dotenv.Dotenv;
+import org.apache.commons.codec.binary.Base64;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +26,14 @@ public class JavaFormData {
     private final String boundary;
 
     private final URL url;
+    private String getBasicAuth() {
+        Dotenv dotenv = Dotenv.load();
+        String basicAuthUsername = dotenv.get("BASIC_AUTH_USERNAME");
+        String basicAuthPassword = dotenv.get("BASIC_AUTH_PASSWORD");
+        String basicAuth = basicAuthUsername + ":" + basicAuthPassword;
+        byte[] encodedBytes = Base64.encodeBase64(basicAuth.getBytes());
+        return "Basic " + new String(encodedBytes);
+    }
 
     public JavaFormData(final URL url) throws IOException {
         this.url = url;
@@ -33,6 +44,7 @@ public class JavaFormData {
         connection.setConnectTimeout(CONNECT_TIMEOUT);
         connection.setReadTimeout(READ_TIMEOUT);
         connection.setRequestMethod("POST");
+        connection.setRequestProperty("Authorization", getBasicAuth());
         connection.setRequestProperty("Accept-Charset", CHARSET);
         connection.setRequestProperty("Content-Type",
                 "multipart/form-data; boundary=" + boundary);
