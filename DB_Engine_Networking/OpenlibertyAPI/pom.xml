@@ -12,6 +12,7 @@
 
     <artifactId>OpenlibertyAPI</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -106,7 +107,6 @@
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
             </plugin>
-
             <!--            MORE JUNIT-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
