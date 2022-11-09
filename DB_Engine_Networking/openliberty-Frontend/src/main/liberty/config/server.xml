@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<server description="new server">
+<server description="480 frontend">
 
     <!-- Enable features -->
     <featureManager>
@@ -19,8 +19,8 @@
     <jwtBuilder expiresInSeconds="60" id="480" issuer="OZ-CSC480-F22" keyAlias="default" jwkEnabled="true"/>
 
     <!-- To access this server from a remote client add a host attribute to the following element, e.g. host="*" -->
-    <httpEndpoint httpPort="9082"
-                   httpsPort="9445"
+    <httpEndpoint httpPort="9080"
+                   httpsPort="9443"
                    id="defaultHttpEndpoint"
                    host="*" />
 
