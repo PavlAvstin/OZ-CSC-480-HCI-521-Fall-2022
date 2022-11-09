@@ -2,6 +2,8 @@ package software.design.rest.Resources;
 
 import Admin.Database;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.json.JSONArray;
@@ -11,6 +13,17 @@ import java.util.Iterator;
 
 @Path("Discord")
 public class DiscordResource {
+    @Path("jwtProtectedPath")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response jwtProtectedPath(@Context HttpHeaders headers) {
+        if(!RestApplication.isAcceptedJwt(headers)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        // else continue doing stuff
+        return Response.status(Response.Status.ACCEPTED).build();
+    }
+
     /**
      * Nickname response.
      *
