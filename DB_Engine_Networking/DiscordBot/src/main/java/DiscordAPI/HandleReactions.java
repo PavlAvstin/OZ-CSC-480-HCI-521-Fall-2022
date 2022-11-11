@@ -63,9 +63,11 @@ public class HandleReactions {
                 // get the message that was reacted to & insert it into the database
                 HandleMessages.insertMessage(serverId, reactionAddEvent.getMessage().get(), reactionAddEvent.getServer().get()).thenAccept(messageResponse -> {
                     System.out.println(messageResponse.getCode());
-                    // insert the reaction
-                    insertReaction(serverId, userId, reactionAddEvent.getReaction().get()).thenAccept(reactionResponse -> {
-                        System.out.println(reactionResponse);
+                    HandleAuthors.insertReactionAuthor(reactionAddEvent.getUser().get(), reactionAddEvent.getServer().get()).thenAccept(reactionAuthorAccepted -> {
+                        // insert the reaction
+                        insertReaction(serverId, userId, reactionAddEvent.getReaction().get()).thenAccept(reactionResponse -> {
+                            System.out.println(reactionResponse);
+                        });
                     });
                 });
             }

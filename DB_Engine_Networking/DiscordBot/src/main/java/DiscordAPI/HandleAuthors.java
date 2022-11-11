@@ -6,6 +6,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.MessageAuthor;
 import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
 import org.json.JSONObject;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -39,6 +40,23 @@ public class HandleAuthors {
             }
         });
 
+        FormData request = new FormData();
+        JSONObject authorJson = new JSONObject();
+        authorJson.put("server_id", "" + serverId);
+        authorJson.put("author_id", "" + authorId);
+        authorJson.put("author_name", authorName.get());
+        authorJson.put("avatar_hash", authorAvatarHash.get());
+        return request.post(authorJson, Dotenv.load().get("OPEN_LIBERTY_FQDN") + "/api/bot/author");
+    }
+
+    public static CompletableFuture<CloseableHttpResponse> insertReactionAuthor(User author, Server server) {
+        long authorId = author.getId();
+        long serverId = server.getId();
+        AtomicReference<String> authorName = new AtomicReference<>(author.getDisplayName(server));
+        AtomicReference<String> authorAvatarHash = new AtomicReference<>("");
+        if(author.getAvatarHash().isPresent()) {
+            authorAvatarHash.set(author.getAvatarHash().get());
+        }
         FormData request = new FormData();
         JSONObject authorJson = new JSONObject();
         authorJson.put("server_id", "" + serverId);
