@@ -20,6 +20,7 @@ public class JWTResource {
     public Response jwt() {
         try {
             Claims socialLoginClaims = UserProfileManager.getUserProfile().getClaims();
+            socialLoginClaims.put("discord_access_token", UserProfileManager.getUserProfile().getAccessToken());
             return Response.status(Response.Status.ACCEPTED).entity(buildJwt(socialLoginClaims)).build();
         }
         catch (Exception e) {
