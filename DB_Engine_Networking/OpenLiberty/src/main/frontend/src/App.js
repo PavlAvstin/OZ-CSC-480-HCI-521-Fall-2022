@@ -4,6 +4,8 @@ import logo from './Logo.jpg';
 import './App.css';
 import Message from "./Message.js";
 
+var JSONbig = require('json-bigint');
+
 function App() {
   return (
     <>
@@ -114,19 +116,19 @@ function Messages() {
       redirect: 'follow'
     }
     const messages = await fetch("http://localhost:9080/api/Discord/msgs-in-channel", requestOptions);
-    return messages.json();
+    return messages.text();
   }
     
   useEffect(() => {
     getClaims()
-      .then((res) => {setClaims(res)});
+      .then((res) => {setClaims(res); console.log(res)});
     getGuilds()
       .then((res) => {setGuilds(res); });      
   },[]);
 
   useEffect(() => {
     getMessagesByChannel("1034182952885694534", "1034621468341973002")
-      .then((res) => {setMessages(res); console.log(res)});
+      .then((res) => {setMessages(JSONbig.parse(res))});
   },[guilds]);
 
   // A method similar to this can be used to display all messages or to populate the left side barm

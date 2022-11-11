@@ -11,8 +11,8 @@ function Message(message) {
     return (
         <div className="message">
             <div className="messageHeader">
-                <img src={authorAvatar}/>
-                {authorName}
+                <img className="avatar" src={authorAvatar}/>
+                <div className="authorName">{authorName}</div>
             </div>
             <div className="messageContent">{content}</div>
             <div classNames="reaction">{reactionAuthor} reacted with {reactionEmoji}</div>
