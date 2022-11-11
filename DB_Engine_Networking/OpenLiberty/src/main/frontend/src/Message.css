@@ -1,0 +1,10 @@
+.message {
+    background-color: lightgray;
+    position: absolute;
+    width: 90%;
+    height: 90%;
+}
+.messageHeader {
+    font-size: 4vh;
+    font-weight: 400;
+}
