@@ -1,0 +1,56 @@
+#!/bin/bash
+FRONTEND_PID=""
+MP_JWT_PID=""
+API_PID=""
+
+function trap_ctrl_c ()
+{
+    echo "Shutting down all liberty servers..."
+    (
+      cd OpenLibertyFrontend
+      mvn liberty:stop
+    )
+    (
+      cd OpenLibertyAPI
+      mvn liberty:stop
+    )
+    (
+      cd OpenLibertyMPJWT
+      mvn liberty:stop
+    )
+    echo "All liberty servers have been shut down. Goodbye."
+
+    exit 2
+}
+
+(
+  # shellcheck disable=SC2164
+  cd OpenLibertyFrontend
+  # export discord tokens
+  export DISCORD_CLIENT_ID="1016727734334005348"
+  export DISCORD_CLIENT_SECRET="oUq6Kj2bG_JLZF2NE3HtaDxPt04SBj1L"
+  # export bot credentials
+  export BOT_LIBERTY_USER="dilbert"
+  export BOT_LIBERTY_PASSWORD="dilbertsPassword"
+  mvn liberty:dev &
+  FRONTEND_PID=$!
+)
+
+(
+  # shellcheck disable=SC2164
+  cd OpenLibertyMPJWT
+  mvn liberty:dev &
+  MP_JWT_PID=$!
+)
+
+(
+  # shellcheck disable=SC2164
+  cd OpenLibertyAPI
+  mvn liberty:dev &
+  API_PID=$!
+)
+
+while true
+do
+  trap trap_ctrl_c 2
+done

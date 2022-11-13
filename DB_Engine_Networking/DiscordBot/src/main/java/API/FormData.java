@@ -1,29 +1,48 @@
 package API;
 
+import io.github.cdimascio.dotenv.Dotenv;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.Credentials;
+import org.apache.hc.client5.http.auth.CredentialsProvider;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.entity.mime.HttpMultipartMode;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.http.Consts;
+import org.apache.http.protocol.HttpContext;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 
 public class FormData {
+    private CredentialsProvider getCredentialsProvider() {
+        Dotenv dotenv = Dotenv.load();
+        BasicCredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(dotenv.get("BASIC_AUTH_USERNAME"), dotenv.get("BASIC_AUTH_PASSWORD").toCharArray());
+        AuthScope scope = new AuthScope(null, null, -1, null, null);
+        provider.setCredentials(scope, credentials);
+        return provider;
+    }
     public CompletableFuture<CloseableHttpResponse> post(JSONObject formDataJson, String url) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                CloseableHttpClient client = HttpClients.createDefault();
+                CloseableHttpClient client = HttpClientBuilder
+                        .create()
+                        .setDefaultCredentialsProvider(getCredentialsProvider())
+                        .build();
                 HttpPost post = new HttpPost(url);
                 post.setEntity(buildMultipartJson(formDataJson));
                 return client.execute(post);
@@ -53,7 +72,10 @@ public class FormData {
     public CompletableFuture<CloseableHttpResponse> put(JSONObject formDataJson, String url) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                CloseableHttpClient client = HttpClients.createDefault();
+                CloseableHttpClient client = HttpClientBuilder
+                        .create()
+                        .setDefaultCredentialsProvider(getCredentialsProvider())
+                        .build();
                 HttpPut put = new HttpPut(url);
                 put.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
                 put.setEntity(buildUrlMultipartJson(formDataJson));
