@@ -121,16 +121,29 @@ function Messages() {
     
   useEffect(() => {
     getClaims()
-      .then((res) => {setClaims(res); console.log(res)});
+      .then((res) => {setClaims(res);});
     getGuilds()
-      .then((res) => {setGuilds(res); });      
+      .then((res) => {setGuilds(res); console.log("guilds"); console.log(res)});      
   },[]);
 
   useEffect(() => {
-    getMessagesByChannel("1034182952885694534", "1034621468341973002")
-      .then((res) => {setMessages(JSONbig.parse(res))});
+    if(guilds == null) return;
+    getChannels(guilds[0].id)
+      .then((res) => {console.log("channels");console.log(res)})
   },[guilds]);
 
+  // Uncomment the function below to test getting messages, replace the server id and channel id with the ones from the server and
+  // channel you are testing, if the bot is in a server the conole can be inspected to see the server and the channels in that server.
+  // To update the server with changes to this file run the command: "npm run build" 
+  // in this folder: DB_Engine_Networking\OpenLiberty\src\main\frontend>
+  // If help is needed for testing ping jacob on discord for help
+  /*
+  useEffect(() => {
+    getMessagesByChannel(server id, channel id)
+      .then((res) => {setMessages(JSONbig.parse(res))});
+  },[guilds]);
+  */
+ 
   // A method similar to this can be used to display all messages or to populate the left side barm
   function messageList (messageArray) {
     if(messageArray == null) return;
