@@ -10,8 +10,9 @@ import com.vdurmont.emoji.EmojiParser;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.message.component.ActionRow;
-import org.javacord.api.entity.message.component.Button;
-import org.javacord.api.event.interaction.ButtonClickEvent;
+import org.javacord.api.entity.message.component.TextInput;
+import org.javacord.api.entity.message.component.TextInputStyle;
+import org.javacord.api.event.interaction.ModalSubmitEvent;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.*;
 
@@ -19,17 +20,20 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 
 public class HandleSlashCommands {
 
     private final DiscordApi discordApi;
-    private String reactionToRemove = "";
-    private long messageToRemove = -1;
+
+    // hash map serverID is key, reaction/messageID is value
+    private final HashMap <Long, String> reactionToRemove = new HashMap<>();
+    private final HashMap <Long, Long> messageToRemove = new HashMap<>();
     private static final String [] reactions = { "🧠", "⭐️", "❓", "😂" };
     private static final String [] meanings = { "Interesting", "Important", "Confusing", "Funny" };
+
 
     //Initializing Handler
 
@@ -44,7 +48,7 @@ public class HandleSlashCommands {
     public void initializeHandler(){
         defineAllSlashCommands();
         startHandlingSlashCommands();
-        startHandlingButtonPresses();
+        startHandlingModalSubmission();
     }
 
     /**
@@ -53,7 +57,7 @@ public class HandleSlashCommands {
     public void defineAllSlashCommands() {
         //meaning command definition
         this.discordApi.bulkOverwriteGlobalApplicationCommands(
-                Arrays.asList(
+                List.of(
                         dictionaryCommand(),
                         meaningCommand(),
                         addPairAndDefaultsCommand(),
@@ -142,39 +146,37 @@ public class HandleSlashCommands {
         System.out.println("Bot now listening for slash commands...");
     }
 
-
     /**
-     * Creates the button press listener
-     * and passes the handling of each button press
-     * to its respective handling function
+     * Creates the Modal Submission listener and passes the handling of
+     * each Modal Submission to its respective handling function
      */
-    public void startHandlingButtonPresses() {
-        this.discordApi.addButtonClickListener(buttonClickEvent -> {
-            String customId = buttonClickEvent.getButtonInteraction().getCustomId();
+    public void startHandlingModalSubmission(){
+        this.discordApi.addModalSubmitListener(listener->{
+            String customId = listener.getModalInteraction().getCustomId();
             switch (customId){
                 case "removeReaction":
-                    handleRemoveReactionButton(buttonClickEvent);
-                break;
+                    handleRemoveReactionConfirmation(listener);
+                    break;
                 case "removeDictionary":
-                    handleRemoveDictionaryButton(buttonClickEvent);
+                    handleRemoveDictionaryConfirmation(listener);
                     break;
                 case "removeMessage":
-                    handleRemoveMessageButton(buttonClickEvent);
+                    handleRemoveMessageConfirmation(listener);
                     break;
-                case "cancel":
-                    handleCancelButton(buttonClickEvent);
-                break;
             }
+
         });
-        System.out.println("Bot now listening for button presses...");
+        System.out.println("Bot now listening for Modal Submissions...");
     }
 
 
 
-    // Command Definitions
+    // Command Builders
 
     /**
      * Defines the '/dictionary' command
+     *
+     * @return SlashCommandBuilder
      */
     private SlashCommandBuilder dictionaryCommand(){
         return SlashCommand.with(
@@ -185,6 +187,8 @@ public class HandleSlashCommands {
 
     /**
      * Defines the '/meaning (reaction)' command
+     *
+     * @return SlashCommandBuilder
      */
     private SlashCommandBuilder meaningCommand() {
         return SlashCommand.with("meaning", "Explains the meaning of the reaction",
@@ -200,6 +204,8 @@ public class HandleSlashCommands {
     /**
      * Defines the '/add pair (reaction) (meaning)'
      * and the '/add defaults' command
+     *
+     * @return SlashCommandBuilder
      */
     private SlashCommandBuilder addPairAndDefaultsCommand() {
         return SlashCommand.with("add", "description",
@@ -234,6 +240,8 @@ public class HandleSlashCommands {
      * Defines the '/remove reaction (reaction)'
      * the '/remove dictionary' command
      * and the '/remove message (id)' command
+     *
+     * @return SlashCommandBuilder
      */
     private SlashCommandBuilder removalCommands() {
         return SlashCommand.with("remove", "description",
@@ -276,12 +284,13 @@ public class HandleSlashCommands {
     }
 
 
+
     //Command Handling
 
     /**
-     * Handles the '/dictionary' command
-     * by displaying the server's dictionary
-     * (Ephemerally)
+     * Handles the '/dictionary' command by displaying the server's dictionary (Ephemerally)
+     *
+     * @param commandCreateEvent Access point to a slash command interaction
      */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     private void handleDictionaryCommand(SlashCommandCreateEvent commandCreateEvent) {
@@ -306,10 +315,10 @@ public class HandleSlashCommands {
     }
 
     /**
-     * Handles the '/add defaults' command
-     * by add the default reaction meaning pairs
-     * and displaying "The default reactions have been added"
-     * (Ephemerally)
+     * Handles the '/add defaults' command by add the default reaction meaning pairs
+     * and displaying "The default reactions have been added" (Ephemerally)
+     *
+     * @param commandCreateEvent Access point to a slash command interaction
      */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     private void handleAddDefaultsCommand(SlashCommandCreateEvent commandCreateEvent) {
@@ -338,9 +347,10 @@ public class HandleSlashCommands {
     }
 
     /**
-     * Handles the '/meaning (reaction)' command
-     * by displaying the meaning of the reaction
+     * Handles the '/meaning (reaction)' command by displaying the meaning of the reaction
      * from the server's dictionary (Ephemerally)
+     *
+     * @param commandCreateEvent Access point to a slash command interaction
      */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     private void handleMeaningCommand(SlashCommandCreateEvent commandCreateEvent) {
@@ -377,9 +387,10 @@ public class HandleSlashCommands {
     }
 
     /**
-     * Handles the '/add pair (reaction) (meaning)' command
-     * by adding the pair to the server's dictionary
-     * (Ephemerally)
+     * Handles the '/add pair (reaction) (meaning)' command by adding the pair to the
+     * server's dictionary (Ephemerally)
+     *
+     * @param commandCreateEvent Access point to a slash command interaction
      */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     private void handleAddPairCommand(SlashCommandCreateEvent commandCreateEvent) {
@@ -392,9 +403,8 @@ public class HandleSlashCommands {
                 String reaction = interaction.getArguments().get(0).getStringValue().get();
                 String meaning = interaction.getArguments().get(1).getStringValue().get();
 
-//                System.out.println("reaction: "+reaction + "meaning : "+ meaning);
                 if(EmojiManager.isEmoji(reaction) && EmojiParser.extractEmojis(reaction).size() == 1){
-//                    System.out.println("reaction: "+reaction + "is an emoji");
+
                     if(db.read.meaningsByEmoji(reaction).length() == 0) {
                         db.create.dictionaryEntry(reaction, meaning);
                         interactionResponseUpdater
@@ -407,7 +417,7 @@ public class HandleSlashCommands {
                     }
                 } else {
                     interactionResponseUpdater
-                            .setContent("incorrect format")
+                            .setContent("incorrect format or unsupported reaction please check documentation for list of supported reactions")
                             .update();
                 }
 
@@ -415,53 +425,6 @@ public class HandleSlashCommands {
             } catch (SQLException e) {
                 e.printStackTrace();
                 interactionResponseUpdater
-                        .setContent("An error occurred")
-                        .update();}
-        });
-    }
-
-    /**
-     * Handles the '/remove reaction (reaction)' command
-     * by displaying a confirmation request
-     * (Ephemerally)
-     */
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
-    private void handleRemoveReactionCommand(SlashCommandCreateEvent commandCreateEvent){
-        commandCreateEvent.getInteraction().respondLater().thenAccept(interactionResponseUpdater -> {
-            try {
-                SlashCommandInteraction interaction = commandCreateEvent.getSlashCommandInteraction();
-                Database db = new Database(interaction.getServer().get().getId(), User.BOT);
-
-                String reaction = interaction.getArguments().get(0).getStringValue().get();
-                if(EmojiManager.isEmoji(reaction) && EmojiParser.extractEmojis(reaction).size() == 1) {
-                    if (db.read.meaningsByEmoji(reaction).length() != 0) {
-                        reactionToRemove = reaction;
-                        interactionResponseUpdater
-                                .addComponents(
-                                        ActionRow.of(
-                                                Button.secondary("cancel", "cancel"),
-                                                Button.danger("removeReaction", "remove pair"))
-                                )
-                                .update();
-                    } else {
-                        interactionResponseUpdater
-                                .setFlags(MessageFlag.EPHEMERAL)
-                                .setContent("the reaction: " + reaction + " was not found in the dictionary")
-                                .update();
-                    }
-                }
-                else {
-                    interactionResponseUpdater
-                            .setFlags(MessageFlag.EPHEMERAL)
-                            .setContent("incorrect format")
-                            .update();
-
-                }
-                db.closeConnection();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                interactionResponseUpdater
-                        .setFlags(MessageFlag.EPHEMERAL)
                         .setContent("An error occurred")
                         .update();
             }
@@ -469,31 +432,73 @@ public class HandleSlashCommands {
     }
 
     /**
-     * Handles the '/remove dictionary' command
-     * by displaying a confirmation request
-     * (Ephemerally)
+     * Handles the '/remove reaction (reaction)' command by displaying a confirmation request (Ephemerally)
+     *
+     * @param commandCreateEvent Access point to a slash command interaction
      */
-    private void handleRemoveDictionaryCommand(SlashCommandCreateEvent commandCreateEvent) {
-        commandCreateEvent.getInteraction().respondLater().thenAccept(interactionResponseUpdater -> {
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    private void handleRemoveReactionCommand(SlashCommandCreateEvent commandCreateEvent){
+        try {
+            SlashCommandInteraction interaction = commandCreateEvent.getSlashCommandInteraction();
+            Database db = new Database(interaction.getServer().get().getId(), User.BOT);
 
-                interactionResponseUpdater
-                        .addComponents(
-                                ActionRow.of(
-                                        Button.secondary("cancel", "cancel"),
-                                        Button.danger("removeDictionary", "remove dictionary"))
-                        )
-                        .update();
-        });
+            String reaction = interaction.getArguments().get(0).getStringValue().get();
+            if(EmojiManager.isEmoji(reaction) && EmojiParser.extractEmojis(reaction).size() == 1) {
+                if (db.read.meaningsByEmoji(reaction).length() != 0) {
+                    reactionToRemove.put(interaction.getServer().get().getId(),reaction);
+                    String textInputLabel = "Type 'remove' to Confirm Removal";
+
+                    commandCreateEvent.getInteraction().respondWithModal(
+                            "removeReaction",
+                            "Confirm Removal",
+                            ActionRow.of(TextInput.create(TextInputStyle.SHORT, "text_input_id", textInputLabel,true))
+                    );
+                } else {
+                    commandCreateEvent.getInteraction().createImmediateResponder()
+                            .setFlags(MessageFlag.EPHEMERAL)
+                            .setContent("the reaction: " + reaction + " was not found in the dictionary")
+                            .respond();
+                }
+            }
+            else {
+                commandCreateEvent.getInteraction().createImmediateResponder()
+                        .setFlags(MessageFlag.EPHEMERAL)
+                        .setContent("incorrect format")
+                        .respond();
+
+            }
+            db.closeConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            commandCreateEvent.getInteraction().createImmediateResponder()
+                    .setFlags(MessageFlag.EPHEMERAL)
+                    .setContent("an error occurred")
+                    .respond();
+        }
+
     }
 
     /**
-     * Handles the '/remove message (id)' command
-     * by displaying a confirmation request
-     * (Ephemerally)
+     * Handles the '/remove dictionary' command by displaying a confirmation request (Ephemerally)
+     *
+     * @param commandCreateEvent Access point to a slash command interaction
+     */
+    private void handleRemoveDictionaryCommand(SlashCommandCreateEvent commandCreateEvent) {
+        String textInputLabel = "Type 'remove' to Confirm Removal";
+        commandCreateEvent.getInteraction().respondWithModal(
+                "removeDictionary",
+                "Confirm Removal",
+                ActionRow.of(TextInput.create(TextInputStyle.SHORT, "text_input_id", textInputLabel, true))
+        );
+    }
+
+    /**
+     * Handles the '/remove message (id)' command by displaying a confirmation request (Ephemerally)
+     *
+     * @param commandCreateEvent Access point to a slash command interaction
      */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     private void handleRemoveMessageCommand(SlashCommandCreateEvent commandCreateEvent) {
-        commandCreateEvent.getInteraction().respondLater().thenAccept(interactionResponseUpdater -> {
             try {
                 SlashCommandInteraction interaction = commandCreateEvent.getSlashCommandInteraction();
                 Database db = new Database(interaction.getServer().get().getId(), User.BOT);
@@ -501,42 +506,48 @@ public class HandleSlashCommands {
                 long messageID = Long.parseLong(interaction.getArguments().get(0).getStringValue().get());
 
                 if (db.read.message(messageID).length() > 0) {
-                    messageToRemove = messageID;
-                    interactionResponseUpdater
-                            .addComponents(
-                                    ActionRow.of(
-                                            Button.secondary("cancel", "cancel"),
-                                            Button.danger("removeMessage", "remove message"))
-                            )
-                            .update();
+                    messageToRemove.put(interaction.getServer().get().getId(),messageID);
+                    String textInputLabel = "Type 'remove' to Confirm Removal";
+                    commandCreateEvent.getInteraction().respondWithModal(
+                            "removeMessage",
+                            "Confirm Removal",
+                            ActionRow.of(TextInput.create(TextInputStyle.SHORT, "text_input_id", textInputLabel, true))
+                    );
                 }
                 else {
+                    commandCreateEvent.getInteraction().respondLater().thenAccept(interactionResponseUpdater -> {
                     interactionResponseUpdater
                             .setContent("the messageID: " + messageID + " was not found in the database")
                             .update();
+                    });
                 }
 
                 db.closeConnection();
 
             } catch (SQLException e) {
                 e.printStackTrace();
-                interactionResponseUpdater
-                        .setFlags(MessageFlag.EPHEMERAL)
-                        .setContent("An error occurred")
-                        .update();
+                commandCreateEvent.getInteraction().respondLater().thenAccept(interactionResponseUpdater -> {
+                    interactionResponseUpdater
+                            .setFlags(MessageFlag.EPHEMERAL)
+                            .setContent("An error occurred")
+                            .update();
+                });
             } catch(NumberFormatException e){
-                interactionResponseUpdater
+                commandCreateEvent.getInteraction().respondLater().thenAccept(interactionResponseUpdater -> {
+
+                    interactionResponseUpdater
                         .setFlags(MessageFlag.EPHEMERAL)
                         .setContent("incorrect format")
                         .update();
+                });
+
             }
-        });
     }
 
     /**
-     * Handles the '/invite' command
-     * by displaying the invitation link
-     * (Ephemerally)
+     * Handles the '/invite' command by displaying the invitation link (Ephemerally)
+     *
+     * @param commandCreateEvent Access point to an interaction
      */
     private void handleInviteCommand(SlashCommandCreateEvent commandCreateEvent) {
         commandCreateEvent.getInteraction().respondLater(true).thenAccept(interactionResponseUpdater -> {
@@ -546,136 +557,123 @@ public class HandleSlashCommands {
         });
     }
 
-    //Button Handling
+
+
+    //Confirmation Handling
 
     /**
-     * Handles the 'cancel' button press
-     * by removing the buttons and displaying
-     * "removal canceled"
-     * (Ephemerally)
-     */
-    private void handleCancelButton(ButtonClickEvent buttonClickEvent) {
-
-        ButtonInteraction interaction = buttonClickEvent.getButtonInteraction();
-        interaction.getMessage().removeContent();
-        interaction
-                .createImmediateResponder()
-                .setFlags(MessageFlag.EPHEMERAL)
-                .setContent("removal cancelled")
-                .respond();
-
-        reactionToRemove = null;
-    }
-
-    /**
-     * Handles the 'removeReaction' button press
-     * by removing the buttons, removing
-     * the pair from the server's dictionary,
-     * and displaying "removal confirmed"
-     * (Ephemerally)
+     * Handles the 'removeReaction' button press by removing the buttons,
+     * removing the pair from the server's dictionary,
+     * and displaying "removal confirmed" (Ephemerally)
+     *
+     * @param modalSubmitEvent Access point to the button interaction
      */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    private void handleRemoveReactionButton(ButtonClickEvent buttonClickEvent) {
+    private void handleRemoveReactionConfirmation(ModalSubmitEvent modalSubmitEvent) {
         try {
-            ButtonInteraction interaction = buttonClickEvent.getButtonInteraction();
-            Database db = new Database(interaction.getServer().get().getId(), User.BOT);
+            ModalInteraction interaction = modalSubmitEvent.getModalInteraction();
 
-            String meaningToRemove = ((JSONObject)(db.read.meaningsByEmoji(reactionToRemove).get(0))).get("meaning").toString();
+            if(interaction.getTextInputValues().get(0).equalsIgnoreCase("remove")){
 
-            db.delete.dictionaryEntry(reactionToRemove, meaningToRemove);
-            db.closeConnection();
+                Database db = new Database(interaction.getServer().get().getId(), User.BOT);
 
-            interaction.getMessage().removeContent();
-            interaction
-                    .createImmediateResponder()
-                    .setFlags(MessageFlag.EPHEMERAL)
-                    .setContent("removal confirmed")
-                    .respond();
+                String meaningToRemove = ((JSONObject)(db.read.meaningsByEmoji(reactionToRemove.get(interaction.getServer().get().getId())).get(0))).get("meaning").toString();
 
-            interaction.getMessage().delete();
+                db.delete.dictionaryEntry(reactionToRemove.get(interaction.getServer().get().getId()), meaningToRemove);
+                db.closeConnection();
 
-            reactionToRemove = null;
+                interaction
+                        .createImmediateResponder()
+                        .setFlags(MessageFlag.EPHEMERAL)
+                        .setContent("removal confirmed")
+                        .respond();
+
+                reactionToRemove.remove(interaction.getServer().get().getId());
+            }
+
+
 
         }catch (SQLException ignored){}
     }
 
     /**
-     * Handles the 'removeDictionary' button press
-     * by removing the buttons, removing
-     * the dictionary from the database,
-     * and displaying "removal confirmed"
-     * (Ephemerally)
+     * Handles the 'removeDictionary' button press by removing the buttons,
+     * removing the dictionary from the database, and displaying
+     * "removal confirmed" (Ephemerally)
+     *
+     * @param modalSubmitEvent Access point to the button interaction
      */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    private void handleRemoveDictionaryButton(ButtonClickEvent buttonClickEvent) {
+    private void handleRemoveDictionaryConfirmation(ModalSubmitEvent modalSubmitEvent) {
         try {
-            ButtonInteraction interaction = buttonClickEvent.getButtonInteraction();
-            Database db = new Database(interaction.getServer().get().getId(), User.BOT);
+            ModalInteraction interaction = modalSubmitEvent.getModalInteraction();
 
+            if(interaction.getTextInputValues().get(0).equalsIgnoreCase("remove")) {
 
-            JSONArray jsonDictionary = db.read.dictionary();
-            for (Object obj : jsonDictionary){
-                JSONObject tableRow = (JSONObject) (obj);
-                String reaction = (String) tableRow.get("emoji");
-                String meaning = (String) tableRow.get("meaning");
-                db.delete.dictionaryEntry(reaction, meaning);
+                Database db = new Database(interaction.getServer().get().getId(), User.BOT);
+
+                JSONArray jsonDictionary = db.read.dictionary();
+                for (Object obj : jsonDictionary) {
+                    JSONObject tableRow = (JSONObject) (obj);
+                    String reaction = (String) tableRow.get("emoji");
+                    String meaning = (String) tableRow.get("meaning");
+                    db.delete.dictionaryEntry(reaction, meaning);
+                }
+
+                db.closeConnection();
+
+                interaction
+                        .createImmediateResponder()
+                        .setFlags(MessageFlag.EPHEMERAL)
+                        .setContent("removal confirmed")
+                        .respond();
             }
-
-            db.closeConnection();
-
-            interaction.getMessage().removeContent();
-            interaction
-                    .createImmediateResponder()
-                    .setFlags(MessageFlag.EPHEMERAL)
-                    .setContent("removal confirmed")
-                    .respond();
-
-            interaction.getMessage().delete();
 
 
         } catch (SQLException ignored){}
     }
 
     /**
-     * Handles the 'removeMessage' button press
-     * by removing the buttons, removing
-     * the message from the database,
-     * and displaying "removal confirmed"
-     * (Ephemerally)
+     * Handles the 'removeMessage' button press by removing the buttons,
+     * removing the message from the database, and displaying
+     * "removal confirmed" (Ephemerally)
+     *
+     * @param modalSubmitEvent Access point to the button interaction
      */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    private void handleRemoveMessageButton(ButtonClickEvent buttonClickEvent) {
+    private void handleRemoveMessageConfirmation(ModalSubmitEvent modalSubmitEvent) {
         try {
-            ButtonInteraction interaction = buttonClickEvent.getButtonInteraction();
-            Database db = new Database(interaction.getServer().get().getId(), User.BOT);
+            ModalInteraction interaction = modalSubmitEvent.getModalInteraction();
 
+            if(interaction.getTextInputValues().get(0).equalsIgnoreCase("remove")) {
+                Database db = new Database(interaction.getServer().get().getId(), User.BOT);
 
-            db.delete.message(messageToRemove);
+                db.delete.message(messageToRemove.get(interaction.getServer().get().getId()));
 
-            db.closeConnection();
+                db.closeConnection();
 
-            interaction.getMessage().removeContent();
-            interaction
-                    .createImmediateResponder()
-                    .setFlags(MessageFlag.EPHEMERAL)
-                    .setContent("removal confirmed")
-                    .respond();
+                interaction
+                        .createImmediateResponder()
+                        .setFlags(MessageFlag.EPHEMERAL)
+                        .setContent("removal confirmed")
+                        .respond();
 
-            interaction.getMessage().delete();
-
-            messageToRemove = -1;
+                messageToRemove.remove(interaction.getServer().get().getId());
+            }
 
 
         } catch (SQLException ignored){}
     }
+
+
 
     // Miscellaneous Functions
 
     /**
-     * Converts the dictionary from a
-     * JSONArray into a String that can
-     * be displayed on discord
-     * (Ephemerally)
+     * Converts the dictionary from a JSONArray into a String that can be
+     * displayed on discord (Ephemerally)
+     *
+     * @param jsonDictionary The servers dictionary in JSON format
      * @return Server's Dictionary as a String
      */
     private String printDictionary(JSONArray jsonDictionary) {

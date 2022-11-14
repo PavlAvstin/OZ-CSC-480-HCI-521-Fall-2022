@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route} from 'react-router-dom';
 import logo from './Logo.jpg';
 import './App.css';
+import Message from "./Message.js";
 
-const App = () => {
+var JSONbig = require('json-bigint');
+
+function App() {
   return (
     <>
     <Routes>
@@ -17,7 +20,7 @@ const App = () => {
   );
 };
 
-const SignIn = () => {
+function SignIn() {
   function redirectToDashboard(event) {
     event.preventDefault();
     location.href = "http://localhost:9080/messages";
@@ -36,16 +39,16 @@ const SignIn = () => {
   );
 };
 
-const Messages = () => {
+function Messages() {
   // State variables, update with the set... method
   // When updated the component will be re-rendered 
-  const [messages, setMessages] = useState([])
-  const [claims, setClaims] = useState([]);
-  const [guilds, setGuilds] = useState([]);
+  const [messages, setMessages] = useState(null)
+  const [claims, setClaims] = useState(null);
+  const [guilds, setGuilds] = useState(null);
 
   // Api calls, these methods should be wrapped in a useEffect hook
   // Get the authenticated user's info
-  const getClaims = async () => {
+  async function getClaims() {
     var requestOptions = {
       method: 'GET',
       redirect: 'follow'
@@ -55,7 +58,7 @@ const Messages = () => {
   }
 
   // Get the authenticated user's guilds
-  const getGuilds = async () => {
+  async function getGuilds() {
     var requestOptions = {
       method: 'GET',
       redirect: 'follow'
@@ -65,7 +68,7 @@ const Messages = () => {
   }
 
   // Get all channels from a guild
-  const getChannels = async (guild_id) => {
+  async function getChannels (guild_id) {
     var requestOptions = {
       method: 'GET',
       redirect: 'follow'
@@ -75,8 +78,7 @@ const Messages = () => {
   }
 
   // Get all messages in a guild
-  const getAllMessages = async (guild_id) =>
-  {
+  async function getAllMessages (guild_id) {
     var formdata = new FormData();
     formdata.append("Server_id", guild_id);
     var requestOptions = {
@@ -85,51 +87,70 @@ const Messages = () => {
       redirect: 'follow'
     };
     const messages = await fetch("http://localhost:9080/api/Discord/Msg", requestOptions);
-    return messages;
+    return messages.json();
 
   }
 
   // Get all messages in a guild made by a user
-  const getMessagesByAuthor = async (guild_id, author_id) => {
+  async function getMessagesByAuthor (guild_id, author_id) {
     var formdata = new FormData();
     formdata.append("Server_id", guild_id);
-    formdata.append("Discord_id")
+    formdata.append("Discord_id", author_id)
     var requestOptions = {
       method: 'POST',
-      body: formdata.append,
+      body: formdata,
       redirect: 'follow'
     }
     const messages = await fetch("http://localhost:9080/api/Discord/MsgByAuthor", requestOptions);
-    return messages;
+    return messages.json();
   }
 
   // Get all messages from a channel in a guild
-  const getMessagesByChannel = async (guild_id, channel_id) => {
+  async function getMessagesByChannel (guild_id, channel_id) {
     var formdata = new FormData();
     formdata.append("guild_id", guild_id);
     formdata.append("channel_id", channel_id)
     var requestOptions = {
       method: 'POST',
-      body: formdata.append,
+      body: formdata,
       redirect: 'follow'
     }
     const messages = await fetch("http://localhost:9080/api/Discord/msgs-in-channel", requestOptions);
-    return messages;
+    return messages.text();
   }
     
   useEffect(() => {
     getClaims()
-      .then((res) => {setClaims(res)});
+      .then((res) => {setClaims(res);});
     getGuilds()
-      .then((res) => {setGuilds(res)});      
+      .then((res) => {setGuilds(res); console.log("guilds"); console.log(res)});      
   },[]);
 
-  // A method similar to this can be used to display all messages or to populate the left side bar
-  const guildNames = (servers) => {
-    const names = servers.map((server) =>
-      <li>{server.name}</li>
+  useEffect(() => {
+    if(guilds == null) return;
+    getChannels(guilds[0].id)
+      .then((res) => {console.log("channels");console.log(res)})
+  },[guilds]);
+
+  // Uncomment the function below to test getting messages, replace the server id and channel id with the ones from the server and
+  // channel you are testing, if the bot is in a server the conole can be inspected to see the server and the channels in that server.
+  // To update the server with changes to this file run the command: "npm run build" 
+  // in this folder: DB_Engine_Networking\OpenLiberty\src\main\frontend>
+  // If help is needed for testing ping jacob on discord for help
+  /*
+  useEffect(() => {
+    getMessagesByChannel(server id, channel id)
+      .then((res) => {setMessages(JSONbig.parse(res))});
+  },[guilds]);
+  */
+ 
+  // A method similar to this can be used to display all messages or to populate the left side barm
+  function messageList (messageArray) {
+    if(messageArray == null) return;
+    const list = messageArray.map((message) =>
+      <li className="messageContainer"><Message message={message}/></li>
     )
-    return names;
+    return list;
   }
   
   return (
@@ -143,9 +164,9 @@ const Messages = () => {
         Logout</button>
       </header> 
       <div className='side-bar'></div>
-      <div className='messagesContainer'>
-
-      </div>
+      <ul className='messagesContainer'>
+        {messageList(messages)}
+      </ul>
     </div>
     );
   }
