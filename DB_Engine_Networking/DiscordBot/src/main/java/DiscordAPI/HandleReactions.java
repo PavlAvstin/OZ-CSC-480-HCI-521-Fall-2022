@@ -5,6 +5,8 @@ import API.JavaFormData;
 import Admin.Database;
 import Admin.User;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.javacord.api.DiscordApi;
@@ -16,6 +18,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class HandleReactions {
     private DiscordApi discordApi;
@@ -136,9 +139,21 @@ public class HandleReactions {
     }
 
     private long getReactionCount(long serverId, long messageId) throws SQLException {
-        Database db = new Database(serverId, User.BOT);
-        JSONArray jArray = db.read.reactionsByMessage(messageId);
-        db.closeConnection();
-        return jArray.length();
+        FormData request = new FormData();
+        JSONObject body = new JSONObject();
+        body.put("server_id", "" + serverId);
+        body.put("message_id", "" + messageId);
+        AtomicInteger count = new AtomicInteger(0);
+        CloseableHttpResponse accepted =  request.get(body, Dotenv.load().get("OPEN_LIBERTY_FQDN") + "/api/bot/reactions/count").join();
+        try {
+            String result = EntityUtils.toString(accepted.getEntity(), "UTF-8");
+            count.set(Integer.parseInt(result));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(count);
+        return count.get();
     }
 }
