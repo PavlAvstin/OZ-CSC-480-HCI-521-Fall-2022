@@ -29,9 +29,6 @@ function trap_ctrl_c ()
   # export discord tokens
   export DISCORD_CLIENT_ID="1016727734334005348"
   export DISCORD_CLIENT_SECRET="oUq6Kj2bG_JLZF2NE3HtaDxPt04SBj1L"
-  # export bot credentials
-  export BOT_LIBERTY_USER="dilbert"
-  export BOT_LIBERTY_PASSWORD="dilbertsPassword"
   mvn liberty:dev &
   FRONTEND_PID=$!
 )
@@ -46,6 +43,9 @@ function trap_ctrl_c ()
 (
   # shellcheck disable=SC2164
   cd OpenLibertyAPI
+  # export bot credentials
+  export BOT_LIBERTY_USER="dilbert"
+  export BOT_LIBERTY_PASSWORD="dilbertsPassword"
   mvn liberty:dev &
   API_PID=$!
 )

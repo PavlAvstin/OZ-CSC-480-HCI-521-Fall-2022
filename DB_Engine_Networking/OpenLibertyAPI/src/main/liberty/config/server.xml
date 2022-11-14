@@ -13,12 +13,12 @@
     </featureManager>
 
     <basicRegistry id="basic" realm="customRealm">
-        <user name="dilbert" password="dilbertsPassword" />
+        <user name="${bot.liberty.user}" password="${bot.liberty.password}" />
         <group name="bot">
-            <member name="dilbert" />
+            <member name="${bot.liberty.user}" />
         </group>
         <group name="users">
-            <member name="dilbert" />
+            <member name="${bot.liberty.user}" />
         </group>
     </basicRegistry>
 
