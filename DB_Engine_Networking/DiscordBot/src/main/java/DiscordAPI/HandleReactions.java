@@ -1,12 +1,16 @@
 package DiscordAPI;
 
+import API.FormData;
 import API.JavaFormData;
 import Admin.Database;
 import Admin.User;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Reaction;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
@@ -60,21 +64,49 @@ public class HandleReactions {
             try {
                 long serverId = reactionAddEvent.getServer().get().getId();
                 long userId = reactionAddEvent.getUser().get().getId();
-                // get the message that was reacted to & insert it into the database
-                HandleMessages.insertMessage(serverId, reactionAddEvent.getMessage().get(), reactionAddEvent.getServer().get()).thenAccept(messageResponse -> {
-                    System.out.println(messageResponse.getCode());
-                    HandleAuthors.insertReactionAuthor(reactionAddEvent.getUser().get(), reactionAddEvent.getServer().get()).thenAccept(reactionAuthorAccepted -> {
-                        // insert the reaction
-                        insertReaction(serverId, userId, reactionAddEvent.getReaction().get()).thenAccept(reactionResponse -> {
-                            System.out.println(reactionResponse);
+                // first check if reaction exists
+                doesReactionExistInDictionary(serverId, reactionAddEvent.getReaction().get().getEmoji().asUnicodeEmoji().get()).thenAccept(accept -> {
+                    if(accept) {
+                        // get the message that was reacted to & insert it into the database
+                        HandleMessages.insertMessage(serverId, reactionAddEvent.getMessage().get(), reactionAddEvent.getServer().get()).thenAccept(messageResponse -> {
+                            System.out.println(messageResponse.getCode());
+                            HandleAuthors.insertReactionAuthor(reactionAddEvent.getUser().get(), reactionAddEvent.getServer().get()).thenAccept(reactionAuthorAccepted -> {
+                                // insert the reaction
+                                insertReaction(serverId, userId, reactionAddEvent.getReaction().get()).thenAccept(reactionResponse -> {
+                                    System.out.println(reactionResponse);
+                                });
+                            });
                         });
-                    });
+                    }
                 });
             }
             catch(Exception e) {
                 System.out.println("Reaction error, handling message & reaction: " + e.getMessage());
             }
         });
+    }
+
+    private CompletableFuture<Boolean> doesReactionExistInDictionary(long serverId, String emoji) {
+        try {
+            return CompletableFuture.supplyAsync(() -> {
+                JavaFormData request = null;
+                try {
+                    request = new JavaFormData(new URL(Dotenv.load().get("OPEN_LIBERTY_FQDN") + "/api/bot/dictionary/exists"));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                request.addFormField("server_id", "" + serverId);
+                request.addFormField("reaction", "" + emoji);
+                try {
+                    return Boolean.parseBoolean(request.finish());
+                } catch (IOException e) {
+                    return false;
+                }
+            });
+        }
+        catch (Exception e) {
+            return null;
+        }
     }
 
     private CompletableFuture<String> insertReaction(long serverId, long userId, Reaction reaction) {

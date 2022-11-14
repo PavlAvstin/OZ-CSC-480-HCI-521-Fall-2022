@@ -6,6 +6,7 @@ import org.apache.hc.client5.http.auth.Credentials;
 import org.apache.hc.client5.http.auth.CredentialsProvider;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
@@ -36,6 +37,25 @@ public class FormData {
         provider.setCredentials(scope, credentials);
         return provider;
     }
+
+    public CompletableFuture<CloseableHttpResponse> get(JSONObject formDataJson, String url) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                CloseableHttpClient client = HttpClientBuilder
+                        .create()
+                        .setDefaultCredentialsProvider(getCredentialsProvider())
+                        .build();
+                HttpGet get = new HttpGet(url);
+                get.setEntity(buildMultipartJson(formDataJson));
+                return client.execute(get);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        });
+    }
+
     public CompletableFuture<CloseableHttpResponse> post(JSONObject formDataJson, String url) {
         return CompletableFuture.supplyAsync(() -> {
             try {
