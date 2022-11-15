@@ -49,6 +49,25 @@ public class HandleReactions {
                     // if there is only one reaction that means this is the last reaction, so delete the message
                     db.delete.message(messageId);
                     db.closeConnection();
+                    FormData request = new FormData();
+                    JSONObject body = new JSONObject();
+                    body.put("server_id", "" + serverId);
+                    body.put("message_id", "" + messageId);
+                    request.delete(body, Dotenv.load().get("OPEN_LIBERTY_FQDN") + "/api/bot/messages").thenAccept(acceptance -> {
+                        switch(acceptance.getCode()) {
+                            case 200:
+                            case 202:
+                                System.out.println("Deleted message: " + messageId);
+                                try {
+                                    acceptance.close();
+                                } catch (IOException e) {
+                                    // do nothing
+                                }
+                                break;
+                            default:
+                                System.out.println("There may have been an error deleting message from the database: " + messageId + " | response code: " + acceptance.getCode());
+                        }
+                    });
                 }
                 else {
                     long authorId = reactionRemoveEvent.getUser().get().getId();
