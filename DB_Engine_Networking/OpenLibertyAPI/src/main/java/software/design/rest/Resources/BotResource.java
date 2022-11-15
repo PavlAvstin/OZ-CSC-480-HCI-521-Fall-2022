@@ -33,15 +33,16 @@ public class BotResource {
      */
     @Path("channel")
     @DELETE
-    public void DeleteChannel(@FormParam("server_id") String server_id, @FormParam("channel_id") String channel_id) throws SQLException {
+    public Response DeleteChannel(@FormParam("server_id") String server_id, @FormParam("channel_id") String channel_id) throws SQLException {
         Database db;
         try{
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
         }catch (SQLException e) {
-            throw new RuntimeException(e);
+            return Response.serverError().build();
         }
         db.delete.channel(Long.parseLong(channel_id));
         db.closeConnection();
+        return Response.accepted().build();
     }
 
     /**
