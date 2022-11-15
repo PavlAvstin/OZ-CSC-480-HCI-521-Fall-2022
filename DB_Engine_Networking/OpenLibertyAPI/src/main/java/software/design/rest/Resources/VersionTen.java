@@ -1,7 +1,6 @@
 package software.design.rest.Resources;
 
 import Admin.Database;
-import com.ibm.websphere.security.social.UserProfileManager;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -36,8 +35,7 @@ public class VersionTen {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try {
-            String claimsString = UserProfileManager.getUserProfile().getClaims().toJsonString();
-            return Response.status(Response.Status.ACCEPTED).entity(claimsString).build();
+            return Response.status(Response.Status.ACCEPTED).entity(RestApplication.getClaims(headers)).build();
         }
         catch (Exception e) {
             System.out.println(e.getMessage());
@@ -55,8 +53,8 @@ public class VersionTen {
         if(!RestApplication.isAcceptedJwt(headers)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-        String botGuildsJsonString = getDiscordApi("https://discord.com/api/v10/users/@me/guilds", true).getEntity().toString();
-        String userGuildsJsonString = getDiscordApi("https://discord.com/api/v10/users/@me/guilds", false).getEntity().toString();
+        String botGuildsJsonString = getDiscordApi("https://discord.com/api/v10/users/@me/guilds", true, headers).getEntity().toString();
+        String userGuildsJsonString = getDiscordApi("https://discord.com/api/v10/users/@me/guilds", RestApplication.getDiscordAccessToken(headers), false).getEntity().toString();
         // convert to json arrays
         JSONArray botGuildsJson = new JSONArray(botGuildsJsonString);
         JSONArray userGuildsJson = new JSONArray(userGuildsJsonString);
@@ -72,7 +70,7 @@ public class VersionTen {
                     guilds.put(userGuild);
                 }
             }
-        };
+        }
         return Response.status(Response.Status.ACCEPTED).entity(guilds.toString()).build();
     }
 
@@ -88,7 +86,7 @@ public class VersionTen {
         }
         JSONObject body = new JSONObject();
         body.put("recipient_id", recipientId);
-        return postDiscordApi("https://discord.com/api/v10/users/@me/channels", body, true);
+        return postDiscordApi("https://discord.com/api/v10/users/@me/channels", body, true, headers);
     }
 
     /**
@@ -107,10 +105,10 @@ public class VersionTen {
             JSONObject messageJson = db.read.message(Long.parseLong(messageId));
             db.closeConnection();
             String databaseMessageContent = "```" + messageJson.get("content") + "```";
-            String usernameAndDiscriminator = "<@" + UserProfileManager.getUserProfile().getClaims().getAllClaims().get("id") + ">";
+            String usernameAndDiscriminator = "<@" + RestApplication.getId(headers) + ">";
             String headerMessageContent = usernameAndDiscriminator + " has sent you a message from <#" + messageJson.get("channels_text_channel_discord_id") + ">\n";
             String footerMessageContent = "https://discord.com/channels/" + guildId + "/" + messageJson.get("channels_text_channel_discord_id") + "/" + messageId;
-            return postDiscordApi("https://discord.com/api/v10/channels/" + channelId + "/messages", new JSONObject().put("content", headerMessageContent + databaseMessageContent + footerMessageContent), true);
+            return postDiscordApi("https://discord.com/api/v10/channels/" + channelId + "/messages", new JSONObject().put("content", headerMessageContent + databaseMessageContent + footerMessageContent), true, headers);
         }catch (Exception e){
             return Response.serverError().entity(e.getMessage()).build();
         }
@@ -129,21 +127,19 @@ public class VersionTen {
         /**
          * TODO: Verify requesting user is in the guild.
          */
-        return getDiscordApi("https://discord.com/api/v10/guilds/" + guildId + "/channels", true);
+        return getDiscordApi("https://discord.com/api/v10/guilds/" + guildId + "/channels", true, headers);
     }
 
     /**
      *
      */
-    private Response postDiscordApi(String url, JSONObject body, boolean useBotToken) {
+    private Response postDiscordApi(String url, JSONObject body, boolean useBotToken, HttpHeaders headers) {
         String accessToken;
         if(useBotToken) {
             accessToken = RestApplication.getBotToken();
         }
         else {
-            accessToken = UserProfileManager
-                    .getUserProfile()
-                    .getAccessToken();
+            accessToken = RestApplication.getDiscordAccessToken(headers);
         }
 
         try {
@@ -190,19 +186,31 @@ public class VersionTen {
      * @param url
      * @return
      */
-    private Response getDiscordApi(String url, boolean useBotToken) {
+    private Response getDiscordApi(String url, boolean useBotToken, HttpHeaders headers) {
         String accessToken;
         if(useBotToken) {
             accessToken = RestApplication.getBotToken();
         }
         else {
-            accessToken = UserProfileManager
-                    .getUserProfile()
-                    .getAccessToken();
+            accessToken = RestApplication.getDiscordAccessToken(headers);
         }
 
         try {
             return Response.status(Response.Status.ACCEPTED).entity(getResponseBodyWithAuthHeader(accessToken, url, useBotToken)).build();
+        }
+        catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Discord API response helper
+     * @param url
+     * @return
+     */
+    private Response getDiscordApi(String url, String accessToken, boolean isBotToken) {
+        try {
+            return Response.status(Response.Status.ACCEPTED).entity(getResponseBodyWithAuthHeader(accessToken, url, isBotToken)).build();
         }
         catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
