@@ -265,6 +265,7 @@ public class BotResource {
     @DELETE
     public void delMessage(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id, @FormParam("user_id") String user_id, @FormParam("emoji") String emoji){
         Database db;
+        emoji = EmojiParser.extractEmojis(emoji).get(0);
         try {
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
             db.delete.reaction(Long.parseLong(message_id),Long.parseLong(user_id),emoji);
