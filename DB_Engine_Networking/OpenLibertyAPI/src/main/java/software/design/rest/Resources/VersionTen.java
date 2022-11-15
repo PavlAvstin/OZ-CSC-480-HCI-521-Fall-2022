@@ -3,6 +3,8 @@ package software.design.rest.Resources;
 import Admin.Database;
 import com.ibm.websphere.security.social.UserProfileManager;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -29,7 +31,10 @@ public class VersionTen {
     @Path("@me/claims")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response claims() {
+    public Response claims(@Context HttpHeaders headers) {
+        if(!RestApplication.isAcceptedJwt(headers)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         try {
             String claimsString = UserProfileManager.getUserProfile().getClaims().toJsonString();
             return Response.status(Response.Status.ACCEPTED).entity(claimsString).build();
@@ -46,7 +51,10 @@ public class VersionTen {
     @Path("@me/guilds")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response guilds() {
+    public Response guilds(@Context HttpHeaders headers) {
+        if(!RestApplication.isAcceptedJwt(headers)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         String botGuildsJsonString = getDiscordApi("https://discord.com/api/v10/users/@me/guilds", true).getEntity().toString();
         String userGuildsJsonString = getDiscordApi("https://discord.com/api/v10/users/@me/guilds", false).getEntity().toString();
         // convert to json arrays
@@ -74,7 +82,10 @@ public class VersionTen {
     @Path("channels")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createDmChannel(@FormParam("recipientId") String recipientId) {
+    public Response createDmChannel(@Context HttpHeaders headers, @FormParam("recipientId") String recipientId) {
+        if(!RestApplication.isAcceptedJwt(headers)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         JSONObject body = new JSONObject();
         body.put("recipient_id", recipientId);
         return postDiscordApi("https://discord.com/api/v10/users/@me/channels", body, true);
@@ -86,7 +97,10 @@ public class VersionTen {
     @Path("channels/{channelId}/messages")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Response sendDm(@PathParam("channelId") String channelId, @FormParam("guildId") String guildId, @FormParam("messageId") String messageId) {
+    public Response sendDm(@Context HttpHeaders headers, @PathParam("channelId") String channelId, @FormParam("guildId") String guildId, @FormParam("messageId") String messageId) {
+        if(!RestApplication.isAcceptedJwt(headers)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         Database db;
         try {
             db = RestApplication.getRestDatabase(Long.parseLong(guildId), "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");
@@ -108,7 +122,10 @@ public class VersionTen {
     @Path("guilds/{guildId}/channels")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response guildChannels(@PathParam("guildId") String guildId) {
+    public Response guildChannels(@Context HttpHeaders headers, @PathParam("guildId") String guildId) {
+        if(!RestApplication.isAcceptedJwt(headers)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         /**
          * TODO: Verify requesting user is in the guild.
          */

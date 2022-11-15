@@ -35,7 +35,10 @@ public class DiscordResource {
     @Path("Nickname")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Response Nickname(@FormParam("Server_id") Long Server_id, @FormParam("Discord_id") Long Discord_id) throws Throwable {
+    public Response Nickname(@Context HttpHeaders headers, @FormParam("Server_id") Long Server_id, @FormParam("Discord_id") Long Discord_id) throws Throwable {
+        if(!RestApplication.isAcceptedJwt(headers)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         Database db = null;
         try {
              db = RestApplication.getRestDatabase(Server_id, "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");
@@ -60,7 +63,10 @@ public class DiscordResource {
     @Path("Msg")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Response Msg(@FormParam("Server_id") Long Server_id,@FormParam("Discord_id") Long Discord_id) throws Throwable {
+    public Response Msg(@Context HttpHeaders headers, @FormParam("Server_id") Long Server_id,@FormParam("Discord_id") Long Discord_id) throws Throwable {
+        if(!RestApplication.isAcceptedJwt(headers)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         Database db = null;
         try {
             db = RestApplication.getRestDatabase(Server_id, "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");
@@ -85,7 +91,10 @@ public class DiscordResource {
     @Path("MsgByAuthor")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Response MsgByAuthor(@FormParam("Server_id") Long Server_id, @FormParam("Discord_id") Long Discord_id) throws Throwable {
+    public Response MsgByAuthor(@Context HttpHeaders headers, @FormParam("Server_id") Long Server_id, @FormParam("Discord_id") Long Discord_id) throws Throwable {
+        if(!RestApplication.isAcceptedJwt(headers)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         Database db = null;
         try {
             db = RestApplication.getRestDatabase(Server_id, "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");
@@ -104,7 +113,10 @@ public class DiscordResource {
     @Path("msgs-in-channel")
     @POST
     @Produces
-    public Response msgsInChannel(@FormParam("guild_id") String guildId, @FormParam("channel_id") String channelId) {
+    public Response msgsInChannel(@Context HttpHeaders headers, @FormParam("guild_id") String guildId, @FormParam("channel_id") String channelId) {
+        if(!RestApplication.isAcceptedJwt(headers)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         Database db;
         try {
             db = RestApplication.getRestDatabase(Long.parseLong(guildId), "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");

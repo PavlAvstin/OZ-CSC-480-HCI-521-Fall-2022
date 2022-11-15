@@ -94,8 +94,16 @@ The RestApplication class adds Resources to the project so that things are aware
      * @return the status code of the response
      */
     private static int verifyJwtThenGetStatusCode(String token) {
-        String url = "http://localhost:9081/api/jwt/verify";
-        CloseableHttpResponse executedClient = getWithBearer(url, token);
+        String jwtVerify = "api/jwt/verify";
+        try {
+            Dotenv env = Dotenv.configure().directory("../../../../../../").load();
+            jwtVerify = env.get("OPEN_LIBERTY_MPJWT_URI") + jwtVerify;
+        }
+        catch (Exception e) {
+            System.out.println("There may be a misconfiguration in your .env file. \n" + e.getMessage());
+            return 401;
+        }
+        CloseableHttpResponse executedClient = getWithBearer(jwtVerify, token);
         int statusCode = executedClient.getCode();
         try {
             executedClient.close();
