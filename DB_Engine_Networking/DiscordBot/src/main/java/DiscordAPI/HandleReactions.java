@@ -2,16 +2,12 @@ package DiscordAPI;
 
 import API.FormData;
 import API.JavaFormData;
-import Admin.Database;
-import Admin.User;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Reaction;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -42,13 +38,8 @@ public class HandleReactions {
                 long messageId = reactionRemoveEvent.getMessageId();
                 long reactionCount = getReactionCount(serverId, messageId);
 
-                // connect to database for this guild
-                Database db = new Database(serverId, User.BOT);
-
                 if(reactionCount == 1) {
                     // if there is only one reaction that means this is the last reaction, so delete the message
-                    db.delete.message(messageId);
-                    db.closeConnection();
                     FormData request = new FormData();
                     JSONObject body = new JSONObject();
                     body.put("server_id", "" + serverId);
@@ -70,9 +61,22 @@ public class HandleReactions {
                     });
                 }
                 else {
-                    long authorId = reactionRemoveEvent.getUser().get().getId();
                     // otherwise just remove the reaction from the database
-                    db.delete.reaction(messageId, authorId, reactionRemoveEvent.getEmoji().asUnicodeEmoji().get());
+                    long authorId = reactionRemoveEvent.getUser().get().getId();
+                    CompletableFuture.supplyAsync(() -> {
+                        try {
+                            JavaFormData jRequest = new JavaFormData(new URL(Dotenv.load().get("OPEN_LIBERTY_FQDN") + "/api/bot/reactions"), "DELETE");
+                            jRequest.addFormField("server_id", "" + serverId);
+                            jRequest.addFormField("message_id", "" + messageId);
+                            jRequest.addFormField("author_id", "" + authorId);
+                            jRequest.addFormField("emoji", reactionRemoveEvent.getEmoji().asUnicodeEmoji().get());
+                            System.out.println(jRequest.finish());
+                        }
+                        catch (Exception e) {
+                            System.out.println("Error formatting URL. Check your .env");
+                        }
+                        return null;
+                    });
                 }
             }
             catch (Exception e) {

@@ -24,6 +24,10 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.http.Consts;
 import org.apache.http.protocol.HttpContext;
 import org.json.JSONObject;
+
+import javax.swing.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
@@ -82,6 +86,7 @@ public class FormData {
                         .setDefaultCredentialsProvider(getCredentialsProvider())
                         .build();
                 HttpDelete delete = new HttpDelete(url);
+                delete.setHeader("Accept-Charset", "UTF-8");
                 delete.setEntity(buildMultipartJson(formDataJson));
                 return client.execute(delete);
             }
@@ -114,6 +119,7 @@ public class FormData {
     private HttpEntity buildMultipartJson(JSONObject body) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setMode(HttpMultipartMode.EXTENDED);
+        builder.setCharset(StandardCharsets.UTF_8);
 
         Iterator<String> keys = body.keys();
         while(keys.hasNext()) {

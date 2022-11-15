@@ -57,6 +57,28 @@ public class JavaFormData {
                 true);
     }
 
+    public JavaFormData(final URL url, String method) throws IOException {
+        this.url = url;
+
+        boundary = "---------------------------" + System.currentTimeMillis();
+
+        connection = (HttpURLConnection) url.openConnection();
+        connection.setConnectTimeout(CONNECT_TIMEOUT);
+        connection.setReadTimeout(READ_TIMEOUT);
+        connection.setRequestMethod(method);
+        connection.setRequestProperty("Authorization", getBasicAuth());
+        connection.setRequestProperty("Accept-Charset", CHARSET);
+        connection.setRequestProperty("Content-Type",
+                "multipart/form-data; boundary=" + boundary);
+        connection.setUseCaches(false);
+        connection.setDoInput(true);
+        connection.setDoOutput(true);
+
+        outputStream = connection.getOutputStream();
+        writer = new PrintWriter(new OutputStreamWriter(outputStream, CHARSET),
+                true);
+    }
+
     public void addFormField(final String name, final String value) {
         writer.append("--").append(boundary).append(CRLF)
                 .append("Content-Disposition: form-data; name=\"").append(name)
