@@ -77,7 +77,10 @@ public class FormData {
     public CompletableFuture<CloseableHttpResponse> delete(JSONObject formDataJson, String url) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                CloseableHttpClient client = HttpClients.createDefault();
+                CloseableHttpClient client = HttpClientBuilder
+                        .create()
+                        .setDefaultCredentialsProvider(getCredentialsProvider())
+                        .build();
                 HttpDelete delete = new HttpDelete(url);
                 delete.setEntity(buildMultipartJson(formDataJson));
                 return client.execute(delete);
