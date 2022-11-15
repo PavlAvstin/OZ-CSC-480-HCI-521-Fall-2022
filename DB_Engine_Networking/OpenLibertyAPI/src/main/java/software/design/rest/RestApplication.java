@@ -97,7 +97,7 @@ The RestApplication class adds Resources to the project so that things are aware
         String jwtVerify = "api/jwt/verify";
         try {
             Dotenv env = Dotenv.configure().directory("../../../../../../").load();
-            jwtVerify = env.get("OPEN_LIBERTY_MPJWT_URI") + jwtVerify;
+            jwtVerify = env.get("OPEN_LIBERTY_MPJWT") + jwtVerify;
         }
         catch (Exception e) {
             System.out.println("There may be a misconfiguration in your .env file. \n" + e.getMessage());
