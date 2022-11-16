@@ -1,0 +1,147 @@
+#!/bin/bash
+# basic auth/bot liberty (used in .env & export)
+basicAuthUsername=""
+basicAuthPassword=""
+
+discordBotToken=""
+discordClientId=""
+discordClientSecret=""
+
+sqlHostnameAndPort=""
+sqlInitUsername=""
+sqlInitPassword=""
+sqlInitAccessAddress=""
+sqlRestUsername=""
+sqlRestPassword=""
+sqlBotUsername=""
+sqlBotPassword=""
+
+openLibertyAPIHostname=""
+openLibertyMPJWTHostname=""
+
+# *** start auto-generated ***
+# *** start auto-generated ***
+# *** start auto-generated ***
+
+# generate random for user & password (this is how dilbert accesses our API)
+< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c"${1:-16}" > .basicAuthUsername
+< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c"${1:-64}" > .basicAuthPassword
+# read into variables
+basicAuthUsername=$(<.basicAuthUsername)
+basicAuthPassword=$(<.basicAuthPassword)
+
+echo "Auto generated basic auth credentials for the bot. Check .basicAuthUsername & .basicAuthPassword if you want to look."
+echo
+
+# generate random for user & password
+< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c"${1:-16}" > .sqlRestUser
+< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c"${1:-64}" > .sqlRestPassword
+< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c"${1:-16}" > .sqlBotUser
+< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c"${1:-64}" > .sqlBotPassword
+# read into variables
+sqlRestUsername=$(<.sqlRestUser)
+sqlRestPassword=$(<.sqlRestPassword)
+sqlBotUsername=$(<.sqlBotUser)
+sqlBotPassword=$(<.sqlBotPassword)
+# clean up
+rm .sqlRestUser .sqlRestPassword .sqlBotUser .sqlBotPassword
+
+echo "Auto generated rest & bot sql credentials."
+echo
+
+# --- end auto-generated ---
+# --- end auto-generated ---
+# --- end auto-generated ---
+
+# *** start user input ***
+# *** start user input ***
+# *** start user input ***
+
+# -n signifies no new line
+echo -n "Enter your bot's token: "
+read -r discordBotToken
+echo
+
+echo -n "Enter your application's client id: "
+read -r discordClientId
+echo
+echo -n "$discordClientId" > .discordClientId
+
+echo -n "Enter your application's client secret: "
+read -r discordClientSecret
+echo
+echo -n "$discordClientSecret" > .discordClientSecret
+
+echo -n "Enter hostname:port for your MySQL server (don't include the method such as jbdc://) : "
+read -r sqlHostnameAndPort
+echo
+
+echo -n "Do you need to create your MySQL initialization user? (y/n): "
+read -r createSqlUser
+echo
+
+case $createSqlUser in
+  [yY] )
+    echo -n "Enter desired MySQL initialization user: ";
+    read -r sqlInitUsername;
+    echo
+
+    echo -n "Enter desired MySQL initialization password: ";
+    read -r sqlInitPassword;
+    echo
+
+    echo -n "What address will the user be accessing from (where is the OpenLibertyAPI running? if you aren't sure try localhost): ";
+    read -r sqlInitAccessAddress;
+    echo
+
+    echo "CREATE USER '$sqlInitUsername'@'$sqlInitAccessAddress' IDENTIFIED BY '$sqlInitPassword'; GRANT ALL PRIVILEGES ON *.* TO '$sqlInitUsername'@'$sqlInitAccessAddress' WITH GRANT OPTION; FLUSH PRIVILEGES;" > sqlCommamdsTemp.txt;
+    echo
+    mysql < sqlCommamdsTemp.txt;
+    rm sqlCommamdsTemp.txt;
+    echo "'$sqlInitUsername'@'$sqlInitAccessAddress' created & granted *.*.";;
+  * )
+    echo -n "Enter your MySQL initialization user (the one with *.* permissions): ";
+    read -r sqlInitUsername;
+    echo
+
+    echo -n "Enter your MySQL initialization password (the one with *.* permissions): ";
+    read -r sqlInitPassword;
+    echo;;
+esac
+
+echo -n "Enter your OpenLibertyAPI hostname (just the ip or fqdn with the port, localhost in a local environment): "
+read -r openLibertyAPIHostname
+echo
+
+echo -n "Enter your OpenLibertyMPJWT hostname (just the ip or fqdn with the port, localhost in a local environment): "
+read -r openLibertyMPJWTHostname
+echo
+
+echo "DISCORD_BOT_TOKEN=\"$discordBotToken\"" > .tempEnv
+{
+  # basic auth
+  echo
+  echo "BASIC_AUTH_USERNAME=\"$basicAuthUsername\""
+  echo "BASIC_AUTH_PASSWORD=\"$basicAuthPassword\""
+  echo
+
+  # liberty urls/uris
+  echo "OPEN_LIBERTY_FQDN=\"http://$openLibertyAPIHostname\""
+  echo "OPEN_LIBERTY_MPJWT=\"http://$openLibertyMPJWTHostname/\""
+  echo
+
+  # sql
+  echo "MYSQL_URL=\"jdbc:mysql://$sqlHostnameAndPort/\""
+  echo "MYSQL_INITIALIZATION_USER=\"$sqlInitUsername\""
+  echo "MYSQL_INITIALIZATION_USER_PASSWORD=\"$sqlInitPassword\""
+  echo "MYSQL_REST_USER=\"$sqlRestUsername\""
+  echo "MYSQL_REST_USER_PASSWORD=\"$sqlRestPassword\""
+  echo "MYSQL_BOT_USER=\"$sqlBotUsername\""
+  echo "MYSQL_BOT_USER_PASSWORD=\"$sqlBotPassword\""
+} >> .tempEnv
+
+cp .tempEnv ./DiscordBot/.env
+cp .tempEnv ./OpenLibertyAPI/.env
+rm .tempEnv
+
+echo "PostMarker is now ready for startup..."
