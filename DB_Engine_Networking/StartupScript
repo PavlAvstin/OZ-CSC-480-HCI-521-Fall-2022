@@ -1,0 +1,52 @@
+#!/bin/bash
+discordBotPID=""
+apiPID=""
+jwtPID=""
+frontendPID=""
+
+echo "" > .botKill
+(
+  cd DiscordBot || exit
+  mvn exec:java &
+  discordBotPID=$!
+  cd ..
+  echo "kill -9 $discordBotPID" >> .botKill
+)
+
+echo "" > .libertyKill
+(
+  # shellcheck disable=SC2164
+  cd OpenLibertyFrontend
+  # export discord tokens
+  DISCORD_CLIENT_ID=$(cat ../.discordClientId)
+  export "DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID"
+  DISCORD_CLIENT_SECRET=$(cat ../.discordClientSecret)
+  export "DISCORD_CLIENT_SECRET=$DISCORD_CLIENT_SECRET"
+  mvn liberty:run &
+  apiPID=$!
+  cd ..
+  echo "kill -9 $apiPID" >> .libertyKill
+)
+
+(
+  # shellcheck disable=SC2164
+  cd OpenLibertyMPJWT
+  mvn liberty:run &
+  jwtPID=$!
+  cd ..
+  echo "kill -9 $jwtPID" >> .libertyKill
+)
+
+(
+  # shellcheck disable=SC2164
+  cd OpenLibertyAPI
+  # export bot credentials
+  basicAuthUsername=$(cat ../.basicAuthUsername)
+  export "BASIC_AUTH_USERNAME=$basicAuthUsername"
+  basicAuthPassword=$(cat ../.basicAuthPassword)
+  export "BASIC_AUTH_PASSWORD=$basicAuthPassword"
+  mvn liberty:run &
+  frontendPID=$!
+  cd ..
+  echo "kill -9 $frontendPID" >> .libertyKill
+)
