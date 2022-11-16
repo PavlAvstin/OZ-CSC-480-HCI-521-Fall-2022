@@ -1,6 +1,8 @@
 package software.design.rest;
 
 import Admin.Database;
+import com.ibm.websphere.security.jwt.JwtBuilder;
+import com.ibm.websphere.security.jwt.JwtToken;
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
@@ -11,11 +13,14 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.json.JSONObject;
 import software.design.rest.Resources.BotResource;
 import software.design.rest.Resources.DiscordResource;
 import software.design.rest.Resources.VersionTen;
 
 import java.sql.SQLException;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,6 +49,28 @@ The RestApplication class adds Resources to the project so that things are aware
     public static String getBotToken() {
         Dotenv dotenv = Dotenv.configure().directory("../../../../../../").load();
         return dotenv.get("DISCORD_BOT_TOKEN");
+    }
+
+    public static String getDiscordAccessToken(HttpHeaders headers) {
+        String[] jwtChunks = stripBearer(headers).split("\\.");
+        Base64.Decoder decoder = Base64.getUrlDecoder();
+        String payload = new String(decoder.decode(jwtChunks[1]));
+        JSONObject object = new JSONObject(payload);
+        return "" + object.get("discord_access_token");
+    }
+
+    public static String getClaims(HttpHeaders headers) {
+        String[] jwtChunks = stripBearer(headers).split("\\.");
+        Base64.Decoder decoder = Base64.getUrlDecoder();
+        return new String(decoder.decode(jwtChunks[1]));
+    }
+
+    public static String getId(HttpHeaders headers) {
+        String[] jwtChunks = stripBearer(headers).split("\\.");
+        Base64.Decoder decoder = Base64.getUrlDecoder();
+        String payload = new String(decoder.decode(jwtChunks[1]));
+        JSONObject object = new JSONObject(payload);
+        return "" + object.get("id");
     }
 
     /**
@@ -97,7 +124,7 @@ The RestApplication class adds Resources to the project so that things are aware
         String jwtVerify = "api/jwt/verify";
         try {
             Dotenv env = Dotenv.configure().directory("../../../../../../").load();
-            jwtVerify = env.get("OPEN_LIBERTY_MPJWT_URI") + jwtVerify;
+            jwtVerify = env.get("OPEN_LIBERTY_MPJWT") + jwtVerify;
         }
         catch (Exception e) {
             System.out.println("There may be a misconfiguration in your .env file. \n" + e.getMessage());

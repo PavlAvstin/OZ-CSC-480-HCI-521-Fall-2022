@@ -33,15 +33,16 @@ public class BotResource {
      */
     @Path("channel")
     @DELETE
-    public void DeleteChannel(@FormParam("server_id") String server_id, @FormParam("channel_id") String channel_id) throws SQLException {
+    public Response DeleteChannel(@FormParam("server_id") String server_id, @FormParam("channel_id") String channel_id) throws SQLException {
         Database db;
         try{
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
         }catch (SQLException e) {
-            throw new RuntimeException(e);
+            return Response.serverError().build();
         }
         db.delete.channel(Long.parseLong(channel_id));
         db.closeConnection();
+        return Response.accepted().build();
     }
 
     /**
@@ -246,15 +247,33 @@ public class BotResource {
         return Response.status(Response.Status.ACCEPTED).build();
     }
 
+    @Path("reactions/count")
+    @RolesAllowed("bot")
+    @GET
+    public Response getCountForMessage(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id){
+        Database db;
+        int count = 0;
+        try {
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            count = ((JSONArray)(db.read.reactionsByMessage(Long.parseLong(message_id)))).length();
+        } catch (SQLException e) {
+            Response.serverError().entity(e.getErrorCode()).build();
+        }
+        return Response.status(Response.Status.ACCEPTED).entity(count).build();
+    }
+
     @Path("reactions")
     @DELETE
-    public void delMessage(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id, @FormParam("user_id") String user_id, @FormParam("emoji") String emoji){
+    public Response delMessage(@FormParam("server_id") String server_id, @FormParam("message_id") String message_id, @FormParam("author_id") String user_id, @FormParam("emoji") String emoji){
         Database db;
+        emoji = EmojiParser.extractEmojis(emoji).get(0);
+        System.out.println("deleting reaction: " + emoji);
         try {
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
             db.delete.reaction(Long.parseLong(message_id),Long.parseLong(user_id),emoji);
+            return Response.accepted().build();
         } catch (SQLException e) {
-            Response.serverError().entity(e.getErrorCode()).build();
+            return Response.serverError().entity(e.getErrorCode()).build();
         }
     }
 
@@ -271,8 +290,24 @@ public class BotResource {
        return Response.status(Response.Status.ACCEPTED).build();
     }
 
-    @Path("Dictionary")
-    @GET
+    @Path("dictionary/exists")
+    @POST
+    public Response exists(@FormParam("server_id") String server_id, @FormParam("reaction") String reaction){
+        Database db;
+        JSONArray result;
+        reaction = EmojiParser.extractEmojis(reaction).get(0);
+        try {
+            db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
+            result = db.read.meaningsByEmoji(reaction);
+            System.out.println(result);
+        } catch (SQLException e) {
+            return Response.serverError().entity(e.getErrorCode()).build();
+        }
+        return Response.status(Response.Status.ACCEPTED).entity((result.length() > 0)).build();
+    }
+
+    @Path("Dictionary/meaning")
+    @POST
     public Response readMeaning(@FormParam("server_id") String server_id, @FormParam("reaction") String reaction){
         Database db;
         JSONArray result;
@@ -280,7 +315,7 @@ public class BotResource {
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
             result = db.read.meaningsByEmoji(reaction);
         } catch (SQLException e) {
-           return Response.serverError().entity(e.getErrorCode()).build();
+            return Response.serverError().entity(e.getErrorCode()).build();
         }
         return Response.status(Response.Status.ACCEPTED).entity(result).build();
     }
@@ -292,6 +327,7 @@ public class BotResource {
         try {
             db = RestApplication.getRestDatabase(Long.parseLong(server_id), "MYSQL_URL", "MYSQL_BOT_USER", "MYSQL_BOT_USER_PASSWORD");
             result = db.read.dictionary();
+            System.out.println(result);
         } catch (SQLException e) {
             return Response.serverError().entity(e.getErrorCode()).build();
         }

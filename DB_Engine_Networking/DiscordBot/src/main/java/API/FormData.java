@@ -6,6 +6,7 @@ import org.apache.hc.client5.http.auth.Credentials;
 import org.apache.hc.client5.http.auth.CredentialsProvider;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
@@ -23,6 +24,10 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.http.Consts;
 import org.apache.http.protocol.HttpContext;
 import org.json.JSONObject;
+
+import javax.swing.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
@@ -36,6 +41,25 @@ public class FormData {
         provider.setCredentials(scope, credentials);
         return provider;
     }
+
+    public CompletableFuture<CloseableHttpResponse> get(JSONObject formDataJson, String url) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                CloseableHttpClient client = HttpClientBuilder
+                        .create()
+                        .setDefaultCredentialsProvider(getCredentialsProvider())
+                        .build();
+                HttpGet get = new HttpGet(url);
+                get.setEntity(buildMultipartJson(formDataJson));
+                return client.execute(get);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        });
+    }
+
     public CompletableFuture<CloseableHttpResponse> post(JSONObject formDataJson, String url) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -57,8 +81,12 @@ public class FormData {
     public CompletableFuture<CloseableHttpResponse> delete(JSONObject formDataJson, String url) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                CloseableHttpClient client = HttpClients.createDefault();
+                CloseableHttpClient client = HttpClientBuilder
+                        .create()
+                        .setDefaultCredentialsProvider(getCredentialsProvider())
+                        .build();
                 HttpDelete delete = new HttpDelete(url);
+                delete.setHeader("Accept-Charset", "UTF-8");
                 delete.setEntity(buildMultipartJson(formDataJson));
                 return client.execute(delete);
             }
@@ -91,6 +119,7 @@ public class FormData {
     private HttpEntity buildMultipartJson(JSONObject body) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setMode(HttpMultipartMode.EXTENDED);
+        builder.setCharset(StandardCharsets.UTF_8);
 
         Iterator<String> keys = body.keys();
         while(keys.hasNext()) {

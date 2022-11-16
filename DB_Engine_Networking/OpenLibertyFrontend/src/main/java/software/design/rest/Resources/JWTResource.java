@@ -21,11 +21,15 @@ public class JWTResource {
         try {
             Claims socialLoginClaims = UserProfileManager.getUserProfile().getClaims();
             socialLoginClaims.put("discord_access_token", UserProfileManager.getUserProfile().getAccessToken());
-            return Response.status(Response.Status.ACCEPTED).entity(buildJwt(socialLoginClaims)).build();
+            String jwtString = buildJwt(socialLoginClaims);
+            if(jwtString != null) {
+                return Response.status(Response.Status.ACCEPTED).entity(jwtString).build();
+            }
+            return Response.status(Response.Status.UNAUTHORIZED).entity("JWT Build Failed. You are likely unauthenticated!").build();
         }
         catch (Exception e) {
             e.printStackTrace();
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("jwt build failed").build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity("JWT Build Failed. You are likely unauthenticated!").build();
         }
     }
 
@@ -54,7 +58,7 @@ public class JWTResource {
         }
         catch (Exception e) {
             e.printStackTrace();
-            return "jwt build failed";
+            return null;
         }
     }
 }
