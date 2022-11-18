@@ -37,7 +37,7 @@ public class DiscordResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response Nickname(@Context HttpHeaders headers, @FormParam("Server_id") Long Server_id, @FormParam("Discord_id") Long Discord_id) throws Throwable {
         if(!RestApplication.isAcceptedJwt(headers)) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.UNAUTHORIZED).header("Access-Control-Allow-Origin", "*").build();
         }
         Database db = null;
         try {
@@ -48,9 +48,9 @@ public class DiscordResource {
         }
         if(db !=null){
             String nickname = db.read.nickname(Discord_id);
-            return Response.status(Response.Status.ACCEPTED).entity(nickname).build();
+            return Response.status(Response.Status.ACCEPTED).header("Access-Control-Allow-Origin", "*").entity(nickname).build();
         }else {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
         }
     }
     /**
@@ -65,19 +65,19 @@ public class DiscordResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response Msg(@Context HttpHeaders headers, @FormParam("Server_id") Long Server_id,@FormParam("Discord_id") Long Discord_id) throws Throwable {
         if(!RestApplication.isAcceptedJwt(headers)) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.UNAUTHORIZED).header("Access-Control-Allow-Origin", "*").build();
         }
         Database db = null;
         try {
             db = RestApplication.getRestDatabase(Server_id, "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");
         }catch (Exception e){
-            return Response.serverError().entity(e.getMessage()).build();
+            return Response.serverError().entity(e.getMessage()).header("Access-Control-Allow-Origin", "*").build();
         }
         if(db !=null){
             JSONObject jsonObject = db.read.message(Discord_id);
-            return Response.status(Response.Status.ACCEPTED).entity(jsonObject.toString()).build();
+            return Response.status(Response.Status.ACCEPTED).header("Access-Control-Allow-Origin", "*").entity(jsonObject.toString()).build();
         }else {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
         }
     }
     /**
@@ -93,20 +93,20 @@ public class DiscordResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response MsgByAuthor(@Context HttpHeaders headers, @FormParam("Server_id") Long Server_id, @FormParam("Discord_id") Long Discord_id) throws Throwable {
         if(!RestApplication.isAcceptedJwt(headers)) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.UNAUTHORIZED).header("Access-Control-Allow-Origin", "*").build();
         }
         Database db = null;
         try {
             db = RestApplication.getRestDatabase(Server_id, "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");
        }catch (Exception e){
-            return Response.serverError().entity(e.getMessage()).build();
+            return Response.serverError().entity(e.getMessage()).header("Access-Control-Allow-Origin", "*").build();
 
         }
         if(db !=null){
             JSONArray jsonArray = db.read.messagesByAuthor(Discord_id);
-            return Response.status(Response.Status.ACCEPTED).entity(jsonArray.toString()).build();
+            return Response.status(Response.Status.ACCEPTED).header("Access-Control-Allow-Origin", "*").entity(jsonArray.toString()).build();
         }else {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
         }
     }
 
@@ -115,17 +115,17 @@ public class DiscordResource {
     @Produces
     public Response msgsInChannel(@Context HttpHeaders headers, @FormParam("guild_id") String guildId, @FormParam("channel_id") String channelId) {
         if(!RestApplication.isAcceptedJwt(headers)) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.UNAUTHORIZED).header("Access-Control-Allow-Origin", "*").build();
         }
         Database db;
         try {
             db = RestApplication.getRestDatabase(Long.parseLong(guildId), "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");
         }
         catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).header("Access-Control-Allow-Origin", "*").build();
         }
         JSONArray jsonArray = getMessagesWithReactionsAndAllAuthors(db, channelId);
-        return Response.status(Response.Status.ACCEPTED).entity(jsonArray.toString()).build();
+        return Response.status(Response.Status.ACCEPTED).header("Access-Control-Allow-Origin", "*").entity(jsonArray.toString()).build();
     }
 
     /**
