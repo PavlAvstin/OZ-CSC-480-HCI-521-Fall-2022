@@ -32,14 +32,14 @@ public class VersionTen {
     @Produces(MediaType.APPLICATION_JSON)
     public Response claims(@Context HttpHeaders headers) {
         if(!RestApplication.isAcceptedJwt(headers)) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.UNAUTHORIZED).header("Access-Control-Allow-Origin", "*").build();
         }
         try {
-            return Response.status(Response.Status.ACCEPTED).entity(RestApplication.getClaims(headers)).build();
+            return Response.status(Response.Status.ACCEPTED).header("Access-Control-Allow-Origin", "*").entity(RestApplication.getClaims(headers)).build();
         }
         catch (Exception e) {
             System.out.println(e.getMessage());
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
         }
     }
 
@@ -51,7 +51,7 @@ public class VersionTen {
     @Produces(MediaType.APPLICATION_JSON)
     public Response guilds(@Context HttpHeaders headers) {
         if(!RestApplication.isAcceptedJwt(headers)) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.UNAUTHORIZED).header("Access-Control-Allow-Origin", "*").build();
         }
         String botGuildsJsonString = getDiscordApi("https://discord.com/api/v10/users/@me/guilds", true, headers).getEntity().toString();
         String userGuildsJsonString = getDiscordApi("https://discord.com/api/v10/users/@me/guilds", RestApplication.getDiscordAccessToken(headers), false).getEntity().toString();
@@ -71,7 +71,7 @@ public class VersionTen {
                 }
             }
         }
-        return Response.status(Response.Status.ACCEPTED).entity(guilds.toString()).build();
+        return Response.status(Response.Status.ACCEPTED).header("Access-Control-Allow-Origin", "*").entity(guilds.toString()).build();
     }
 
     /**
@@ -82,7 +82,7 @@ public class VersionTen {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createDmChannel(@Context HttpHeaders headers, @FormParam("recipientId") String recipientId) {
         if(!RestApplication.isAcceptedJwt(headers)) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.UNAUTHORIZED).header("Access-Control-Allow-Origin", "*").build();
         }
         JSONObject body = new JSONObject();
         body.put("recipient_id", recipientId);
@@ -97,7 +97,7 @@ public class VersionTen {
     @Produces(MediaType.APPLICATION_JSON)
     public Response sendDm(@Context HttpHeaders headers, @PathParam("channelId") String channelId, @FormParam("guildId") String guildId, @FormParam("messageId") String messageId) {
         if(!RestApplication.isAcceptedJwt(headers)) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.UNAUTHORIZED).header("Access-Control-Allow-Origin", "*").build();
         }
         Database db;
         try {
@@ -122,7 +122,7 @@ public class VersionTen {
     @Produces(MediaType.APPLICATION_JSON)
     public Response guildChannels(@Context HttpHeaders headers, @PathParam("guildId") String guildId) {
         if(!RestApplication.isAcceptedJwt(headers)) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.UNAUTHORIZED).header("Access-Control-Allow-Origin", "*").build();
         }
         /**
          * TODO: Verify requesting user is in the guild.
@@ -143,10 +143,10 @@ public class VersionTen {
         }
 
         try {
-            return Response.status(Response.Status.ACCEPTED).entity(postResponseBodyWithAuthHeader(accessToken, url, body, useBotToken)).build();
+            return Response.status(Response.Status.ACCEPTED).header("Access-Control-Allow-Origin", "*").entity(postResponseBodyWithAuthHeader(accessToken, url, body, useBotToken)).build();
         }
         catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).header("Access-Control-Allow-Origin", "*").build();
         }
     }
 
@@ -196,10 +196,10 @@ public class VersionTen {
         }
 
         try {
-            return Response.status(Response.Status.ACCEPTED).entity(getResponseBodyWithAuthHeader(accessToken, url, useBotToken)).build();
+            return Response.status(Response.Status.ACCEPTED).header("Access-Control-Allow-Origin", "*").entity(getResponseBodyWithAuthHeader(accessToken, url, useBotToken)).build();
         }
         catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).header("Access-Control-Allow-Origin", "*").build();
         }
     }
 
@@ -210,10 +210,10 @@ public class VersionTen {
      */
     private Response getDiscordApi(String url, String accessToken, boolean isBotToken) {
         try {
-            return Response.status(Response.Status.ACCEPTED).entity(getResponseBodyWithAuthHeader(accessToken, url, isBotToken)).build();
+            return Response.status(Response.Status.ACCEPTED).header("Access-Control-Allow-Origin", "*").entity(getResponseBodyWithAuthHeader(accessToken, url, isBotToken)).build();
         }
         catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).header("Access-Control-Allow-Origin", "*").build();
         }
     }
 
