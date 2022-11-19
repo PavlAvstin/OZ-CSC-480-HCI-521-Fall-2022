@@ -13,17 +13,6 @@ import java.util.Iterator;
 
 @Path("discord")
 public class DiscordResource {
-    @Path("demoPath")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response jwtProtectedPath(@Context HttpHeaders headers) {
-        if(!RestApplication.isAcceptedJwt(headers)) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }
-        // else continue doing stuff
-        return Response.status(Response.Status.ACCEPTED).build();
-    }
-
     /**
      * Nickname response.
      *
