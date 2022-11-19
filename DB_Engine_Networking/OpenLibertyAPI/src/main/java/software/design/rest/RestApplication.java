@@ -41,6 +41,10 @@ The RestApplication class adds Resources to the project so that things are aware
         return singletons;
     }
 
+    public static Response defaultPreflightResponse() {
+        return Response.status(Response.Status.OK).header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Headers", "Authorization").build();
+    }
+
     public static Database getRestDatabase(long id, String envURl, String envUser, String envPassword ) throws SQLException {
         Dotenv dotenv = Dotenv.configure().directory("../../../../../../").load();
         return new Database(id, dotenv.get(envURl), dotenv.get(envUser), dotenv.get(envPassword));
