@@ -13,6 +13,11 @@ import java.util.Iterator;
 
 @Path("discord")
 public class DiscordResource {
+    @Path("Nickname")
+    @OPTIONS
+    public Response preflightNickname() {
+        return RestApplication.defaultPreflightResponse();
+    }
     /**
      * Nickname response.
      *
@@ -42,6 +47,12 @@ public class DiscordResource {
             return Response.status(Response.Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
         }
     }
+
+    @Path("Msg")
+    @OPTIONS
+    public Response preflightMsg() {
+        return RestApplication.defaultPreflightResponse();
+    }
     /**
      * Returns the Messages from the server. This those not work at the moment need to talk to DB about it.Maybe add a Server Id in the url always
      *
@@ -68,6 +79,12 @@ public class DiscordResource {
         }else {
             return Response.status(Response.Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
         }
+    }
+
+    @Path("MsgByAuthor")
+    @OPTIONS
+    public Response preflightMsgByAuthor() {
+        return RestApplication.defaultPreflightResponse();
     }
     /**
      * Return the Messages by author response using the Server_id, and the Discoed_id of the author.
@@ -99,6 +116,11 @@ public class DiscordResource {
         }
     }
 
+    @Path("msgs-in-channel")
+    @OPTIONS
+    public Response preflightMsgsInChannel() {
+        return RestApplication.defaultPreflightResponse();
+    }
     @Path("msgs-in-channel")
     @POST
     @Produces
