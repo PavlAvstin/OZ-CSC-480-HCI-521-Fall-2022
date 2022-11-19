@@ -24,6 +24,11 @@ import java.io.IOException;
 
 @Path("v10")
 public class VersionTen {
+    @Path("@me/claims")
+    @OPTIONS
+    public Response preflightMeClaims() {
+        return RestApplication.defaultPreflightResponse();
+    }
     /**
      * Get Claims
      */
@@ -43,6 +48,11 @@ public class VersionTen {
         }
     }
 
+    @Path("@me/guilds")
+    @OPTIONS
+    public Response preflightMeGuilds() {
+        return RestApplication.defaultPreflightResponse();
+    }
     /**
      * Get all guilds you're in, which the bot is also in
      */
@@ -74,6 +84,11 @@ public class VersionTen {
         return Response.status(Response.Status.ACCEPTED).header("Access-Control-Allow-Origin", "*").entity(guilds.toString()).build();
     }
 
+    @Path("channels")
+    @OPTIONS
+    public Response preflightPostChannels() {
+        return RestApplication.defaultPreflightResponse();
+    }
     /**
      *
      */
@@ -89,6 +104,11 @@ public class VersionTen {
         return postDiscordApi("https://discord.com/api/v10/users/@me/channels", body, true, headers);
     }
 
+    @Path("guilds/{guildId}/channels")
+    @OPTIONS
+    public Response preflightPostGuildChannels() {
+        return RestApplication.defaultPreflightResponse();
+    }
     /**
      *
      */
