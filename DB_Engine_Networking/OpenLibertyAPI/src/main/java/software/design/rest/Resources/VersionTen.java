@@ -134,11 +134,6 @@ public class VersionTen {
         }
     }
 
-    @Path("guilds/{guildId}/channels")
-    @OPTIONS
-    public Response preflightGetChannels() {
-        return RestApplication.defaultPreflightResponse();
-    }
     /**
      * Get all the channels in a guild
      */
