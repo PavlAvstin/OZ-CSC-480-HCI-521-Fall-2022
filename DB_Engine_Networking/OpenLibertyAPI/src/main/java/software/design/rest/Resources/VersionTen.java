@@ -106,7 +106,7 @@ public class VersionTen {
 
     @Path("guilds/{guildId}/channels")
     @OPTIONS
-    public Response preflightPostGuildChannels() {
+    public Response preflightPostGuildChannels(@PathParam("guildId") String guildId) {
         return RestApplication.defaultPreflightResponse();
     }
     /**
