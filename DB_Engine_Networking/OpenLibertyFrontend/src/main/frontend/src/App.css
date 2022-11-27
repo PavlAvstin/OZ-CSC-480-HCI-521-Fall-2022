@@ -125,5 +125,6 @@ ul {
 .messageContainer {
   position: relative;
   width: 100%;
-  height: 25%;
+  overflow: hidden;
+  padding-top: 1vh;
 }

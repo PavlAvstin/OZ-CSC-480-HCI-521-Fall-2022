@@ -1,8 +1,8 @@
 .message {
     background-color: lightgray;
-    position: absolute;
     width: 90%;
     height: 90%;
+    padding-left: 0.5vw;
 }
 .messageHeader {
     padding-top: 0.5vh;

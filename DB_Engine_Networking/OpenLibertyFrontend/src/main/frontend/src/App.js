@@ -104,9 +104,10 @@ function Messages() {
   }
 
   // Get all messages in a guild
-  async function getAllMessages (guild_id) {
+  async function getAllMessages (guild_id, message_id) {
     var formdata = new FormData();
     formdata.append("Server_id", guild_id);
+    formdata.append("Discord_id", message_id)
     var requestOptions = {
       method: 'POST',
       headers: {Authorization: "Bearer " + token},
@@ -162,19 +163,19 @@ function Messages() {
     
   useEffect(() => {
     getClaims()
-      .then((res) => {setClaims(res); console.log(res)});
+      .then((res) => {setClaims(res)});
     getGuilds()
-      .then((res) => {setGuilds(res); console.log("guilds"); console.log(res)});      
+      .then((res) => {setGuilds(res);});      
   },[]);
 
   useEffect(() => {
     if(guilds == null) return;
     getChannels(guilds[0].id)
-      .then((res) => {console.log("channels");console.log(res)})
+      .then((res) => {})
   },[guilds]);
   
   useEffect(() => {
-    getMessagesByChannel("1034182952885694534", "1034182952885694537")
+    getMessagesByAuthor("1034182952885694534","542537230762377217")
       .then((res) => {setMessages(JSONbig.parse(res)); console.log(JSONbig.parse(res))});
   },[guilds]);
   
@@ -195,7 +196,7 @@ function Messages() {
           <img src={logo} className="home-logo" alt="logo"/>
         </button>
         <button className="logout-button clickable"
-          onClick={(e) => {console.log(guilds)}}> 
+          onClick={(e) => {}}> 
         Logout</button>
       </header> 
       <div className='side-bar'></div>
