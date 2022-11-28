@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "http://localhost:9080/static/css/main.5fcaced7.css",
+    "main.js": "http://localhost:9080/static/js/main.75707934.js",
+    "static/media/Logo.jpg": "http://localhost:9080/static/media/Logo.a4eeaf78a45598a40a38.jpg",
+    "index.html": "http://localhost:9080/index.html",
+    "main.5fcaced7.css.map": "http://localhost:9080/static/css/main.5fcaced7.css.map",
+    "main.75707934.js.map": "http://localhost:9080/static/js/main.75707934.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.5fcaced7.css",
+    "static/js/main.75707934.js"
+  ]
+}

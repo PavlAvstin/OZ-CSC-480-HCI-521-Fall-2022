@@ -1,8 +1,6 @@
 package DiscordAPI;
 
 import API.FormData;
-import Admin.Database;
-import Admin.User;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.javacord.api.DiscordApi;
@@ -32,10 +30,13 @@ public class HandleMessages {
             try {
                 long serverId = messageDelete.getServer().get().getId();
                 long messageId = messageDelete.getMessageId();
-                // connect to database for this guild
-                Database db = new Database(serverId, User.BOT);
-                db.delete.message(messageId);
-                db.closeConnection();
+                FormData request = new FormData();
+                JSONObject body = new JSONObject();
+                body.put("server_id", "" + serverId);
+                body.put("message_id", "" + messageId);
+                request.delete(body, Dotenv.load().get("OPEN_LIBERTY_FQDN") + "/api/bot/messages").thenAccept(acceptance -> {
+
+                });
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -51,10 +52,15 @@ public class HandleMessages {
                 long messageTimestamp = messageEdit.getMessage().get().getLastEditTimestamp().get().getEpochSecond();
                 // convert long timestamp to string datetime
                 String content = messageEdit.getNewContent();
-                // connect to database for this guild
-                Database db = new Database(serverId, User.BOT);
-                db.update.message(messageId, content, messageTimestamp);
-                db.closeConnection();
+                FormData request = new FormData();
+                JSONObject body = new JSONObject();
+                body.put("server_id", "" + serverId);
+                body.put("message_id", "" + messageId);
+                body.put("content", content);
+                body.put("time", "" + messageTimestamp);
+                request.put(body, Dotenv.load().get("OPEN_LIBERTY_FQDN") + "/api/bot/messages").thenAccept(acceptance -> {
+
+                });
             }
             catch (Exception e) {
                 e.printStackTrace();

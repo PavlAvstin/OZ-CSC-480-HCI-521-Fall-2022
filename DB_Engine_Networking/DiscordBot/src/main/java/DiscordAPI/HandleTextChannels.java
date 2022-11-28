@@ -1,8 +1,6 @@
 package DiscordAPI;
 
 import API.FormData;
-import Admin.Database;
-import Admin.User;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.javacord.api.DiscordApi;
@@ -42,10 +40,14 @@ public class HandleTextChannels {
                     long serverId = serverChannelNameEvent.getServer().getId();
                     long channelId = serverChannelNameEvent.getChannel().getId();
                     String channelName = serverChannelNameEvent.getNewName();
-                    // connect to database for this guild
-                    Database db = new Database(serverId, User.BOT);
-                    db.update.channelNickname(channelId, channelName);
-                    db.closeConnection();
+                    FormData request = new FormData();
+                    JSONObject body = new JSONObject();
+                    body.put("server_id", "" + serverId);
+                    body.put("channel_id", "" + channelId);
+                    body.put("channel_name", "" + channelName);
+                    request.put(body, Dotenv.load().get("OPEN_LIBERTY_FQDN") + "/api/bot/channel").thenAccept(acceptance -> {
+
+                    });
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -61,9 +63,15 @@ public class HandleTextChannels {
                 ServerTextChannel deletedChannel = serverChannelDeleteEvent.getChannel().asServerTextChannel().get();
                 // delete the channel from the database
                 try {
-                    Database db = new Database(deletedChannel.getServer().getId(), User.BOT);
-                    db.delete.channel(deletedChannel.getId());
-                    db.closeConnection();
+                    long serverId = deletedChannel.getServer().getId();
+                    long channelId = deletedChannel.getId();
+                    FormData request = new FormData();
+                    JSONObject body = new JSONObject();
+                    body.put("server_id", "" + serverId);
+                    body.put("channel_id", "" + channelId);
+                    request.delete(body, Dotenv.load().get("OPEN_LIBERTY_FQDN") + "/api/bot/channel").thenAccept(acceptance -> {
+
+                    });
                 }
                 catch (Exception e) {
                     System.out.println("Error deleting text channel from database");

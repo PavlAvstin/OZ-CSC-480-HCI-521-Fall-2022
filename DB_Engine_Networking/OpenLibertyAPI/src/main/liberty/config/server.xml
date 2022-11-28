@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="480 api">
+
+    <!-- Enable features -->
+    <featureManager>
+        <feature>jakartaee-9.1</feature>
+        <feature>microProfile-5.0</feature>
+        <feature>transportSecurity-1.0</feature>
+        <feature>restfulWSClient-3.0</feature>
+        <feature>cdi-3.0</feature>
+        <feature>jsonb-2.0</feature>
+        <feature>jwt-1.0</feature>
+    </featureManager>
+
+    <basicRegistry id="basic" realm="customRealm">
+        <user name="${basic.auth.username}" password="${basic.auth.password}" />
+        <group name="bot">
+            <member name="${basic.auth.username}" />
+        </group>
+        <group name="users">
+            <member name="${basic.auth.username}" />
+        </group>
+    </basicRegistry>
+
+    <keyStore id="defaultKeyStore"/>
+    <!-- To access this server from a remote client add a host attribute to the following element, e.g. host="*" -->
+    <httpEndpoint httpPort="9082"
+                   httpsPort="9445"
+                   id="defaultHttpEndpoint"
+                   host="*" />
+
+    <!-- Automatically expand WAR files and EAR files -->
+    <applicationManager autoExpand="true"/>
+
+    <!-- Configures the application on a specified context root -->
+<!--    <webApplication contextRoot="/" location="OZ-480F22.war" />-->
+
+    <!-- End Discord OAuth2 Config -->
+
+    <!-- tag::webApplication[] -->
+    <webApplication location="OpenLibAPI.war"
+                    contextRoot="/">
+    </webApplication>
+    <!-- end::webApplication[] -->
+
+    <!-- Default SSL configuration enables trust for default certificates from the Java runtime -->
+    <ssl id="defaultSSLConfig" trustDefaultCerts="true" />
+</server>
