@@ -3,6 +3,7 @@ import { Routes, Route} from 'react-router-dom';
 import logo from './Logo.jpg';
 import './App.css';
 import Message from "./Message.js";
+import SideBar from "./SideBar.js";
 
 var API_URL = process.env.REACT_APP_API_URL;
 var PUBLIC_URL = process.env.PUBLIC_URL;
@@ -48,8 +49,11 @@ function Messages() {
   const [messages, setMessages] = useState(null)
   const [claims, setClaims] = useState(null);
   const [guilds, setGuilds] = useState(null);
-  var token = "";
-
+  const [channels, setChannels] = useState(null);
+  const [dictionary, setDictionary] = useState(null);
+  const [selectedGuild, setSelectedGuild] = useState(null);
+  const [filters, setFilters] = useState({channels: [], reactions: []});
+  const [token, setToken] = useState("");
   async function getJWT() {
     var requestOptions = {
       method: 'GET',
@@ -68,8 +72,8 @@ function Messages() {
     }
     var claims = await fetch(API_URL + "/api/v10/@me/claims", requestOptions);
     if(claims.status == 401) {
-      token = await getJWT();
-      return getClaims();
+      setToken(await getJWT()), () => { return getClaims(); }
+      return;
     }
     return claims.json();
   }
@@ -82,8 +86,8 @@ function Messages() {
     }
     const guilds = await fetch(API_URL + "/api/v10/@me/guilds", requestOptions);
     if(guilds.status == 401) {
-      token = await getJWT();
-      return getGuilds();
+      setToken(await getJWT()), () => { return getGuilds();}
+      return;
     }
     return guilds.json();
   }
@@ -97,8 +101,8 @@ function Messages() {
     }
     const channels = await fetch(API_URL + "/api/v10/guilds/" + guild_id + "/channels", requestOptions);
     if(channels.status == 401) {
-      token = await getJWT();
-      return getChannels(guild_id);
+      setToken(await getJWT()), () => {return getChannels(guild_id);}
+      return;
     }
     return channels.json();
   }
@@ -116,10 +120,10 @@ function Messages() {
     };
     const messages = await fetch(API_URL + "/api/discord/Msg", requestOptions);
     if(messages.status == 401) {
-      token = await getJWT();
-      return getAllMessages(guild_id);
+      setToken(await getJWT()), () => {return getAllMessages(guild_id, message_id);}
+      return;
     }
-    return messages.json();
+    return messages.text();
 
   }
 
@@ -136,10 +140,10 @@ function Messages() {
     }
     const messages = await fetch(API_URL + "/api/discord/MsgByAuthor", requestOptions);
     if(messages.status == 401) {
-      token = await getJWT();
-      return getMessagesByAuthor(guild_id, author_id);
+      setToken(await getJWT()), () => {return getMessagesByAuthor(guild_id, author_id);}
+      return;
     }
-    return messages.json();
+    return messages.text();
   }
 
   // Get all messages from a channel in a guild
@@ -155,31 +159,126 @@ function Messages() {
     }
     const messages = await fetch(API_URL + "/api/discord/msgs-in-channel", requestOptions);
     if(messages.status == 401) {
-      token = await getJWT();
-      return getMessagesByChannel(guild_id, channel_id);
+      setToken(await getJWT()), () => {return getMessagesByChannel(guild_id, channel_id);}
+      return;
     }
     return messages.text();
   }
-    
+
+  async function getMessagesByReaction(guild_id, reaction) {
+    var formdata = new FormData();
+    formdata.append("Server_id", guild_id);
+    formdata.append("Reaction", reaction);
+    var requestOptions = {
+      method: 'POST',
+      headers: {Authorization: "Bearer " + token},
+      body: formdata,
+      redirect: 'follow'
+    }
+    const messages = await fetch(API_URL + "/api/discord/MsgByReaction", requestOptions);
+    if(messages.status == 401) {
+      setToken(await getJWT()), () => {return getMessagesByReaction(guild_id, reaction);}
+      return;
+    }
+    return messages.text();
+  }
+
+  async function getDictionary(guild_id) {
+    var formdata = new FormData();
+    formdata.append("Server_id", guild_id);
+    var requestOptions = {
+      method: 'POST',
+      headers: {Authorization: "Bearer " + token},
+      body: formdata,
+      redirect: 'follow'
+    }
+    const messages = await fetch(API_URL + "/api/discord/Dictionary", requestOptions);
+    if(messages.status == 401) {
+      setToken(await getJWT()), () => {return getDictionary(guild_id);}
+      return;
+    }
+    return messages.json();
+  }
+ 
   useEffect(() => {
+    getJWT() 
+      .then((res) => {setToken(res)})
+  },[])
+  
+  useEffect(() => {
+    if(token == "")
+      return;
     getClaims()
       .then((res) => {setClaims(res)});
     getGuilds()
       .then((res) => {setGuilds(res);});      
-  },[]);
+  },[token]);
 
   useEffect(() => {
-    if(guilds == null) return;
-    getChannels(guilds[0].id)
-      .then((res) => {})
-  },[guilds]);
-  
+    const wrapper = async () => {
+      var allMessages = [];
+      const getMsgsByChannel = async ()  => {
+        for(const element of Array.from(filters.channels)) {
+          var messages = await getMessagesByChannel(selectedGuild, element)
+          messages = JSONbig.parse(messages);
+          messages.forEach(message => allMessages.push(message))
+        }
+      }
+      const getMsgsByReaction = async () => {
+        for(const element of Array.from(filters.reactions)) {
+          var messages = await getMessagesByReaction(selectedGuild, element)
+          messages = JSONbig.parse(messages);
+          messages.forEach(message => {
+            if(!allMessages.some(e => e.discord_id.toString() === message.discord_id.toString())) {
+              allMessages.push(message)
+            }
+          })
+        }
+      }
+      await getMsgsByChannel();
+      await getMsgsByReaction();
+      setMessages(allMessages)
+    }
+    wrapper();
+  },[filters]);
+
   useEffect(() => {
-    getMessagesByAuthor("1034182952885694534","542537230762377217")
-      .then((res) => {setMessages(JSONbig.parse(res)); console.log(JSONbig.parse(res))});
-  },[guilds]);
-  
- 
+    if(selectedGuild == null) return;
+    getDictionary(selectedGuild)
+      .then((res) => {setDictionary(res)})
+  },[selectedGuild]);
+
+  useEffect(() => {
+    if(selectedGuild == null) return;
+    getChannels(selectedGuild)
+      .then((res) => {setChannels(res);})
+  },[selectedGuild]);
+
+  function setGuildWrapper(guild_id) {
+    setSelectedGuild(guild_id);
+    setMessages(null)
+  }
+
+  function changeSelectedChannels(channel_id, checked) {
+    if(!checked) {
+      setFilters({channels: Array.from(filters.channels).filter(id => id != channel_id), reactions: filters.reactions});
+      return
+    }
+    var newArr = Array.from(filters.channels);
+    newArr.push(channel_id);
+    setFilters({channels: newArr, reactions: filters.reactions})
+  }
+
+  function changeSelectedReactions(emoji, checked) {
+    if(!checked) {
+      setFilters({channels: filters.channels, reactions: Array.from(filters.reactions).filter(reaction => reaction != emoji)})
+      return
+    }
+    var newArr = Array.from(filters.reactions);
+    newArr.push(emoji);
+    setFilters({channels: filters.channels, reactions: newArr})
+  }
+
   // A method similar to this can be used to display all messages or to populate the left side barm
   function messageList (messageArray) {
     if(messageArray == null) return;
@@ -188,6 +287,7 @@ function Messages() {
     )
     return list;
   }
+
   
   return (
     <div className='App Messages'>
@@ -199,7 +299,15 @@ function Messages() {
           onClick={(e) => {}}> 
         Logout</button>
       </header> 
-      <div className='side-bar'></div>
+      <SideBar 
+        guilds={guilds} 
+        channels={channels} 
+        users={null} 
+        reactions={dictionary} 
+        selectGuild={setGuildWrapper} 
+        changeSelectedChannels={changeSelectedChannels}
+        changeSelectedReactions={changeSelectedReactions}
+      />
       <ul className='messagesContainer'>
         {messageList(messages)}
       </ul>

@@ -16,27 +16,17 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 15%;
+  height: 14vmin;
   background-color :#7289d9;
   font-size: 64px;
   
-}
-
-.side-bar {
-  background-color: #36393e;
-  position: fixed;
-  z-index: 0;
-  top: 0;
-  left: 0;
-  width: 15%;
-  height: 100%;
 }
 
 .home-button {
   position: absolute;
   top: 50%;
   height: 100%;
-  width: 25%;
+  width: 25vmax;
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
   background-color: transparent;
@@ -101,7 +91,7 @@
   position: fixed;
   overflow-y: scroll;
   left: 15%;
-  top: 15%;
+  top: 12%;
   width: 82%;
   height: 85%;
   scrollbar-width: 5%;
