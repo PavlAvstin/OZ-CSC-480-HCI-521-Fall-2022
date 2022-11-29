@@ -211,4 +211,21 @@ public class DiscordResource {
             System.out.println(e.getMessage());
         }
     }
+    @Path("Authors")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    private Response getAuthorsInGuild(@Context HttpHeaders headers ,@FormParam("guild_id") String guildId){
+        Database db =null;
+        if(!RestApplication.isAcceptedJwt(headers)) {
+            return Response.status(Response.Status.UNAUTHORIZED).header("Access-Control-Allow-Origin", "*").build();
+        }
+        try {
+            db = RestApplication.getRestDatabase(Long.parseLong(guildId), "MYSQL_URL", "MYSQL_REST_USER", "MYSQL_REST_USER_PASSWORD");
+        }
+        catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        JSONArray jsonArray = db.read.authorsInGuild();
+        return Response.status(Response.Status.ACCEPTED).entity(jsonArray.toString()).build();
+    }
 }
