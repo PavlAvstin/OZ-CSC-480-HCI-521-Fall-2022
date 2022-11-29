@@ -213,6 +213,7 @@ public class DiscordResource {
     }
     @Path("Authors")
     @POST
+    @OPTIONS
     @Produces(MediaType.APPLICATION_JSON)
     private Response getAuthorsInGuild(@Context HttpHeaders headers ,@FormParam("guild_id") String guildId){
         Database db =null;
