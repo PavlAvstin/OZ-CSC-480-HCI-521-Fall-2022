@@ -212,8 +212,12 @@ public class DiscordResource {
         }
     }
     @Path("Authors")
-    @POST
     @OPTIONS
+    public Response preflightgetAuthorsInGuild() {
+        return RestApplication.defaultPreflightResponse();
+    }
+    @Path("Authors")
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
     private Response getAuthorsInGuild(@Context HttpHeaders headers ,@FormParam("guild_id") String guildId){
         Database db =null;
