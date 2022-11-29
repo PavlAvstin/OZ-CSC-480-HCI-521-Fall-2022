@@ -1,0 +1,48 @@
+nav {
+  width : 100%;
+}
+
+.side-bar {
+  background-color: #f0f0f0;
+  position: fixed;
+  z-index: 0;
+  top: 14%;
+  left: 0;
+  width: 15%;
+  height: 85%;
+  overflow-y: auto;
+}
+
+label {
+  padding-left: 1vw;
+}
+
+.tag-style {
+  background-color: #91919a;
+  padding: 1vh;
+  text-align: center;
+  color: white;
+  font-size : 1em;
+  font-family: "Barlow";
+  display: block;
+}
+
+.slide {
+  background-color: #c1c0c0;
+  clear: both;
+  width: 100%;
+  height: 0px;
+  text-align: center;
+  transition: height .4s ease;
+  list-style-type: none;
+  overflow-y: auto;
+}
+
+.dropdown {
+  position: absolute; opacity: 0; height: 0px;
+}
+
+.dropdown:checked + .slide {
+  height: auto;
+  max-height: 20vh;
+}

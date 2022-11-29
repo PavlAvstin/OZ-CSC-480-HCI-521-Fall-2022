@@ -5,9 +5,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "snapshot" ]
+    branches: [ "snapshot-gui" ]
   pull_request:
-    branches: [ "snapshot" ]
+    branches: [ "snapshot-gui" ]
 
 jobs:
   build:
