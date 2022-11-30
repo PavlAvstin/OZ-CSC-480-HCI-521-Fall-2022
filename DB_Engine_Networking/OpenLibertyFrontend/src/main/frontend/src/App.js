@@ -54,6 +54,8 @@ function Messages() {
   const [selectedGuild, setSelectedGuild] = useState(null);
   const [filters, setFilters] = useState({channels: [], reactions: []});
   const [token, setToken] = useState("");
+  const [sortedMessages, setSortedMessages] = useState(null);
+  const [sortOldToNew, setSortOldToNew] = useState(false);
 
   // Api calls, these methods should be wrapped in a useEffect hook
   // Request a new jwt from the server
@@ -260,6 +262,20 @@ function Messages() {
     getAllMessages(selectedGuild);
   },[channels])
 
+  useEffect(() => {
+    if(messages == null) return;
+    var sortedMessages = Array.from(messages);
+    if(sortOldToNew) 
+      sortedMessages.sort(function(a,b) {
+        return new Date(a.updated_at) - new Date(b.updated_at);
+      })
+    else
+      sortedMessages.sort(function(a,b) {
+        return new Date(b.updated_at) - new Date(a.updated_at);
+      })
+    setSortedMessages(sortedMessages);
+  },[messages])
+
   // Set the current guild, called from the sidebar
   function setGuildWrapper(guild_id) {
     setSelectedGuild(guild_id);
@@ -317,7 +333,7 @@ function Messages() {
         changeSelectedReactions={changeSelectedReactions}
       />
       <ul className='messagesContainer'>
-        {messageList(messages)}
+        {messageList(sortedMessages)}
       </ul>
     </div>
     );
