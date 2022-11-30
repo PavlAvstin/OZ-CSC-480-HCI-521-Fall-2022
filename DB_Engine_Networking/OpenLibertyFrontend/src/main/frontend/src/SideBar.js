@@ -11,7 +11,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 
-function SideBar({guilds, channels, users, reactions, selectGuild, changeSelectedChannels, changeSelectedReactions}) {
+function SideBar({guilds, channels, users, reactions, selectGuild, changeSelectedChannels, changeSelectedReactions, changeSortOrder}) {
 
   function guildsDisplay() {
     if(guilds != null) {
@@ -70,11 +70,35 @@ function SideBar({guilds, channels, users, reactions, selectGuild, changeSelecte
       )
     }
   }
+
+  function sortDisplay() {
+    if(channels != null) {
+      return (
+        <nav>
+          <label for="sort"><span className="tag-style clickable">Sort</span></label>
+          <input type="checkbox" id="sort" className="dropdown"/>
+          <li className="slide">
+            <FormControl>
+              <RadioGroup
+                defaultValue="Newest to Oldest"
+                name="radio-button-group"
+              >
+                <FormControlLabel value="Newest to Oldest" control={<Radio onClick={(e) => changeSortOrder(false)}/>} label="Newest to Oldest" />
+                <FormControlLabel value="Oldest to Newest" control={<Radio onClick={(e) => changeSortOrder(true)}/>} label="Oldest to Newest" />
+
+              </RadioGroup>
+            </FormControl>
+          </li>
+        </nav>
+      )
+    }
+  }
   return (
     <div className="side-bar"> 
       {guildsDisplay()}
       {channelsDisplay()}
       {reactionsDisplay()}
+      {sortDisplay()}
     </div>
   )
 }
