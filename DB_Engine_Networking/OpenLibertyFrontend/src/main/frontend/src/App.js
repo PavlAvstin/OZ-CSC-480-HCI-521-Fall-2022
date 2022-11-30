@@ -262,6 +262,7 @@ function Messages() {
     getAllMessages(selectedGuild);
   },[channels])
 
+  // Sorts the messages by date reacted to
   useEffect(() => {
     if(messages == null) return;
     var sortedMessages = Array.from(messages);
@@ -274,7 +275,7 @@ function Messages() {
         return new Date(b.updated_at) - new Date(a.updated_at);
       })
     setSortedMessages(sortedMessages);
-  },[messages])
+  },[messages, sortOldToNew])
 
   // Set the current guild, called from the sidebar
   function setGuildWrapper(guild_id) {
@@ -301,6 +302,11 @@ function Messages() {
     var newArr = Array.from(filters.reactions);
     newArr.push(emoji);
     setFilters({channels: filters.channels, reactions: newArr})
+  }
+
+  // Change the sort method, called from the sidebar
+  function changeSortOrder(mode) {
+    setSortOldToNew(mode);
   }
 
   // Create a message element for each message
@@ -331,6 +337,7 @@ function Messages() {
         selectGuild={setGuildWrapper} 
         changeSelectedChannels={changeSelectedChannels}
         changeSelectedReactions={changeSelectedReactions}
+        changeSortOrder={changeSortOrder}
       />
       <ul className='messagesContainer'>
         {messageList(sortedMessages)}
