@@ -1,0 +1,24 @@
+.message {
+    background-color: lightgray;
+    width: 90%;
+    height: 90%;
+    padding-left: 0.5vw;
+}
+.messageHeader {
+    padding-top: 0.5vh;
+    padding-left: 0.5vw;
+    padding-bottom: 0.5vh;
+    font-size: 4vh;
+    font-weight: 400;
+}
+img.avatar {
+    vertical-align: middle;
+    object-fit: cover;
+    width: 5vh;
+    height: 5vh;
+    border-radius: 50%;
+}
+.authorName {
+    display: inline;
+    padding-left: 0.5vw;
+}
