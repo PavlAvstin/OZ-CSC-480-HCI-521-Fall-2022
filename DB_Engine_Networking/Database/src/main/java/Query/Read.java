@@ -115,6 +115,11 @@ public class Read {
         return "ERROR - SQL EXCEPTION";
     }
 
+    /**
+     * Returns the avatar hash for the given author.
+     * @param discord_id the discord id of the author whose avatar hash will be returned
+     * @return String representing the user's avatar hash.
+     */
     public String avatarHash(long discord_id) {
         try(PreparedStatement statement = connection.prepareStatement(
                 "SELECT avatar_hash\n" +
@@ -267,6 +272,11 @@ public class Read {
         return new JSONArray();
     }
 
+    /**
+     * Returns a JSON Array of JSON Objects representing all the messages in the database for the given channel.
+     * @param channels_text_channel_discord_id the discord id of the channel whose messages will be returned.
+     * @return JSON Array of JSON Objects
+     */
     public JSONArray messagesByChannel(long channels_text_channel_discord_id) {
         try(PreparedStatement statement = connection.prepareStatement(
                 "SELECT DISTINCT messages.discord_id, messages.authors_discord_id, updated_at, content \n" +
@@ -296,6 +306,25 @@ public class Read {
     public JSONArray dictionary() throws SQLException {
         try(PreparedStatement statement = connection.prepareStatement(
                 "SELECT * FROM dictionary"
+        )){
+            ResultSet resultSet = execute(statement);
+
+            return convertToJSONArray(resultSet);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+
+        //if there's an exception
+        return new JSONArray();
+    }
+
+    /**
+     * Returns a JSON Array of Objects representing every author present in the database for this guild.
+     * @return JSON Array of Authors
+     */
+    public JSONArray authorsInGuild(){
+        try(PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM authors"
         )){
             ResultSet resultSet = execute(statement);
 
