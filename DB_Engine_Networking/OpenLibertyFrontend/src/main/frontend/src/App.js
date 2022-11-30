@@ -54,6 +54,9 @@ function Messages() {
   const [selectedGuild, setSelectedGuild] = useState(null);
   const [filters, setFilters] = useState({channels: [], reactions: []});
   const [token, setToken] = useState("");
+
+  // Api calls, these methods should be wrapped in a useEffect hook
+  // Request a new jwt from the server
   async function getJWT() {
     var requestOptions = {
       method: 'GET',
@@ -62,7 +65,7 @@ function Messages() {
     const jwt = await fetch(PUBLIC_URL + "/api/jwt/issue");
     return jwt.text();
   }
-  // Api calls, these methods should be wrapped in a useEffect hook
+
   // Get the authenticated user's info
   async function getClaims() {
     var requestOptions = {
@@ -77,6 +80,7 @@ function Messages() {
     }
     return claims.json();
   }
+
   // Get the authenticated user's guilds
   async function getGuilds() {
     var requestOptions = {
@@ -108,23 +112,17 @@ function Messages() {
   }
 
   // Get all messages in a guild
-  async function getAllMessages (guild_id, message_id) {
-    var formdata = new FormData();
-    formdata.append("Server_id", guild_id);
-    formdata.append("Discord_id", message_id)
-    var requestOptions = {
-      method: 'POST',
-      headers: {Authorization: "Bearer " + token},
-      body: formdata,
-      redirect: 'follow'
-    };
-    const messages = await fetch(API_URL + "/api/discord/Msg", requestOptions);
-    if(messages.status == 401) {
-      setToken(await getJWT()), () => {return getAllMessages(guild_id, message_id);}
-      return;
+  async function getAllMessages (guild_id) {
+    var allMessages = [];
+    const getMsgsByChannel = async ()  => {
+      for(const element of Array.from(channels)) {
+        var messages = await getMessagesByChannel(guild_id, element.id)
+        messages = JSONbig.parse(messages);
+        messages.forEach(message => allMessages.push(message))
+      }
     }
-    return messages.text();
-
+    await getMsgsByChannel();
+    setMessages(allMessages)
   }
 
   // Get all messages in a guild made by a user
@@ -165,6 +163,7 @@ function Messages() {
     return messages.text();
   }
 
+  // Get all messages from a server with a certain reaction
   async function getMessagesByReaction(guild_id, reaction) {
     var formdata = new FormData();
     formdata.append("Server_id", guild_id);
@@ -183,6 +182,7 @@ function Messages() {
     return messages.text();
   }
 
+  // Get the dictionary for a guild
   async function getDictionary(guild_id) {
     var formdata = new FormData();
     formdata.append("Server_id", guild_id);
@@ -200,11 +200,13 @@ function Messages() {
     return messages.json();
   }
  
+  // When the page loads get a jwt, this only runs once
   useEffect(() => {
     getJWT() 
       .then((res) => {setToken(res)})
   },[])
   
+  // Get the user specific information
   useEffect(() => {
     if(token == "")
       return;
@@ -214,6 +216,8 @@ function Messages() {
       .then((res) => {setGuilds(res);});      
   },[token]);
 
+
+  // Whenever the filters are updated change the messages that are displayed
   useEffect(() => {
     const wrapper = async () => {
       var allMessages = [];
@@ -242,23 +246,26 @@ function Messages() {
     wrapper();
   },[filters]);
 
+  // When a user clicks a guild, display the filters for that guild
   useEffect(() => {
     if(selectedGuild == null) return;
     getDictionary(selectedGuild)
-      .then((res) => {setDictionary(res)})
-  },[selectedGuild]);
-
-  useEffect(() => {
-    if(selectedGuild == null) return;
+      .then((res) => {setDictionary(res)});
     getChannels(selectedGuild)
       .then((res) => {setChannels(res);})
   },[selectedGuild]);
 
+  useEffect(() => {
+    if(channels == null) return;
+    getAllMessages(selectedGuild);
+  },[channels])
+
+  // Set the current guild, called from the sidebar
   function setGuildWrapper(guild_id) {
     setSelectedGuild(guild_id);
-    setMessages(null)
   }
 
+  // Change which channels are selected, called from the sidebar
   function changeSelectedChannels(channel_id, checked) {
     if(!checked) {
       setFilters({channels: Array.from(filters.channels).filter(id => id != channel_id), reactions: filters.reactions});
@@ -269,6 +276,7 @@ function Messages() {
     setFilters({channels: newArr, reactions: filters.reactions})
   }
 
+  // Change which reactions are selected, called from the sidebar
   function changeSelectedReactions(emoji, checked) {
     if(!checked) {
       setFilters({channels: filters.channels, reactions: Array.from(filters.reactions).filter(reaction => reaction != emoji)})
@@ -279,7 +287,7 @@ function Messages() {
     setFilters({channels: filters.channels, reactions: newArr})
   }
 
-  // A method similar to this can be used to display all messages or to populate the left side barm
+  // Create a message element for each message
   function messageList (messageArray) {
     if(messageArray == null) return;
     const list = messageArray.map((message) =>
