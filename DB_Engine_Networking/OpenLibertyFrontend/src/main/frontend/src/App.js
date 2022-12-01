@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Routes, Route} from 'react-router-dom';
 import logo from './Logo.jpg';
 import './App.css';
@@ -203,6 +203,7 @@ function Messages() {
     return messages.json();
   }
  
+  // Get all of the users in the guild
   async function getUsers(guild_id) {
     var formdata = new FormData();
     formdata.append("guild_id", guild_id);
@@ -220,6 +221,7 @@ function Messages() {
     return users.json();
   }
 
+  // Return true if the given message was reacted to by the given user
   function reactedBy(message, user_id) {
     var reactions = Array.from(message.reactions);
     for(reaction of reactions) {
@@ -227,6 +229,36 @@ function Messages() {
         return true;
     }
     return false;
+  }
+
+  // Custom poll hook
+  function usePollingEffect(
+    asyncCallback,
+    dependencies = [],
+    { 
+      interval = 10_000, // 10 seconds,
+      onCleanUp = () => {}
+    } = {},
+  ) {
+    const timeoutIdRef = useRef(null)
+    useEffect(() => {
+      let _stopped = false
+      ;(async function pollingCallback() {
+        try {
+          await asyncCallback()
+        } finally {
+          timeoutIdRef.current = !_stopped && setTimeout(
+            pollingCallback,
+            interval
+          )
+        }
+      })()
+      return () => {
+        _stopped = true
+        clearTimeout(timeoutIdRef.current)
+        onCleanUp()
+      }
+    }, [...dependencies, interval])
   }
 
   // When the page loads get a jwt, this only runs once
@@ -248,6 +280,7 @@ function Messages() {
 
   // Whenever the filters are updated change the messages that are displayed
   useEffect(() => {
+    if(selectedGuild == null) return;
     const wrapper = async () => {
       var allMessages = [];
       var reactionMessages = [];
@@ -275,9 +308,7 @@ function Messages() {
       }
       const getMsgsByUser = async () => {
         for(const element of Array.from(filters.users)) {
-          var messages = await getMessagesByAuthor(selectedGuild, user);
-          messages = JSONbig.parse(messages);
-          messages.forEach(message => {
+          allMessages.forEach(message => {
             if(reactionMessages == [])
               if(allMessages.some(e => reactedBy(e, user)))
                 userMessages.push(message);
@@ -331,6 +362,13 @@ function Messages() {
       })
     setSortedMessages(sortedMessages);
   },[messages, sortOldToNew])
+
+  // Every 5 seconds poll to see if the db has changed
+  usePollingEffect(
+    async () => {setFilters({channels: filters.channels, reactions: filters.reactions, users: filters.users})},
+    [],
+    { interval: 5000 }
+  )
 
   // Set the current guild, called from the sidebar
   function setGuildWrapper(guild_id) {
