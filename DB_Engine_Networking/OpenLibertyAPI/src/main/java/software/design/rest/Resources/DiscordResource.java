@@ -313,6 +313,6 @@ public class DiscordResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         JSONArray jsonArray = db.read.authorsInGuild();
-        return Response.status(Response.Status.ACCEPTED).entity(jsonArray.toString()).build();
+        return Response.status(Response.Status.ACCEPTED).header("Access-Control-Allow-Origin", "*").entity(jsonArray.toString()).build();
     }
 }
