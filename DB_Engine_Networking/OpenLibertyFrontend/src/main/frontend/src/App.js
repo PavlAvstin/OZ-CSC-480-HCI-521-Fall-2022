@@ -52,10 +52,11 @@ function Messages() {
   const [channels, setChannels] = useState(null);
   const [dictionary, setDictionary] = useState(null);
   const [selectedGuild, setSelectedGuild] = useState(null);
-  const [filters, setFilters] = useState({channels: [], reactions: []});
+  const [filters, setFilters] = useState({channels: [], reactions: [], users: []});
   const [token, setToken] = useState("");
   const [sortedMessages, setSortedMessages] = useState(null);
   const [sortOldToNew, setSortOldToNew] = useState(false);
+  const [users, setUsers] = useState(null);
 
   // Api calls, these methods should be wrapped in a useEffect hook
   // Request a new jwt from the server
@@ -124,7 +125,7 @@ function Messages() {
       }
     }
     await getMsgsByChannel();
-    setMessages(allMessages)
+    return allMessages;
   }
 
   // Get all messages in a guild made by a user
@@ -202,6 +203,32 @@ function Messages() {
     return messages.json();
   }
  
+  async function getUsers(guild_id) {
+    var formdata = new FormData();
+    formdata.append("guild_id", guild_id);
+    var requestOptions = {
+      method: 'POST',
+      headers: {Authorization: "Bearer " + token},
+      body: formdata,
+      redirect: 'follow'
+    }
+    const users = await fetch(API_URL + "/api/discord/Authors", requestOptions);
+    if(users.status == 401) {
+      setToken(await getJWT()), () => {return getUsers(guild_id);}
+      return;
+    }
+    return users.json();
+  }
+
+  function reactedBy(message, user_id) {
+    var reactions = Array.from(message.reactions);
+    for(reaction of reactions) {
+      if(reaction.author.discord_id.toString() === user_id.toString())
+        return true;
+    }
+    return false;
+  }
+
   // When the page loads get a jwt, this only runs once
   useEffect(() => {
     getJWT() 
@@ -223,6 +250,11 @@ function Messages() {
   useEffect(() => {
     const wrapper = async () => {
       var allMessages = [];
+      var reactionMessages = [];
+      var userMessages = [];
+      if(filters.channels.length == 0) {
+        allMessages = await getAllMessages(selectedGuild);
+      }
       const getMsgsByChannel = async ()  => {
         for(const element of Array.from(filters.channels)) {
           var messages = await getMessagesByChannel(selectedGuild, element)
@@ -235,15 +267,35 @@ function Messages() {
           var messages = await getMessagesByReaction(selectedGuild, element)
           messages = JSONbig.parse(messages);
           messages.forEach(message => {
-            if(!allMessages.some(e => e.discord_id.toString() === message.discord_id.toString())) {
-              allMessages.push(message)
+            if(allMessages.some(e => e.discord_id.toString() === message.discord_id.toString())) {
+              reactionMessages.push(message)
             }
+          })
+        }
+      }
+      const getMsgsByUser = async () => {
+        for(const element of Array.from(filters.users)) {
+          var messages = await getMessagesByAuthor(selectedGuild, user);
+          messages = JSONbig.parse(messages);
+          messages.forEach(message => {
+            if(reactionMessages == [])
+              if(allMessages.some(e => reactedBy(e, user)))
+                userMessages.push(message);
+            else
+              if(reactionMessages.some(e => reactedBy(e, user)))
+                userMessages.push(message);
           })
         }
       }
       await getMsgsByChannel();
       await getMsgsByReaction();
-      setMessages(allMessages)
+      await getMsgsByUser();
+      if(userMessages.length != 0) 
+        setMessages(userMessages)
+      else if(reactionMessages.length != 0) 
+        setMessages(reactionMessages)
+      else 
+        setMessages(allMessages)
     }
     wrapper();
   },[filters]);
@@ -255,11 +307,14 @@ function Messages() {
       .then((res) => {setDictionary(res)});
     getChannels(selectedGuild)
       .then((res) => {setChannels(res);})
+    getUsers(selectedGuild)
+      .then((res) => {setUsers(res);});
   },[selectedGuild]);
 
   useEffect(() => {
     if(channels == null) return;
-    getAllMessages(selectedGuild);
+    getAllMessages(selectedGuild)
+      .then((res) => {setMessages(res)})
   },[channels])
 
   // Sorts the messages by date reacted to
@@ -285,23 +340,33 @@ function Messages() {
   // Change which channels are selected, called from the sidebar
   function changeSelectedChannels(channel_id, checked) {
     if(!checked) {
-      setFilters({channels: Array.from(filters.channels).filter(id => id != channel_id), reactions: filters.reactions});
+      setFilters({channels: Array.from(filters.channels).filter(id => id != channel_id), reactions: filters.reactions, users: filters.users});
       return
     }
     var newArr = Array.from(filters.channels);
     newArr.push(channel_id);
-    setFilters({channels: newArr, reactions: filters.reactions})
+    setFilters({channels: newArr, reactions: filters.reactions, users: filters.users})
   }
 
   // Change which reactions are selected, called from the sidebar
   function changeSelectedReactions(emoji, checked) {
     if(!checked) {
-      setFilters({channels: filters.channels, reactions: Array.from(filters.reactions).filter(reaction => reaction != emoji)})
+      setFilters({channels: filters.channels, reactions: Array.from(filters.reactions).filter(reaction => reaction != emoji), users: filters.users})
       return
     }
     var newArr = Array.from(filters.reactions);
     newArr.push(emoji);
-    setFilters({channels: filters.channels, reactions: newArr})
+    setFilters({channels: filters.channels, reactions: newArr, users: filters.users})
+  }
+
+  function changeSelectedUsers(user_id, checked) {
+    if(!checked) {
+      setFilters({channels: filters.channels, reactions: filters.reactions, users: Array.from(filters.users).filter(user => user != user_id)})
+      return;
+    }
+    var newArr = Array.from(filters.users);
+    newArr.push(user_id);
+    setFilters({channels: filters.channels, reactions: filters.reactions, users: newArr})
   }
 
   // Change the sort method, called from the sidebar
@@ -332,11 +397,12 @@ function Messages() {
       <SideBar 
         guilds={guilds} 
         channels={channels} 
-        users={null} 
+        users={users} 
         reactions={dictionary} 
         selectGuild={setGuildWrapper} 
         changeSelectedChannels={changeSelectedChannels}
         changeSelectedReactions={changeSelectedReactions}
+        changeSelectedUsers={changeSelectedUsers}
         changeSortOrder={changeSortOrder}
       />
       <ul className='messagesContainer'>
