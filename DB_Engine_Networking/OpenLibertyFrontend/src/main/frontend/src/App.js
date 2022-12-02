@@ -211,15 +211,12 @@ function Messages() {
  
   // Get all of the users in the guild
   async function getUsers(guild_id) {
-    var formdata = new FormData();
-    formdata.append("guild_id", guild_id);
     var requestOptions = {
-      method: 'POST',
+      method: 'GET',
       headers: {Authorization: "Bearer " + token},
-      body: formdata,
       redirect: 'follow'
     }
-    const users = await fetch(API_URL + "/api/discord/Authors", requestOptions);
+    const users = await fetch(API_URL + "/api/v10/guilds/" + guild_id + "/members", requestOptions);
     if(users.status == 401) {
       setToken(await getJWT()), () => {return getUsers(guild_id);}
       return;
@@ -381,28 +378,30 @@ function Messages() {
       }
       const getMsgsByUser = async () => {
         for(const user of Array.from(filters.users)) {
-          if(reactionMessages.length == 0) 
-            allMessages.forEach(message => {
-              if(allMessages.some(e => reactedBy(e, user)))
-                if(!contains(userMessages, message))
-                  userMessages.push(message);
-              })
-          else
-            reactionMessages.forEach(message => {
-              if(reactionMessages.some(e => reactedBy(e, user)))
-                if(!contains(userMessages, message))
-                  userMessages.push(message);
+          if(filters.reactions.length == 0) {
+            var filtered = allMessages.filter(e => reactedBy(e, user));
+            filtered.forEach(message => {
+              if(!contains(userMessages, message))
+                userMessages.push(message)
             })
+          }
+          else {
+            filtered = reactionMessages.filter(e => reactedBy(e, user));
+            filtered.forEach(message => {
+              if(!contains(userMessages, message))
+                userMessages.push(message)
+            })
+          }
         }
       }
       await getMsgsByChannel();
       await getMsgsByReaction();
       await getMsgsByUser();
-      if(filters.users.length != 0) 
+      if(filters.users.length != 0)
         setMessages(filterSearch(userMessages))
-      else if(filters.reactions.length != 0) 
+      else if(filters.reactions.length != 0)
         setMessages(filterSearch(reactionMessages))
-      else 
+      else
         setMessages(filterSearch(allMessages))
     }
     wrapper();
@@ -416,7 +415,7 @@ function Messages() {
     getChannels(selectedGuild)
       .then((res) => {setChannels(res);})
     getUsers(selectedGuild)
-      .then((res) => {setUsers(JSONbig.parse(res));});
+      .then((res) => {setUsers(JSONbig.parse(res))});
   },[selectedGuild]);
 
 
