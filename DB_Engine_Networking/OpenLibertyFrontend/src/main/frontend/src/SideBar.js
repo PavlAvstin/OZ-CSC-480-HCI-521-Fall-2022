@@ -51,12 +51,18 @@ function SideBar({guilds, channels, users, reactions, selectGuild, changeSelecte
     }
   } 
 
+  function userName ( user ) {
+    if(user.nick == null)
+      return user.user.username;
+    return user.nick;
+  }
+
   function userDisplay() {
     if(users != null) {
-      const list = users.map((user) =>
+      const list = users.filter(user => !user.user.bot).map((user) =>
       <FormGroup>
-        <FormControlLabel label={user.author_nickname} control={<Checkbox
-          onChange={(e) => {changeSelectedUsers(user.discord_id, e.target.checked)}}/>}  
+        <FormControlLabel label={userName(user)} control={<Checkbox
+          onChange={(e) => {changeSelectedUsers(user.user.id, e.target.checked)}}/>}  
         />
       </FormGroup>
       )

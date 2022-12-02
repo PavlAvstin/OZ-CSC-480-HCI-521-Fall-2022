@@ -1,5 +1,6 @@
 import React from "react";
 import IosShareIcon from '@mui/icons-material/IosShare';
+import Avatar from '@mui/material/Avatar';
 import "./Message.css";
 function Message({message, filters, dictionary, shareMenu}) {
     const author = message.author;
@@ -57,7 +58,7 @@ function Message({message, filters, dictionary, shareMenu}) {
     return (
         <div className="message">
             <div className="messageHeader">
-                <img className="avatar" src={authorAvatar}/>
+                <div className="avatar"><Avatar src={authorAvatar} sx={{width: "inherit", height: "inherit"}}></Avatar></div>
                 <div className="authorName">{authorName}</div>
                 {timeDisplay()}
                 <button className="shareButton clickable" onClick={() => shareMenu(message.discord_id)}><IosShareIcon/></button>

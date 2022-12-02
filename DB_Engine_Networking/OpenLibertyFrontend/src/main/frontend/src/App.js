@@ -211,15 +211,12 @@ function Messages() {
  
   // Get all of the users in the guild
   async function getUsers(guild_id) {
-    var formdata = new FormData();
-    formdata.append("guild_id", guild_id);
     var requestOptions = {
-      method: 'POST',
+      method: 'GET',
       headers: {Authorization: "Bearer " + token},
-      body: formdata,
       redirect: 'follow'
     }
-    const users = await fetch(API_URL + "/api/discord/Authors", requestOptions);
+    const users = await fetch(API_URL + "/api/v10/guilds/" + guild_id + "/members", requestOptions);
     if(users.status == 401) {
       setToken(await getJWT()), () => {return getUsers(guild_id);}
       return;
@@ -416,7 +413,7 @@ function Messages() {
     getChannels(selectedGuild)
       .then((res) => {setChannels(res);})
     getUsers(selectedGuild)
-      .then((res) => {setUsers(JSONbig.parse(res));});
+      .then((res) => {setUsers(JSONbig.parse(res))});
   },[selectedGuild]);
 
 

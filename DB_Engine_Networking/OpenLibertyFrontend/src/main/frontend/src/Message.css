@@ -14,7 +14,7 @@
     display: flex;
     position: relative;
 }
-img.avatar {
+.avatar {
     vertical-align: middle;
     object-fit: cover;
     width: 5vh;
