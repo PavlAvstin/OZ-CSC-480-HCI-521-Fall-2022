@@ -104,6 +104,21 @@ public class VersionTen {
         return postDiscordApi("https://discord.com/api/v10/users/@me/channels", body, true, headers);
     }
 
+    @Path("guilds/{guildId}/members")
+    @OPTIONS
+    public Response preflightGuildMembers() {
+        return RestApplication.defaultPreflightResponse();
+    }
+
+    @Path("guilds/{guildId}/members")
+    @GET
+    public Response getGuildMembers(@Context HttpHeaders headers, @PathParam("guildId") String guildId) {
+        if(!RestApplication.isAcceptedJwt(headers)) {
+            return Response.status(Response.Status.UNAUTHORIZED).header("Access-Control-Allow-Origin", "*").build();
+        }
+        return getDiscordApi("https://discord.com/api/v10/guilds/" + guildId + "/members", true, headers);
+    }
+
     @Path("guilds/{guildId}/channels")
     @OPTIONS
     public Response preflightPostGuildChannels() {
