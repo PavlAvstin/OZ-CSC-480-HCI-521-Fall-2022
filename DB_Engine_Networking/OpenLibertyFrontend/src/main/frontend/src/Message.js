@@ -1,6 +1,7 @@
 import React from "react";
+import IosShareIcon from '@mui/icons-material/IosShare';
 import "./Message.css";
-function Message({message, filters, dictionary}) {
+function Message({message, filters, dictionary, shareMenu}) {
     const author = message.author;
     const authorName = author.author_nickname;
     const authorAvatar = "https://cdn.discordapp.com/avatars/" + author.discord_id + "/" + author.avatar_hash + ".png";
@@ -50,7 +51,7 @@ function Message({message, filters, dictionary}) {
             })
         }
         return (
-            <div classNames="reactions">{text}</div>
+            <div className="reactions">{text}</div>
         )
     }
     return (
@@ -59,9 +60,13 @@ function Message({message, filters, dictionary}) {
                 <img className="avatar" src={authorAvatar}/>
                 <div className="authorName">{authorName}</div>
                 {timeDisplay()}
+                <button className="shareButton clickable" onClick={() => shareMenu(message.discord_id)}><IosShareIcon/></button>
             </div>
-            <div className="messageContent">{content}</div>
-            {reactionDisplay()}
+            <div className="messageContent">
+                {content}
+                {reactionDisplay()}
+            </div>
+
         </div>
     );
 }

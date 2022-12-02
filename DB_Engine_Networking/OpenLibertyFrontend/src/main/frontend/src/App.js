@@ -4,6 +4,7 @@ import logo from './Logo.jpg';
 import './App.css';
 import Message from "./Message.js";
 import SideBar from "./SideBar.js";
+import ShareDialog from './ShareDialog';
 
 var API_URL = process.env.REACT_APP_API_URL;
 var PUBLIC_URL = process.env.PUBLIC_URL;
@@ -26,7 +27,7 @@ function App() {
 function SignIn() {
   function redirectToDashboard(event) {
     event.preventDefault();
-    location.href = "http://localhost:9080/messages";
+    location.href = PUBLIC_URL + "/messages";
   }
   return (
     <div className='App SignIn'>
@@ -57,6 +58,8 @@ function Messages() {
   const [sortedMessages, setSortedMessages] = useState(null);
   const [sortOldToNew, setSortOldToNew] = useState(false);
   const [users, setUsers] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [shareId, setShareId] = useState(null);
 
   // Api calls, these methods should be wrapped in a useEffect hook
   // Request a new jwt from the server
@@ -221,6 +224,53 @@ function Messages() {
     return users.text();
   }
 
+  // Create a dm channel from the bot to a specified user
+  async function createChannel(user_id) {
+    var formdata = new FormData();
+    formdata.append("recipientId", user_id);
+    var requestOptions = {
+      method: 'POST',
+      headers: {Authorization: "Bearer " + token},
+      body: formdata,
+      redirect: 'follow'
+    }
+    const channel = await fetch(API_URL + "/api/v10/channels", requestOptions);
+    if(channel.status == 401) {
+      setToken(await getJWT()), () => {return createChannel(user_id);}
+      return;
+    }
+    return channel.text()
+  }
+
+  // Create a dm channel with a user and send the message
+  async function share(user_id, message_id) {
+    const channel = JSONbig.parse(await createChannel(user_id));
+    var formdata = new FormData();
+    formdata.append("guildId", selectedGuild);
+    formdata.append("messageId", message_id);
+    var requestOptions = {
+      method: 'POST',
+      headers: {Authorization: "Bearer " + token},
+      body: formdata,
+      redirect: 'follow'
+    }
+    const request = await fetch(API_URL + "/api/v10/channels/" + channel.id + "/messages", requestOptions);
+    if(request.status == 401) {
+      setToken(await getJWT()), () => {return share(user_id, message_id);}
+      return;
+    }
+    return;
+  }
+
+  // Logout of the page and redirect to the login screen
+  async function logout() {
+    var requestOptions = {
+      method: 'GET',
+      redirect: 'follow'
+    }
+    const request = await fetch(PUBLIC_URL + "/ibm_security_logout", requestOptions);
+    location.href = PUBLIC_URL;
+  }
   // Return true if the given message was reacted to by the given user
   function reactedBy(message, user_id) {
     var reactions = Array.from(message.reactions);
@@ -231,6 +281,7 @@ function Messages() {
     return false;
   }
 
+  // Check an array of messages to see if it contains a message
   function contains(messages, message) {
     if(messages.length == 0) return false;
     for(const msg of messages) {
@@ -285,7 +336,6 @@ function Messages() {
     getGuilds()
       .then((res) => {setGuilds(res);});      
   },[token]);
-
 
   // Whenever the filters are updated change the messages that are displayed
   useEffect(() => {
@@ -356,6 +406,8 @@ function Messages() {
       .then((res) => {setUsers(JSONbig.parse(res));});
   },[selectedGuild]);
 
+
+  // When a guild is selected show all messages from it
   useEffect(() => {
     if(channels == null) return;
     getAllMessages(selectedGuild)
@@ -412,6 +464,7 @@ function Messages() {
     setFilters({channels: filters.channels, reactions: newArr, users: filters.users})
   }
 
+  // Change which users are selected, called from the sidebar
   function changeSelectedUsers(user_id, checked) {
     if(!checked) {
       setFilters({channels: filters.channels, reactions: filters.reactions, users: Array.from(filters.users).filter(user => user != user_id)})
@@ -431,19 +484,38 @@ function Messages() {
   function messageList (messageArray) {
     if(messageArray == null) return;
     const list = messageArray.map((message) =>
-      <li className="messageContainer"><Message message={message} filters={filters} dictionary={dictionary}/></li>
+      <li className="messageContainer"><Message message={message} filters={filters} dictionary={dictionary}  shareMenu={shareMenu}/></li>
     )
     return list;
   }
 
+  // Open the share menu, called from a message
+  function shareMenu(message_id) {
+    setOpen(true);
+    setShareId(message_id);
+  }
+
+  // Close the share menu, called from the share menu
+  function handleClose(user_id) {
+    setOpen(false);
+    if(user_id == null) {setShareId(null); return};
+    share(user_id, shareId);
+    setShareId(null)
+  }
+
   return (
     <div className='App Messages'>
+      <ShareDialog 
+        onClose={handleClose}
+        open={open}
+        users={users}
+      />
       <header className='app-header'>
         <button className="home-button clickable">
           <img src={logo} className="home-logo" alt="logo"/>
         </button>
         <button className="logout-button clickable"
-          onClick={(e) => {}}> 
+          onClick={(e) => {logout()}}> 
         Logout</button>
       </header> 
       <SideBar 
