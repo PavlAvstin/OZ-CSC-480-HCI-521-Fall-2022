@@ -116,7 +116,7 @@ public class VersionTen {
         if(!RestApplication.isAcceptedJwt(headers)) {
             return Response.status(Response.Status.UNAUTHORIZED).header("Access-Control-Allow-Origin", "*").build();
         }
-        return getDiscordApi("https://discord.com/api/v10/guilds/" + guildId + "/members", true, headers);
+        return getDiscordApi("https://discord.com/api/v10/guilds/" + guildId + "/members?limit=1000", true, headers);
     }
 
     @Path("guilds/{guildId}/channels")
