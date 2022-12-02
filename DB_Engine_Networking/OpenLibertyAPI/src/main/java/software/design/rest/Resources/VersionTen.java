@@ -109,6 +109,12 @@ public class VersionTen {
     public Response preflightPostGuildChannels() {
         return RestApplication.defaultPreflightResponse();
     }
+
+    @Path("channels/{channelId}/messages")
+    @OPTIONS
+    public Response preflightPostChannelsMessages() {
+        return RestApplication.defaultPreflightResponse();
+    }
     /**
      *
      */

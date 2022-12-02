@@ -1,6 +1,5 @@
 import React from "react";
 import "./SideBar.css";
-import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
@@ -11,7 +10,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 
-function SideBar({guilds, channels, users, reactions, selectGuild, changeSelectedChannels, changeSelectedReactions, changeSortOrder}) {
+function SideBar({guilds, channels, users, reactions, selectGuild, changeSelectedChannels, changeSelectedReactions, changeSelectedUsers, changeSortOrder}) {
 
   function guildsDisplay() {
     if(guilds != null) {
@@ -52,6 +51,24 @@ function SideBar({guilds, channels, users, reactions, selectGuild, changeSelecte
     }
   } 
 
+  function userDisplay() {
+    if(users != null) {
+      const list = users.map((user) =>
+      <FormGroup>
+        <FormControlLabel label={user.author_nickname} control={<Checkbox
+          onChange={(e) => {changeSelectedUsers(user.discord_id, e.target.checked)}}/>}  
+        />
+      </FormGroup>
+      )
+      return (
+        <nav>
+          <label for="users"><span className="tag-style clickable">Users</span></label>
+          <input type="checkbox" id="users" className="dropdown"/>
+          <li className="slide">{list}</li>
+        </nav>
+      )
+    }
+  }
   function reactionsDisplay() {
     if(reactions != null) {
       const list = reactions.map((reaction) => 
@@ -97,6 +114,7 @@ function SideBar({guilds, channels, users, reactions, selectGuild, changeSelecte
     <div className="side-bar"> 
       {guildsDisplay()}
       {channelsDisplay()}
+      {userDisplay()}
       {reactionsDisplay()}
       {sortDisplay()}
     </div>
