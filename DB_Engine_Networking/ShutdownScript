@@ -1,0 +1,22 @@
+#!/bin/bash
+echo "Shutting down all liberty servers..."
+bash < .libertyKill
+(
+    cd OpenLibertyFrontend
+    mvn liberty:stop &> /dev/null
+    echo "Frontend shutdown."
+)
+(
+    cd OpenLibertyAPI
+    mvn liberty:stop &> /dev/null
+    echo "API shutdown."
+)
+(
+    cd OpenLibertyMPJWT
+    mvn liberty:stop &> /dev/null
+    echo "MPJWT shutdown."
+)
+echo "All liberty servers have been shut down."
+echo "Shutting down Discord Bot."
+bash < .botKill
+echo "Discord Bot shut down."

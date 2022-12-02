@@ -1,0 +1,41 @@
+.message {
+    background-color: rgb(227, 227, 227);
+    width: 90%;
+    height: 90%;
+    padding-left: 0.5vw;
+    display: block;
+}
+.messageHeader {
+    padding-top: 0.5vh;
+    padding-bottom: 2vh;
+    font-size: 4vh;
+    font-weight: 400;
+    width: 100%;
+    display: flex;
+    position: relative;
+}
+img.avatar {
+    vertical-align: middle;
+    object-fit: cover;
+    width: 5vh;
+    height: 5vh;
+    border-radius: 50%;
+}
+.authorName {
+    display: inline;
+    padding-left: 0.5vw;
+}
+.time {
+    display: inline;
+    font-size: 2.5vh;
+    padding-left: 1vw;
+}
+.reactions {
+    padding-top: 2vh;
+}
+.shareButton {
+    border: none;
+    position: absolute;
+    background-color: rgb(227, 227, 227);
+    right: 0vw;
+}

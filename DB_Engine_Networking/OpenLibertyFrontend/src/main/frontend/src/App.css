@@ -1,0 +1,120 @@
+.App {
+  position: relative;
+  font-family: "Barlow";
+  font-size: larger;
+  color: black;
+  height: 100%;
+}
+
+.SignIn {
+  background-color: #7289d9;
+}
+
+.app-header {
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 14vmin;
+  background-color :#7289d9;
+  font-size: 64px;
+  
+}
+
+.home-button {
+  position: absolute;
+  top: 50%;
+  height: 100%;
+  width: 25vmax;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.home-logo {
+  height: 100%;
+  width: 100%;
+}
+
+.logout-button {
+  color: white;
+  font-family: "Barlow";
+  position: absolute;
+  top: 50%;
+  font-size: 5vmin;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  right: 2%;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.body-content {
+  position: absolute;
+  top: 15%;
+  height: 85%;
+  width: 100%;
+}
+
+.logo {
+  position: absolute;
+  width: 70%;
+  height: 40%;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.description {
+  position: absolute;
+  text-align: center;
+  width: 40%;
+  height: 10%;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.login-text {
+  position: absolute;
+  text-align: center;
+  width: 40%;
+  height: 10%;
+  top: 70%;
+  left: 45%;
+  transform: translate(-50%, -50%);
+}
+
+.messagesContainer {
+  position: fixed;
+  overflow-y: scroll;
+  left: 15%;
+  top: 13%;
+  width: 82%;
+  height: 84%;
+  scrollbar-width: 5%;
+}
+
+.clickable {
+  cursor: pointer;
+}
+#login {
+  position: absolute;
+  width: 5%;
+  height: 5%;
+  top: 67%;
+  left: 55%;
+  transform: translate(-50%, -50%);
+}
+ul {
+  list-style-type: none;
+}
+
+.messageContainer {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding-top: 1vh;
+}

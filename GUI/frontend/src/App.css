@@ -1,0 +1,264 @@
+.App {
+  position: relative;
+  font-family: "Barlow";
+  font-size: larger;
+  color: black;
+  height: 100%;
+}
+
+.SignIn {
+  background-color: #7289d9;
+}
+
+.app-header {
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 15%;
+  background-color :#7289d9;
+  font-size: 64px;
+  
+}
+
+.side-bar {
+  background-color: #36393e;
+  position: fixed;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 15%;
+  height: 100%;
+  border-right: 2px solid #2F3236;
+  overflow: scroll;
+}
+
+.home-button {
+  position: absolute;
+  top: 50%;
+  height: 100%;
+  width: 25%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.home-logo {
+  height: 100%;
+  width: 100%;
+}
+
+.logout-button {
+  color: white;
+  font-family: "Barlow";
+  position: absolute;
+  top: 50%;
+  font-size: 5vmin;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  right: 2%;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.body-content {
+  position: absolute;
+  top: 15%;
+  height: 85%;
+  width: 100%;
+}
+
+.logo {
+  position: absolute;
+  width: 70%;
+  height: 40%;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.description {
+  position: absolute;
+  text-align: center;
+  width: 40%;
+  height: 10%;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.login-text {
+  position: absolute;
+  text-align: center;
+  width: 40%;
+  height: 10%;
+  top: 70%;
+  left: 45%;
+  transform: translate(-50%, -50%);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+#login {
+  position: absolute;
+  width: 5%;
+  height: 5%;
+  top: 67%;
+  left: 55%;
+  transform: translate(-50%, -50%);
+}
+
+.sidebar-name {
+    color: white;
+    position: absolute;
+    text-align: center;
+    width: 40%;
+    height: 10%;
+    top: 23%;
+    left: 45%;
+    transform: translate(-50%, -50%);
+    font-family: "Barlow";
+}
+
+.side-bar-menus {
+    color: white;
+    position: absolute;
+    text-align: left;
+    width: 60%;
+    height: 10%;
+    top: 19.5%;
+    left: 45%;
+    transform: translate(-50%, -50%);
+    font-family: "Barlow";
+    font-size: 2.75vmin;
+
+}
+
+.search-text {
+    position: absolute;
+    right: 610px;
+}
+
+.search-button {
+    position: absolute;
+    right: 500px;
+}
+
+.side-bar-right {
+    background-color: #36393e;
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    right: 0px;
+    width: 15%;
+    height: 100%;
+
+}
+
+.side-text-right {
+    color: white;
+    position: absolute;
+    text-align: left;
+    width: 60%;
+    height: 10%;
+    font-family: "Barlow";
+    font-size: 2.75vmin;
+    transform: translate(60%, 50%);
+}
+
+li a {
+    text-decoration: none;
+    color : white;
+}
+
+
+nav {
+  width : 219px;
+  background: #2F3236;
+  margin : -20px;
+  padding: -30px;
+}
+
+.tag-style {
+  padding : 40px;
+  background : #36393e;
+  color: white;
+  font-size : 1em;
+  font-family: "Barlow";
+  display: block;
+}
+
+span::after {
+
+}
+
+.slide {
+  clear: both;
+  width: 100%;
+  height: 0px;
+  text-align: center;
+  transition: height .4s ease;
+  list-style-type: none;
+  overflow: scroll;
+}
+
+.slide li {
+    padding : 20px;
+    overflow: hidden;
+    list-style-type: none;
+}
+
+#touch1 {
+    position: absolute; opacity: 0; height: 0px;
+}
+
+#touch1:checked + .slide {
+    height: 300px;
+}
+
+#touch2 {
+    position: absolute; opacity: 0; height: 0px;
+}
+
+#touch2:checked + .slide {
+    height: 300px;
+}
+
+#touch3 {
+    position: absolute; opacity: 0; height: 0px;
+}
+
+#touch3:checked + .slide {
+    height: 300px;
+}
+
+#touch4 {
+    position: absolute; opacity: 0; height: 0px;
+}
+
+#touch4:checked + .slide {
+    height: 300px;
+}
+
+.avatar-icon {
+    -ms-transform: translateX(-50%);
+    transform: translateX(-40%);
+    left: 76%;
+}
+
+.profile-name {
+  color: white;
+  font-family: "Barlow";
+  position: absolute;
+  top: 50%;
+  font-size: 4vmin;
+  -ms-transform: translateX(10%);
+  transform: translateY(-43%);
+  right: 13%;
+  background-color: transparent;
+  border-color: transparent;
+}
