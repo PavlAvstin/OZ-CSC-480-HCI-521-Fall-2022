@@ -5,6 +5,7 @@ import './App.css';
 import Message from "./Message.js";
 import SideBar from "./SideBar.js";
 import ShareDialog from './ShareDialog';
+import SearchBar from './SearchBar';
 
 var API_URL = process.env.REACT_APP_API_URL;
 var PUBLIC_URL = process.env.PUBLIC_URL;
@@ -53,13 +54,15 @@ function Messages() {
   const [channels, setChannels] = useState(null);
   const [dictionary, setDictionary] = useState(null);
   const [selectedGuild, setSelectedGuild] = useState(null);
-  const [filters, setFilters] = useState({channels: [], reactions: [], users: []});
+  const [filters, setFilters] = useState({channels: [], reactions: [], users: [], search: ""});
   const [token, setToken] = useState("");
   const [sortedMessages, setSortedMessages] = useState(null);
   const [sortOldToNew, setSortOldToNew] = useState(false);
   const [users, setUsers] = useState(null);
   const [open, setOpen] = useState(false);
   const [shareId, setShareId] = useState(null);
+  const filterRef = useRef();
+  filterRef.current = filters;
 
   // Api calls, these methods should be wrapped in a useEffect hook
   // Request a new jwt from the server
@@ -291,6 +294,16 @@ function Messages() {
     return false;
   }
 
+  function filterSearch(messages) {
+    if(filters.search == "") return messages;
+    var newMessages = [];
+    for(const message of messages) {
+      if(message.content.toString().includes(filters.search))
+        newMessages.push(message);
+    }
+    return newMessages;
+  }
+
   // Custom poll hook
   function usePollingEffect(
     asyncCallback,
@@ -386,11 +399,11 @@ function Messages() {
       await getMsgsByReaction();
       await getMsgsByUser();
       if(filters.users.length != 0) 
-        setMessages(userMessages)
+        setMessages(filterSearch(userMessages))
       else if(filters.reactions.length != 0) 
-        setMessages(reactionMessages)
+        setMessages(filterSearch(reactionMessages))
       else 
-        setMessages(allMessages)
+        setMessages(filterSearch(allMessages))
     }
     wrapper();
   },[filters]);
@@ -432,11 +445,12 @@ function Messages() {
   
   // Every 5 seconds poll to see if the db has changed
   usePollingEffect(
-    async () => {setFilters({channels: filters.channels, reactions: filters.reactions, users: filters.users})},
+    async () => {setFilters({channels: filterRef.current.channels, reactions: filterRef.current.reactions, 
+      users: filterRef.current.users, search: filterRef.current.search});},
     [],
     { interval: 5000 }
   )
-    
+  
   // Set the current guild, called from the sidebar
   function setGuildWrapper(guild_id) {
     setSelectedGuild(guild_id);
@@ -445,34 +459,34 @@ function Messages() {
   // Change which channels are selected, called from the sidebar
   function changeSelectedChannels(channel_id, checked) {
     if(!checked) {
-      setFilters({channels: Array.from(filters.channels).filter(id => id != channel_id), reactions: filters.reactions, users: filters.users});
+      setFilters({channels: Array.from(filters.channels).filter(id => id != channel_id), reactions: filters.reactions, users: filters.users, search: filters.search});
       return
     }
     var newArr = Array.from(filters.channels);
     newArr.push(channel_id);
-    setFilters({channels: newArr, reactions: filters.reactions, users: filters.users})
+    setFilters({channels: newArr, reactions: filters.reactions, users: filters.users, search: filters.search})
   }
 
   // Change which reactions are selected, called from the sidebar
   function changeSelectedReactions(emoji, checked) {
     if(!checked) {
-      setFilters({channels: filters.channels, reactions: Array.from(filters.reactions).filter(reaction => reaction != emoji), users: filters.users})
+      setFilters({channels: filters.channels, reactions: Array.from(filters.reactions).filter(reaction => reaction != emoji), users: filters.users, search: filters.search})
       return
     }
     var newArr = Array.from(filters.reactions);
     newArr.push(emoji);
-    setFilters({channels: filters.channels, reactions: newArr, users: filters.users})
+    setFilters({channels: filters.channels, reactions: newArr, users: filters.users, search: filters.search})
   }
 
   // Change which users are selected, called from the sidebar
   function changeSelectedUsers(user_id, checked) {
     if(!checked) {
-      setFilters({channels: filters.channels, reactions: filters.reactions, users: Array.from(filters.users).filter(user => user != user_id)})
+      setFilters({channels: filters.channels, reactions: filters.reactions, users: Array.from(filters.users).filter(user => user != user_id), search: filters.search})
       return;
     }
     var newArr = Array.from(filters.users);
     newArr.push(user_id);
-    setFilters({channels: filters.channels, reactions: filters.reactions, users: newArr})
+    setFilters({channels: filters.channels, reactions: filters.reactions, users: newArr, search: filters.search})
   }
 
   // Change the sort method, called from the sidebar
@@ -503,6 +517,10 @@ function Messages() {
     setShareId(null)
   }
 
+  function handleSearch(value) {
+    setFilters({channels: filters.channels, reactions: filters.reactions, users: filters.users, search: value})
+  }
+
   return (
     <div className='App Messages'>
       <ShareDialog 
@@ -511,7 +529,7 @@ function Messages() {
         users={users}
       />
       <header className='app-header'>
-        <button className="home-button clickable">
+        <button className="home-button">
           <img src={logo} className="home-logo" alt="logo"/>
         </button>
         <button className="logout-button clickable"
@@ -530,6 +548,7 @@ function Messages() {
         changeSortOrder={changeSortOrder}
       />
       <ul className='messagesContainer'>
+        <SearchBar handleSearch={handleSearch}/>
         {messageList(sortedMessages)}
       </ul>
     </div>

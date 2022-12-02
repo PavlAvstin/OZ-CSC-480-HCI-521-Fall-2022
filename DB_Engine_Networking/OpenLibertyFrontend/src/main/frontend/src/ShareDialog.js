@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { React } from 'react';
 import Avatar from '@mui/material/Avatar';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
