@@ -378,28 +378,30 @@ function Messages() {
       }
       const getMsgsByUser = async () => {
         for(const user of Array.from(filters.users)) {
-          if(reactionMessages.length == 0) 
-            allMessages.forEach(message => {
-              if(allMessages.some(e => reactedBy(e, user)))
-                if(!contains(userMessages, message))
-                  userMessages.push(message);
-              })
-          else
-            reactionMessages.forEach(message => {
-              if(reactionMessages.some(e => reactedBy(e, user)))
-                if(!contains(userMessages, message))
-                  userMessages.push(message);
+          if(filters.reactions.length == 0) {
+            var filtered = allMessages.filter(e => reactedBy(e, user));
+            filtered.forEach(message => {
+              if(!contains(userMessages, message))
+                userMessages.push(message)
             })
+          }
+          else {
+            filtered = reactionMessages.filter(e => reactedBy(e, user));
+            filtered.forEach(message => {
+              if(!contains(userMessages, message))
+                userMessages.push(message)
+            })
+          }
         }
       }
       await getMsgsByChannel();
       await getMsgsByReaction();
       await getMsgsByUser();
-      if(filters.users.length != 0) 
+      if(filters.users.length != 0)
         setMessages(filterSearch(userMessages))
-      else if(filters.reactions.length != 0) 
+      else if(filters.reactions.length != 0)
         setMessages(filterSearch(reactionMessages))
-      else 
+      else
         setMessages(filterSearch(allMessages))
     }
     wrapper();
