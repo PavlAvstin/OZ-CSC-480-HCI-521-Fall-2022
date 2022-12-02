@@ -1,15 +1,18 @@
 .message {
-    background-color: lightgray;
+    background-color: rgb(227, 227, 227);
     width: 90%;
     height: 90%;
     padding-left: 0.5vw;
+    display: block;
 }
 .messageHeader {
     padding-top: 0.5vh;
-    padding-left: 0.5vw;
-    padding-bottom: 0.5vh;
+    padding-bottom: 2vh;
     font-size: 4vh;
     font-weight: 400;
+    width: 100%;
+    display: flex;
+    position: relative;
 }
 img.avatar {
     vertical-align: middle;
@@ -21,4 +24,12 @@ img.avatar {
 .authorName {
     display: inline;
     padding-left: 0.5vw;
+}
+.time {
+    position: absolute;
+    font-size: 2.5vh;
+    right: 1vw;
+}
+.messageContent {
+    padding-bottom: 2vh;
 }

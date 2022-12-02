@@ -31,7 +31,7 @@ public class HandleSlashCommands {
     // hash map serverID is key, reaction/messageID is value
     private final HashMap <Long, String> reactionToRemove = new HashMap<>();
     private final HashMap <Long, Long> messageToRemove = new HashMap<>();
-    private static final String [] reactions = { "🧠", "⭐️", "❓", "😂" };
+    private static final String [] reactions = { "🧠", "⭐", "❓", "😂" };
     private static final String [] meanings = { "Interesting", "Important", "Confusing", "Funny" };
 
 

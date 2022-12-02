@@ -195,12 +195,12 @@ function Messages() {
       body: formdata,
       redirect: 'follow'
     }
-    const messages = await fetch(API_URL + "/api/discord/Dictionary", requestOptions);
-    if(messages.status == 401) {
+    const dictionary = await fetch(API_URL + "/api/discord/Dictionary", requestOptions);
+    if(dictionary.status == 401) {
       setToken(await getJWT()), () => {return getDictionary(guild_id);}
       return;
     }
-    return messages.json();
+    return dictionary.json();
   }
  
   // Get all of the users in the guild
@@ -218,14 +218,23 @@ function Messages() {
       setToken(await getJWT()), () => {return getUsers(guild_id);}
       return;
     }
-    return users.json();
+    return users.text();
   }
 
   // Return true if the given message was reacted to by the given user
   function reactedBy(message, user_id) {
     var reactions = Array.from(message.reactions);
-    for(reaction of reactions) {
+    for(const reaction of reactions) {
       if(reaction.author.discord_id.toString() === user_id.toString())
+        return true;
+    }
+    return false;
+  }
+
+  function contains(messages, message) {
+    if(messages.length == 0) return false;
+    for(const msg of messages) {
+      if(msg.discord_id.toString() == message.discord_id.toString())
         return true;
     }
     return false;
@@ -289,41 +298,46 @@ function Messages() {
         allMessages = await getAllMessages(selectedGuild);
       }
       const getMsgsByChannel = async ()  => {
-        for(const element of Array.from(filters.channels)) {
-          var messages = await getMessagesByChannel(selectedGuild, element)
+        for(const channel of Array.from(filters.channels)) {
+          var messages = await getMessagesByChannel(selectedGuild, channel)
           messages = JSONbig.parse(messages);
           messages.forEach(message => allMessages.push(message))
         }
       }
       const getMsgsByReaction = async () => {
-        for(const element of Array.from(filters.reactions)) {
-          var messages = await getMessagesByReaction(selectedGuild, element)
+        for(const reaction of Array.from(filters.reactions)) {
+          var messages = await getMessagesByReaction(selectedGuild, reaction)
           messages = JSONbig.parse(messages);
           messages.forEach(message => {
             if(allMessages.some(e => e.discord_id.toString() === message.discord_id.toString())) {
-              reactionMessages.push(message)
+              if(!contains(reactionMessages, message))
+                reactionMessages.push(message)
             }
           })
         }
       }
       const getMsgsByUser = async () => {
-        for(const element of Array.from(filters.users)) {
-          allMessages.forEach(message => {
-            if(reactionMessages == [])
+        for(const user of Array.from(filters.users)) {
+          if(reactionMessages.length == 0) 
+            allMessages.forEach(message => {
               if(allMessages.some(e => reactedBy(e, user)))
-                userMessages.push(message);
-            else
+                if(!contains(userMessages, message))
+                  userMessages.push(message);
+              })
+          else
+            reactionMessages.forEach(message => {
               if(reactionMessages.some(e => reactedBy(e, user)))
-                userMessages.push(message);
-          })
+                if(!contains(userMessages, message))
+                  userMessages.push(message);
+            })
         }
       }
       await getMsgsByChannel();
       await getMsgsByReaction();
       await getMsgsByUser();
-      if(userMessages.length != 0) 
+      if(filters.users.length != 0) 
         setMessages(userMessages)
-      else if(reactionMessages.length != 0) 
+      else if(filters.reactions.length != 0) 
         setMessages(reactionMessages)
       else 
         setMessages(allMessages)
@@ -339,7 +353,7 @@ function Messages() {
     getChannels(selectedGuild)
       .then((res) => {setChannels(res);})
     getUsers(selectedGuild)
-      .then((res) => {setUsers(res);});
+      .then((res) => {setUsers(JSONbig.parse(res));});
   },[selectedGuild]);
 
   useEffect(() => {
@@ -363,13 +377,14 @@ function Messages() {
     setSortedMessages(sortedMessages);
   },[messages, sortOldToNew])
 
+  
   // Every 5 seconds poll to see if the db has changed
   usePollingEffect(
     async () => {setFilters({channels: filters.channels, reactions: filters.reactions, users: filters.users})},
     [],
     { interval: 5000 }
   )
-
+    
   // Set the current guild, called from the sidebar
   function setGuildWrapper(guild_id) {
     setSelectedGuild(guild_id);
@@ -416,12 +431,11 @@ function Messages() {
   function messageList (messageArray) {
     if(messageArray == null) return;
     const list = messageArray.map((message) =>
-      <li className="messageContainer"><Message message={message}/></li>
+      <li className="messageContainer"><Message message={message} filters={filters} dictionary={dictionary}/></li>
     )
     return list;
   }
 
-  
   return (
     <div className='App Messages'>
       <header className='app-header'>
