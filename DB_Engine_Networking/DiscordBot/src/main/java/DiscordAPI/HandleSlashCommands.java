@@ -12,6 +12,7 @@ import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.TextInput;
 import org.javacord.api.entity.message.component.TextInputStyle;
+import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.event.interaction.ModalSubmitEvent;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.*;
@@ -36,7 +37,6 @@ public class HandleSlashCommands {
 
 
     //Initializing Handler
-
     public HandleSlashCommands(DiscordApi discordApi) {
         this.discordApi = discordApi;
 
@@ -170,7 +170,6 @@ public class HandleSlashCommands {
     }
 
 
-
     // Command Builders
 
     /**
@@ -198,7 +197,7 @@ public class HandleSlashCommands {
                                 "reaction",
                                 "The reaction to look up",
                                 true
-                        )));
+        )));
     }
 
     /**
@@ -233,7 +232,7 @@ public class HandleSlashCommands {
                                                 true
                                         )
                                 )
-                        )));
+        ))).setDefaultEnabledForPermissions(PermissionType.ADMINISTRATOR);
     }
 
     /**
@@ -275,12 +274,14 @@ public class HandleSlashCommands {
                                                 true
                                         )
                         ))
-
-                        ));
+        )).setDefaultEnabledForPermissions(PermissionType.ADMINISTRATOR);
     }
 
     private SlashCommandBuilder inviteCommand(){
-        return SlashCommand.with("invite", "Gives a invite link for the bot to join another server");
+        return SlashCommand.with(
+                "invite",
+                "Gives a invite link for the bot to join another server"
+        );
     }
 
 
