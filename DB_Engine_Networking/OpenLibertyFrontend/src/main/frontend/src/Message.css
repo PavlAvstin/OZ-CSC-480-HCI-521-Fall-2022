@@ -29,6 +29,7 @@ img.avatar {
     display: inline;
     font-size: 2.5vh;
     padding-left: 1vw;
+    padding-top: 1vh;
 }
 .reactions {
     padding-top: 2vh;

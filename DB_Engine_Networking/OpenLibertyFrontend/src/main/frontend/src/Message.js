@@ -8,7 +8,7 @@ function Message({message, filters, dictionary, shareMenu}) {
     const content = message.content;
     const reactions = message.reactions;
     function timeDisplay() {
-        const currentTime = new Date();
+        const currentTime = Date.now();
         const updatedTime = new Date(message.updated_at);
         var difference = currentTime - updatedTime;
         difference = Math.floor(difference / 1000);
