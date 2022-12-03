@@ -10,7 +10,7 @@ function Message({message, filters, dictionary, shareMenu}) {
     const reactions = message.reactions;
     function timeDisplay() {
         const currentTime = Date.now();
-        const updatedTime = new Date(message.updated_at);
+        const updatedTime = new Date(message.updated_at + " UTC");
         var difference = currentTime - updatedTime;
         difference = Math.floor(difference / 1000);
         if(difference < 60) return (
