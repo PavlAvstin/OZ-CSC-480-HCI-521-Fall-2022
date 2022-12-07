@@ -12,6 +12,7 @@ import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.TextInput;
 import org.javacord.api.entity.message.component.TextInputStyle;
+import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.event.interaction.ModalSubmitEvent;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.*;
@@ -20,6 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class HandleSlashCommands {
     // hash map serverID is key, reaction/messageID is value
     private final HashMap <Long, String> reactionToRemove = new HashMap<>();
     private final HashMap <Long, Long> messageToRemove = new HashMap<>();
-    private static final String [] reactions = { "🧠", "⭐", "❓", "😂" };
+    private static final String [] reactions = { "🧠", "⭐️", "❓", "😂" };
     private static final String [] meanings = { "Interesting", "Important", "Confusing", "Funny" };
 
 
@@ -233,7 +235,7 @@ public class HandleSlashCommands {
                                                 true
                                         )
                                 )
-                        )));
+                        ))).setDefaultEnabledForPermissions(PermissionType.ADMINISTRATOR);
     }
 
     /**
@@ -276,7 +278,7 @@ public class HandleSlashCommands {
                                         )
                         ))
 
-                        ));
+                        )).setDefaultEnabledForPermissions(PermissionType.ADMINISTRATOR);
     }
 
     private SlashCommandBuilder inviteCommand(){
