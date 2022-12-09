@@ -18,15 +18,20 @@ function ShareDialog(props) {
     onClose(user_id);
   };
 
+  function userName ( user ) {
+    if(user.nick == null)
+      return user.user.username;
+    return user.nick;
+  }
   function userList() {
     if(users == null) return;
-    const list = users.map((user) => (
-      <ListItem button onClick={() => handleListItemClick(user.discord_id)} key={user.discord_id}>
+    const list = users.filter(user => !user.user.bot).map((user) => (
+      <ListItem button onClick={() => handleListItemClick(user.user.id)} key={user.user.id}>
         <ListItemAvatar>
-          <Avatar src={"https://cdn.discordapp.com/avatars/" + user.discord_id + "/" + user.avatar_hash + ".png"}>
+          <Avatar src={"https://cdn.discordapp.com/avatars/" + user.user.id + "/" + user.user.avatar + ".png"}>
           </Avatar>
         </ListItemAvatar>
-        <ListItemText primary={user.author_nickname} />
+        <ListItemText primary={userName(user)} />
       </ListItem>
     )); 
     return list;

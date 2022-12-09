@@ -16,6 +16,7 @@ sqlRestPassword=""
 sqlBotUsername=""
 sqlBotPassword=""
 
+openLibertyFrontendDomainName=""
 openLibertyAPIHostname=""
 openLibertyMPJWTHostname=""
 
@@ -109,6 +110,10 @@ case $createSqlUser in
     echo;;
 esac
 
+echo -n "Enter your OpenLibertyFrontend domain name (example, postmarker.co OR localhost:9080): "
+read -r openLibertyFrontendDomainName
+echo
+
 echo -n "Enter your OpenLibertyAPI hostname (just the ip or fqdn with the port, localhost in a local environment): "
 read -r openLibertyAPIHostname
 echo
@@ -143,5 +148,8 @@ echo "DISCORD_BOT_TOKEN=\"$discordBotToken\"" > .tempEnv
 cp .tempEnv ./DiscordBot/.env
 cp .tempEnv ./OpenLibertyAPI/.env
 rm .tempEnv
+
+echo "REACT_APP_API_URL=\"http://$openLibertyFrontendDomainName\"" > ./OpenLibertyFrontend/src/main/frontend/.env
+ehco "REACT_APP_API_URL=\"http://$openLibertyAPIHostname\"" >> ./OpenLibertyFrontend/src/main/frontend/.env
 
 echo "PostMarker is now ready for startup..."

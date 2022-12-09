@@ -1,5 +1,6 @@
 import React from "react";
 import IosShareIcon from '@mui/icons-material/IosShare';
+import Avatar from '@mui/material/Avatar';
 import "./Message.css";
 function Message({message, filters, dictionary, shareMenu}) {
     const author = message.author;
@@ -8,8 +9,8 @@ function Message({message, filters, dictionary, shareMenu}) {
     const content = message.content;
     const reactions = message.reactions;
     function timeDisplay() {
-        const currentTime = new Date();
-        const updatedTime = new Date(message.updated_at);
+        const currentTime = Date.now();
+        const updatedTime = new Date(message.updated_at + "+00:00");
         var difference = currentTime - updatedTime;
         difference = Math.floor(difference / 1000);
         if(difference < 60) return (
@@ -57,7 +58,7 @@ function Message({message, filters, dictionary, shareMenu}) {
     return (
         <div className="message">
             <div className="messageHeader">
-                <img className="avatar" src={authorAvatar}/>
+                <div className="avatar"><Avatar src={authorAvatar} sx={{width: "inherit", height: "inherit"}}></Avatar></div>
                 <div className="authorName">{authorName}</div>
                 {timeDisplay()}
                 <button className="shareButton clickable" onClick={() => shareMenu(message.discord_id)}><IosShareIcon/></button>
