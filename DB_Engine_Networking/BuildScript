@@ -150,6 +150,6 @@ cp .tempEnv ./OpenLibertyAPI/.env
 rm .tempEnv
 
 echo "REACT_APP_API_URL=\"http://$openLibertyFrontendDomainName\"" > ./OpenLibertyFrontend/src/main/frontend/.env
-ehco "REACT_APP_API_URL=\"http://$openLibertyAPIHostname\"" >> ./OpenLibertyFrontend/src/main/frontend/.env
+echo "REACT_APP_API_URL=\"http://$openLibertyAPIHostname\"" >> ./OpenLibertyFrontend/src/main/frontend/.env
 
 echo "PostMarker is now ready for startup..."
